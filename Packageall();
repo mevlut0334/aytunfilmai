@@ -1,0 +1,12 @@
+[90m= [39m[34;4mApp\Models\Package[39;24m {#6014
+    [34mname[39m: "[32mPremium Paket[39m",
+    [34mtoken_amount[39m: [35m1000[39m,
+    [34mprice[39m: [33m599.0[39m,
+    [34mdescription[39m: "[32mSınırsız yaratıcılık için en büyük paket[39m",
+    [34mis_active[39m: [36mtrue[39m,
+    [34msort_order[39m: [35m4[39m,
+    [34mupdated_at[39m: "[32m2026-01-07 07:54:26[39m",
+    [34mcreated_at[39m: "[32m2026-01-07 07:54:26[39m",
+    [34mid[39m: [35m4[39m,
+  }
+

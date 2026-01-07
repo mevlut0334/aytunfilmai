@@ -15,10 +15,19 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone', 15);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('is_admin')->default(false);
+            $table->decimal('token_balance', 10, 2)->default(0);
             $table->rememberToken();
             $table->timestamps();
+
+            // Performans için indeksler
+            $table->index('phone'); // Telefon aramaları için
+            $table->index('is_admin'); // Admin filtreleme için
+            $table->index('email_verified_at'); // Doğrulama sorguları için
+            $table->index('created_at'); // Tarih bazlı sıralama için
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
