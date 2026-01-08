@@ -1,0 +1,11 @@
+[90m= [39m[34;4mIlluminate\Database\Eloquent\Collection[39;24m {#6539
+    [34mall[39m: [
+      [34;4mApp\Models\User[39;24m {#6525
+        [34mid[39m: [35m1[39m,
+        [34mname[39m: "[32mMEVLUT TUNCER[39m",
+        [34memail[39m: "[32mmevluttuncer0334@gmail.com[39m",
+        [34mtoken_balance[39m: "[32m0.00[39m",
+      },
+    ],
+  }
+

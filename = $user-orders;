@@ -1,0 +1,14 @@
+[90m= [39m[34;4mApp\Models\User[39;24m {#6074
+    [34mid[39m: [35m1[39m,
+    [34mname[39m: "[32mMEVLUT TUNCER[39m",
+    [34memail[39m: "[32mmevluttuncer0334@gmail.com[39m",
+    [34mphone[39m: "[32m05433150197[39m",
+    [34memail_verified_at[39m: [36mnull[39m,
+    #[33mpassword[39m: "[32m$2y$12$QhaCfMi5G1tn.mziX4T6nuPF9oMUGTrFwmfyTSOfk0ij8WnKYbyEG[39m",
+    [34mis_admin[39m: [35m0[39m,
+    [34mtoken_balance[39m: "[32m0.00[39m",
+    #[33mremember_token[39m: [36mnull[39m,
+    [34mcreated_at[39m: "[32m2026-01-07 08:01:48[39m",
+    [34mupdated_at[39m: "[32m2026-01-07 08:01:48[39m",
+  }
+

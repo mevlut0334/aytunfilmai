@@ -31,10 +31,10 @@
                         <a href="{{ route('user.edit') }}" class="btn btn-primary btn-lg">
                             <i class="bi bi-pencil"></i> Profili Düzenle
                         </a>
-                        <a href="#" class="btn btn-success btn-lg">
+                        <a href="{{ route('requests.create') }}" class="btn btn-success btn-lg">
                             <i class="bi bi-plus-circle"></i> Yeni Film Talebi
                         </a>
-                        <a href="#" class="btn btn-info btn-lg text-white">
+                        <a href="{{ route('packages.index') }}" class="btn btn-info btn-lg text-white">
                             <i class="bi bi-bag-plus"></i> Token Satın Al
                         </a>
                     </div>
@@ -93,7 +93,7 @@
                         {{ number_format($user->token_balance, 0) }}
                     </h2>
                     <p class="text-muted mb-4">Mevcut Token Bakiyeniz</p>
-                    <a href="#" class="btn btn-success">
+                    <a href="{{ route('packages.index') }}" class="btn btn-success">
                         <i class="bi bi-bag-plus"></i> Token Satın Al
                     </a>
                 </div>
@@ -107,7 +107,7 @@
             <div class="alert alert-info">
                 <h5><i class="bi bi-info-circle-fill"></i> Bilgilendirme</h5>
                 <p class="mb-0">
-                    Hesabınız başarıyla oluşturuldu! Film talebi oluşturmak için token satın almanız gerekmektedir.
+                    Hesabınız başarıyla oluşturuldu! Film  oluşturmak için token bakiyeniz 0 olmamalıdır.
                     Profil bilgilerinizi düzenlemek için "Profili Düzenle" butonuna tıklayabilirsiniz.
                 </p>
             </div>

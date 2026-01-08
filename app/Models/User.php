@@ -58,15 +58,14 @@ class User extends Authenticatable
         return $this->hasOne(UserConsent::class);
     }
 
-    // TODO: Request modeli oluşturulunca aktif edilecek
-    // /**
-    //  * İlişki: Kullanıcının talepleri (One-to-Many)
-    //  * Performans için eager loading: User::with('requests')
-    //  */
-    // public function requests()
-    // {
-    //     return $this->hasMany(Request::class);
-    // }
+    /**
+     * İlişki: Kullanıcının talepleri (One-to-Many)
+     * Performans için eager loading: User::with('requests')
+     */
+    public function requests()
+    {
+        return $this->hasMany(Request::class);
+    }
 
     /**
      * İlişki: Kullanıcının token işlemleri (One-to-Many)

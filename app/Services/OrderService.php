@@ -166,10 +166,11 @@ class OrderService implements OrderServiceInterface
                 throw new \Exception('Sipariş bulunamadı.');
             }
 
+            // TODO: Bu kontrolü kaldırdık çünkü createOrder içinde zaten completed yapıyoruz
             // Zaten tamamlanmışsa
-            if ($order->isCompleted()) {
-                return true;
-            }
+            // if ($order->isCompleted()) {
+            //     return true;
+            // }
 
             // Toplam token hesapla
             $totalTokens = $order->orderItems->sum(function ($item) {

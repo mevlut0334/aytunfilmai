@@ -96,18 +96,18 @@
                                         <i class="bi bi-person"></i> Profilim
                                     </a>
                                 </li>
-                               {{-- TODO: Request modeli oluşturulunca aktif edilecek
-<li>
-    <a class="dropdown-item" href="{{ route('user.requests') }}">
+                               <li>
+    <a class="dropdown-item" href="{{ route('requests.index') }}">
         <i class="bi bi-list-task"></i> Taleplerim
     </a>
 </li>
---}}
+                               {{-- Şimdilik gizlendi
                                 <li>
                                     <a class="dropdown-item" href="{{ route('user.token-history') }}">
                                         <i class="bi bi-clock-history"></i> Token Geçmişi
                                     </a>
                                 </li>
+                                --}}
                               <a class="dropdown-item" href="{{ route('orders.index') }}">
     <i class="bi bi-bag"></i> Siparişlerim
 </a>

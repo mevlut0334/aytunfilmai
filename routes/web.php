@@ -7,6 +7,7 @@ use App\Http\Controllers\PackageController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\RequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,9 +80,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{orderId}', [OrderController::class, 'show'])->name('orders.show');
 
-    // TODO: Film Talebi Oluşturma (RequestController oluşturulduğunda eklenecek)
-    // Route::get('/request/create', [RequestController::class, 'create'])->name('request.create');
-    // Route::post('/request', [RequestController::class, 'store'])->name('request.store');
+    // Film Talepleri
+    Route::get('/requests', [RequestController::class, 'index'])->name('requests.index');
+    Route::get('/requests/create', [RequestController::class, 'create'])->name('requests.create');
+    Route::post('/requests', [RequestController::class, 'store'])->name('requests.store');
+    Route::get('/requests/{requestId}', [RequestController::class, 'show'])->name('requests.show');
+    Route::delete('/requests/{requestId}', [RequestController::class, 'destroy'])->name('requests.destroy');
 });
 
 /*
