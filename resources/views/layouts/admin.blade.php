@@ -204,13 +204,13 @@
             </a>
 
             <!-- Siparişler -->
-            <a href="#" class="sidebar-menu-item">
+            <a href="{{ route('admin.orders.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                 <i class="bi bi-cart-check"></i>
                 <span>Siparişler</span>
             </a>
 
             <!-- İstatistikler -->
-            <a href="#" class="sidebar-menu-item">
+            <a href="{{ route('admin.statistics.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.statistics.*') ? 'active' : '' }}">
                 <i class="bi bi-graph-up"></i>
                 <span>İstatistikler</span>
             </a>

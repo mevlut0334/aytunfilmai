@@ -131,7 +131,10 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
        Route::delete('/coupons/{couponId}', [\App\Http\Controllers\Admin\AdminCouponController::class, 'destroy'])->name('coupons.destroy');
 
     // Sipariş Yönetimi
-    // TODO: AdminOrderController oluşturulduğunda eklenecek
-    // Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
-    // Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+       Route::get('/orders', [\App\Http\Controllers\Admin\AdminOrderController::class, 'index'])->name('orders.index');
+       Route::get('/orders/{orderId}', [\App\Http\Controllers\Admin\AdminOrderController::class, 'show'])->name('orders.show');
+
+    // İstatistikler
+       Route::get('/statistics', [\App\Http\Controllers\Admin\AdminStatisticsController::class, 'index'])->name('statistics.index');
+
 });
