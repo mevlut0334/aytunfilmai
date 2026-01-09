@@ -23,6 +23,17 @@ class Request extends Model
         'status',
         'video_url',
         'error_message',
+        'processed_by',
+        'processed_at',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'processed_at' => 'datetime',
     ];
 
     /**
@@ -36,6 +47,15 @@ class Request extends Model
     public function characters(): HasMany
     {
         return $this->hasMany(RequestCharacter::class);
+    }
+
+    /**
+     * Talebi işleyen admin
+     * Performans için eager loading: Request::with('processedBy')
+     */
+    public function processedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'processed_by');
     }
 
     /**
@@ -67,6 +87,14 @@ class Request extends Model
     }
 
     /**
+     * Belirli bir admin tarafından işlenenleri getir
+     */
+    public function scopeProcessedBy($query, int $adminId)
+    {
+        return $query->where('processed_by', $adminId);
+    }
+
+    /**
      * Helper Metodlar
      */
     public function isPending(): bool
@@ -87,6 +115,22 @@ class Request extends Model
     public function isFailed(): bool
     {
         return $this->status === 'failed';
+    }
+
+    /**
+     * Admin tarafından işlendi mi?
+     */
+    public function isProcessedByAdmin(): bool
+    {
+        return $this->processed_by !== null;
+    }
+
+    /**
+     * İşleyen admin'in adı (varsa)
+     */
+    public function getProcessedByNameAttribute(): ?string
+    {
+        return $this->processedBy?->name;
     }
 
     public function getTotalImagesAttribute(): int

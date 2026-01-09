@@ -96,26 +96,23 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     // TODO: AdminController oluşturulduğunda eklenecek
-    // Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    // Dashboard
+       Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('dashboard');
 
     // Talepler Yönetimi
-    // TODO: AdminRequestController oluşturulduğunda eklenecek
-    // Route::get('/requests', [AdminRequestController::class, 'index'])->name('requests.index');
-    // Route::get('/requests/{request}', [AdminRequestController::class, 'show'])->name('requests.show');
-    // Route::put('/requests/{request}', [AdminRequestController::class, 'update'])->name('requests.update');
+       Route::get('/requests', [\App\Http\Controllers\Admin\AdminRequestController::class, 'index'])->name('requests.index');
+       Route::get('/requests/{requestId}', [\App\Http\Controllers\Admin\AdminRequestController::class, 'show'])->name('requests.show');
+       Route::post('/requests/{requestId}/update-status', [\App\Http\Controllers\Admin\AdminRequestController::class, 'updateStatus'])->name('requests.update-status');
 
     // Kullanıcı Yönetimi
-    // TODO: AdminUserController oluşturulduğunda eklenecek
-    // Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
-    // Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
-    // Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+       Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('users.index');
+       Route::get('/users/{userId}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('users.show');
 
     // Admin Kullanıcı Yönetimi
-    // TODO: AdminUserController oluşturulduğunda eklenecek
-    // Route::get('/admins', [AdminUserController::class, 'admins'])->name('admins.index');
-    // Route::get('/admins/create', [AdminUserController::class, 'createAdmin'])->name('admins.create');
-    // Route::post('/admins', [AdminUserController::class, 'storeAdmin'])->name('admins.store');
-    // Route::delete('/admins/{user}', [AdminUserController::class, 'destroyAdmin'])->name('admins.destroy');
+       Route::get('/admins', [\App\Http\Controllers\Admin\AdminAdminController::class, 'index'])->name('admins.index');
+       Route::get('/admins/create', [\App\Http\Controllers\Admin\AdminAdminController::class, 'create'])->name('admins.create');
+       Route::post('/admins', [\App\Http\Controllers\Admin\AdminAdminController::class, 'store'])->name('admins.store');
+       Route::delete('/admins/{userId}', [\App\Http\Controllers\Admin\AdminAdminController::class, 'destroy'])->name('admins.destroy');
 
     // Paket Yönetimi
     // TODO: AdminPackageController oluşturulduğunda eklenecek

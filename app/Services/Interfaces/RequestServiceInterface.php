@@ -58,5 +58,5 @@ interface RequestServiceInterface
      * @param array $additionalData (video_url, error_message)
      * @return bool
      */
-    public function updateRequestStatus(int $requestId, string $status, array $additionalData = []): bool;
+    public function updateRequestStatus(int $requestId, string $status, ?int $adminId = null, array $additionalData = []): bool;
 }

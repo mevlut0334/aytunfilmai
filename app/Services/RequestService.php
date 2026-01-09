@@ -183,14 +183,16 @@ class RequestService implements RequestServiceInterface
 
     /**
      * Talep durumunu güncelle (Admin)
+     * Admin takibi: İlk kez processing yapıldığında admin bilgisini kaydet
      *
      * @param int $requestId
      * @param string $status
+     * @param int|null $adminId (Durumu güncelleyen admin)
      * @param array $additionalData (video_url, error_message)
      * @return bool
      * @throws \Exception
      */
-    public function updateRequestStatus(int $requestId, string $status, array $additionalData = []): bool
+    public function updateRequestStatus(int $requestId, string $status, ?int $adminId = null, array $additionalData = []): bool
     {
         $request = $this->requestRepository->findById($requestId);
 
@@ -199,6 +201,12 @@ class RequestService implements RequestServiceInterface
         }
 
         $updateData = ['status' => $status];
+
+        // İlk kez "processing" durumuna geçiriliyorsa admin bilgisini kaydet
+        if ($status === 'processing' && !$request->isProcessedByAdmin() && $adminId) {
+            $updateData['processed_by'] = $adminId;
+            $updateData['processed_at'] = now();
+        }
 
         // Video URL varsa ekle (completed durumunda)
         if (isset($additionalData['video_url'])) {
