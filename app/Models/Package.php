@@ -20,7 +20,6 @@ class Package extends Model
         'price',
         'description',
         'is_active',
-        'sort_order',
     ];
 
     /**
@@ -34,7 +33,6 @@ class Package extends Model
             'is_active' => 'boolean',
             'price' => 'decimal:2',
             'token_amount' => 'integer',
-            'sort_order' => 'integer',
         ];
     }
 
@@ -66,12 +64,12 @@ class Package extends Model
     }
 
     /**
-     * Scope: Sıralı paketler
+     * Scope: Fiyata göre sıralı paketler
      * Kullanım: Package::sorted()->get()
      */
     public function scopeSorted($query)
     {
-        return $query->orderBy('sort_order', 'asc');
+        return $query->orderBy('price', 'asc');
     }
 
     /**

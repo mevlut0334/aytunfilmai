@@ -115,12 +115,20 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
        Route::delete('/admins/{userId}', [\App\Http\Controllers\Admin\AdminAdminController::class, 'destroy'])->name('admins.destroy');
 
     // Paket Yönetimi
-    // TODO: AdminPackageController oluşturulduğunda eklenecek
-    // Route::resource('packages', AdminPackageController::class);
+       Route::get('/packages', [\App\Http\Controllers\Admin\AdminPackageController::class, 'index'])->name('packages.index');
+       Route::get('/packages/create', [\App\Http\Controllers\Admin\AdminPackageController::class, 'create'])->name('packages.create');
+       Route::post('/packages', [\App\Http\Controllers\Admin\AdminPackageController::class, 'store'])->name('packages.store');
+       Route::get('/packages/{packageId}/edit', [\App\Http\Controllers\Admin\AdminPackageController::class, 'edit'])->name('packages.edit');
+       Route::put('/packages/{packageId}', [\App\Http\Controllers\Admin\AdminPackageController::class, 'update'])->name('packages.update');
+       Route::delete('/packages/{packageId}', [\App\Http\Controllers\Admin\AdminPackageController::class, 'destroy'])->name('packages.destroy');
 
     // Kupon Yönetimi
-    // TODO: AdminCouponController oluşturulduğunda eklenecek
-    // Route::resource('coupons', AdminCouponController::class);
+       Route::get('/coupons', [\App\Http\Controllers\Admin\AdminCouponController::class, 'index'])->name('coupons.index');
+       Route::get('/coupons/create', [\App\Http\Controllers\Admin\AdminCouponController::class, 'create'])->name('coupons.create');
+       Route::post('/coupons', [\App\Http\Controllers\Admin\AdminCouponController::class, 'store'])->name('coupons.store');
+       Route::get('/coupons/{couponId}/edit', [\App\Http\Controllers\Admin\AdminCouponController::class, 'edit'])->name('coupons.edit');
+       Route::put('/coupons/{couponId}', [\App\Http\Controllers\Admin\AdminCouponController::class, 'update'])->name('coupons.update');
+       Route::delete('/coupons/{couponId}', [\App\Http\Controllers\Admin\AdminCouponController::class, 'destroy'])->name('coupons.destroy');
 
     // Sipariş Yönetimi
     // TODO: AdminOrderController oluşturulduğunda eklenecek

@@ -191,13 +191,14 @@
             </a>
 
             <!-- Paketler -->
-            <a href="#" class="sidebar-menu-item">
+            <a href="{{ route('admin.packages.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.packages.*') ? 'active' : '' }}">
                 <i class="bi bi-box-seam"></i>
                 <span>Paketler</span>
             </a>
 
+
             <!-- İndirim Kuponları -->
-            <a href="#" class="sidebar-menu-item">
+            <a href="{{ route('admin.coupons.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
                 <i class="bi bi-ticket-perforated"></i>
                 <span>İndirim Kuponları</span>
             </a>
