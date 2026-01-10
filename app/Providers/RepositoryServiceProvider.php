@@ -27,6 +27,7 @@ use App\Services\Interfaces\CartServiceInterface;
 use App\Services\Interfaces\OrderServiceInterface;
 use App\Services\Interfaces\CouponServiceInterface;
 use App\Services\Interfaces\RequestServiceInterface;
+use App\Services\Interfaces\IyzicoServiceInterface;
 
 // Service Implementations
 use App\Services\UserService;
@@ -35,6 +36,7 @@ use App\Services\CartService;
 use App\Services\OrderService;
 use App\Services\CouponService;
 use App\Services\RequestService;
+use App\Services\IyzicoService;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -58,6 +60,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(OrderServiceInterface::class, OrderService::class);
         $this->app->bind(CouponServiceInterface::class, CouponService::class);
         $this->app->bind(RequestServiceInterface::class, RequestService::class);
+        $this->app->bind(IyzicoServiceInterface::class, IyzicoService::class);
     }
 
     /**

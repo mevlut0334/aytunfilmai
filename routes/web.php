@@ -44,6 +44,15 @@ Route::get('/packages', [PackageController::class, 'index'])->name('packages.ind
 
 /*
 |--------------------------------------------------------------------------
+| İyzico Callback Route (Auth dışında, CSRF bootstrap/app.php'de muaf)
+| Token tabanlı güvenlik ile korunuyor
+|--------------------------------------------------------------------------
+*/
+Route::post('/checkout/callback', [CheckoutController::class, 'callback'])
+    ->name('checkout.callback');
+
+/*
+|--------------------------------------------------------------------------
 | Auth Routes (Giriş yapmış kullanıcılar - Normal User)
 |--------------------------------------------------------------------------
 */
@@ -70,7 +79,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/coupon/apply', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
     Route::delete('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
-    // Ödeme
+    // Ödeme (callback hariç - yukarıda tanımlandı)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/success/{orderId}', [CheckoutController::class, 'success'])->name('checkout.success');
@@ -95,46 +104,43 @@ Route::middleware('auth')->group(function () {
 */
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
-    // TODO: AdminController oluşturulduğunda eklenecek
-    // Dashboard
-       Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('dashboard');
 
     // Talepler Yönetimi
-       Route::get('/requests', [\App\Http\Controllers\Admin\AdminRequestController::class, 'index'])->name('requests.index');
-       Route::get('/requests/{requestId}', [\App\Http\Controllers\Admin\AdminRequestController::class, 'show'])->name('requests.show');
-       Route::post('/requests/{requestId}/update-status', [\App\Http\Controllers\Admin\AdminRequestController::class, 'updateStatus'])->name('requests.update-status');
+    Route::get('/requests', [\App\Http\Controllers\Admin\AdminRequestController::class, 'index'])->name('requests.index');
+    Route::get('/requests/{requestId}', [\App\Http\Controllers\Admin\AdminRequestController::class, 'show'])->name('requests.show');
+    Route::post('/requests/{requestId}/update-status', [\App\Http\Controllers\Admin\AdminRequestController::class, 'updateStatus'])->name('requests.update-status');
 
     // Kullanıcı Yönetimi
-       Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('users.index');
-       Route::get('/users/{userId}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('users.show');
+    Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('users.index');
+    Route::get('/users/{userId}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('users.show');
 
     // Admin Kullanıcı Yönetimi
-       Route::get('/admins', [\App\Http\Controllers\Admin\AdminAdminController::class, 'index'])->name('admins.index');
-       Route::get('/admins/create', [\App\Http\Controllers\Admin\AdminAdminController::class, 'create'])->name('admins.create');
-       Route::post('/admins', [\App\Http\Controllers\Admin\AdminAdminController::class, 'store'])->name('admins.store');
-       Route::delete('/admins/{userId}', [\App\Http\Controllers\Admin\AdminAdminController::class, 'destroy'])->name('admins.destroy');
+    Route::get('/admins', [\App\Http\Controllers\Admin\AdminAdminController::class, 'index'])->name('admins.index');
+    Route::get('/admins/create', [\App\Http\Controllers\Admin\AdminAdminController::class, 'create'])->name('admins.create');
+    Route::post('/admins', [\App\Http\Controllers\Admin\AdminAdminController::class, 'store'])->name('admins.store');
+    Route::delete('/admins/{userId}', [\App\Http\Controllers\Admin\AdminAdminController::class, 'destroy'])->name('admins.destroy');
 
     // Paket Yönetimi
-       Route::get('/packages', [\App\Http\Controllers\Admin\AdminPackageController::class, 'index'])->name('packages.index');
-       Route::get('/packages/create', [\App\Http\Controllers\Admin\AdminPackageController::class, 'create'])->name('packages.create');
-       Route::post('/packages', [\App\Http\Controllers\Admin\AdminPackageController::class, 'store'])->name('packages.store');
-       Route::get('/packages/{packageId}/edit', [\App\Http\Controllers\Admin\AdminPackageController::class, 'edit'])->name('packages.edit');
-       Route::put('/packages/{packageId}', [\App\Http\Controllers\Admin\AdminPackageController::class, 'update'])->name('packages.update');
-       Route::delete('/packages/{packageId}', [\App\Http\Controllers\Admin\AdminPackageController::class, 'destroy'])->name('packages.destroy');
+    Route::get('/packages', [\App\Http\Controllers\Admin\AdminPackageController::class, 'index'])->name('packages.index');
+    Route::get('/packages/create', [\App\Http\Controllers\Admin\AdminPackageController::class, 'create'])->name('packages.create');
+    Route::post('/packages', [\App\Http\Controllers\Admin\AdminPackageController::class, 'store'])->name('packages.store');
+    Route::get('/packages/{packageId}/edit', [\App\Http\Controllers\Admin\AdminPackageController::class, 'edit'])->name('packages.edit');
+    Route::put('/packages/{packageId}', [\App\Http\Controllers\Admin\AdminPackageController::class, 'update'])->name('packages.update');
+    Route::delete('/packages/{packageId}', [\App\Http\Controllers\Admin\AdminPackageController::class, 'destroy'])->name('packages.destroy');
 
     // Kupon Yönetimi
-       Route::get('/coupons', [\App\Http\Controllers\Admin\AdminCouponController::class, 'index'])->name('coupons.index');
-       Route::get('/coupons/create', [\App\Http\Controllers\Admin\AdminCouponController::class, 'create'])->name('coupons.create');
-       Route::post('/coupons', [\App\Http\Controllers\Admin\AdminCouponController::class, 'store'])->name('coupons.store');
-       Route::get('/coupons/{couponId}/edit', [\App\Http\Controllers\Admin\AdminCouponController::class, 'edit'])->name('coupons.edit');
-       Route::put('/coupons/{couponId}', [\App\Http\Controllers\Admin\AdminCouponController::class, 'update'])->name('coupons.update');
-       Route::delete('/coupons/{couponId}', [\App\Http\Controllers\Admin\AdminCouponController::class, 'destroy'])->name('coupons.destroy');
+    Route::get('/coupons', [\App\Http\Controllers\Admin\AdminCouponController::class, 'index'])->name('coupons.index');
+    Route::get('/coupons/create', [\App\Http\Controllers\Admin\AdminCouponController::class, 'create'])->name('coupons.create');
+    Route::post('/coupons', [\App\Http\Controllers\Admin\AdminCouponController::class, 'store'])->name('coupons.store');
+    Route::get('/coupons/{couponId}/edit', [\App\Http\Controllers\Admin\AdminCouponController::class, 'edit'])->name('coupons.edit');
+    Route::put('/coupons/{couponId}', [\App\Http\Controllers\Admin\AdminCouponController::class, 'update'])->name('coupons.update');
+    Route::delete('/coupons/{couponId}', [\App\Http\Controllers\Admin\AdminCouponController::class, 'destroy'])->name('coupons.destroy');
 
     // Sipariş Yönetimi
-       Route::get('/orders', [\App\Http\Controllers\Admin\AdminOrderController::class, 'index'])->name('orders.index');
-       Route::get('/orders/{orderId}', [\App\Http\Controllers\Admin\AdminOrderController::class, 'show'])->name('orders.show');
+    Route::get('/orders', [\App\Http\Controllers\Admin\AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{orderId}', [\App\Http\Controllers\Admin\AdminOrderController::class, 'show'])->name('orders.show');
 
     // İstatistikler
-       Route::get('/statistics', [\App\Http\Controllers\Admin\AdminStatisticsController::class, 'index'])->name('statistics.index');
-
+    Route::get('/statistics', [\App\Http\Controllers\Admin\AdminStatisticsController::class, 'index'])->name('statistics.index');
 });

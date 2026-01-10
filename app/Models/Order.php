@@ -21,6 +21,7 @@ class Order extends Model
         'final_amount',
         'coupon_id',
         'status',
+        'callback_token', // EKLENDI
         'payment_date',
         'transaction_id',
     ];

@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'is_admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
+
+        // CSRF korumasından muaf tutulacak URL'ler
+        $middleware->validateCsrfTokens(except: [
+            'checkout/callback', // İyzico 3D Secure callback
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
