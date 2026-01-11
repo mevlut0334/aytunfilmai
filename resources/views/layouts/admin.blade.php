@@ -163,7 +163,6 @@
                 <span>Dashboard</span>
             </a>
 
-
             <!-- Talepler -->
             <a href="{{ route('admin.requests.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.requests.*') ? 'active' : '' }}">
                 <i class="bi bi-film"></i>
@@ -176,13 +175,11 @@
                 @endif
             </a>
 
-
             <!-- Kullanıcılar -->
             <a href="{{ route('admin.users.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <i class="bi bi-people"></i>
                 <span>Kullanıcılar</span>
             </a>
-
 
             <!-- Admin Kullanıcılar -->
             <a href="{{ route('admin.admins.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}">
@@ -195,7 +192,6 @@
                 <i class="bi bi-box-seam"></i>
                 <span>Paketler</span>
             </a>
-
 
             <!-- İndirim Kuponları -->
             <a href="{{ route('admin.coupons.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
@@ -216,6 +212,12 @@
             </a>
 
             <hr style="border-color: rgba(255,255,255,0.1); margin: 1rem 0;">
+
+            <!-- Ana Sayfa Yönetimi -->
+            <a href="{{ route('admin.home.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.home.*') ? 'active' : '' }}">
+                <i class="bi bi-house-door"></i>
+                <span>Ana Sayfa Yönetimi</span>
+            </a>
 
             <!-- Siteye Dön -->
             <a href="{{ route('home') }}" class="sidebar-menu-item">

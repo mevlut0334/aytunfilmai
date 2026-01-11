@@ -42,10 +42,6 @@ Route::middleware('guest')->group(function () {
 // Paketler - Herkese açık
 Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
 
-
-// Paketler - Herkese açık
-Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
-
 // Yasal Sayfalar - Herkese açık
 Route::get('/terms', function () {
     return view('legal.terms');
@@ -62,6 +58,7 @@ Route::get('/kvkk', function () {
 Route::get('/personal-data', function () {
     return view('legal.personal-data');
 })->name('legal.personal-data');
+
 /*
 |--------------------------------------------------------------------------
 | İyzico Callback Route (Auth dışında, CSRF bootstrap/app.php'de muaf)
@@ -125,6 +122,37 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Admin\AdminController::class, 'dashboard'])->name('dashboard');
+
+    // Ana Sayfa Yönetimi
+    Route::get('/home', [\App\Http\Controllers\Admin\AdminHomeController::class, 'index'])->name('home.index');
+
+    // Slider Yönetimi
+    Route::get('/home/sliders', [\App\Http\Controllers\Admin\AdminHomeController::class, 'sliders'])->name('home.sliders');
+    Route::get('/home/sliders/create', [\App\Http\Controllers\Admin\AdminHomeController::class, 'createSlider'])->name('home.sliders.create');
+    Route::post('/home/sliders', [\App\Http\Controllers\Admin\AdminHomeController::class, 'storeSlider'])->name('home.sliders.store');
+    Route::get('/home/sliders/{id}/edit', [\App\Http\Controllers\Admin\AdminHomeController::class, 'editSlider'])->name('home.sliders.edit');
+    Route::put('/home/sliders/{id}', [\App\Http\Controllers\Admin\AdminHomeController::class, 'updateSlider'])->name('home.sliders.update');
+    Route::delete('/home/sliders/{id}', [\App\Http\Controllers\Admin\AdminHomeController::class, 'destroySlider'])->name('home.sliders.destroy');
+
+    // Scrolling Images Yönetimi
+    Route::get('/home/scrolling', [\App\Http\Controllers\Admin\AdminHomeController::class, 'scrollingImages'])->name('home.scrolling');
+    Route::get('/home/scrolling/create', [\App\Http\Controllers\Admin\AdminHomeController::class, 'createScrollingImage'])->name('home.scrolling.create');
+    Route::post('/home/scrolling', [\App\Http\Controllers\Admin\AdminHomeController::class, 'storeScrollingImage'])->name('home.scrolling.store');
+    Route::get('/home/scrolling/{id}/edit', [\App\Http\Controllers\Admin\AdminHomeController::class, 'editScrollingImage'])->name('home.scrolling.edit');
+    Route::put('/home/scrolling/{id}', [\App\Http\Controllers\Admin\AdminHomeController::class, 'updateScrollingImage'])->name('home.scrolling.update');
+    Route::delete('/home/scrolling/{id}', [\App\Http\Controllers\Admin\AdminHomeController::class, 'destroyScrollingImage'])->name('home.scrolling.destroy');
+
+    // FAQ Yönetimi
+    Route::get('/home/faqs', [\App\Http\Controllers\Admin\AdminHomeController::class, 'faqs'])->name('home.faqs');
+    Route::get('/home/faqs/create', [\App\Http\Controllers\Admin\AdminHomeController::class, 'createFaq'])->name('home.faqs.create');
+    Route::post('/home/faqs', [\App\Http\Controllers\Admin\AdminHomeController::class, 'storeFaq'])->name('home.faqs.store');
+    Route::get('/home/faqs/{id}/edit', [\App\Http\Controllers\Admin\AdminHomeController::class, 'editFaq'])->name('home.faqs.edit');
+    Route::put('/home/faqs/{id}', [\App\Http\Controllers\Admin\AdminHomeController::class, 'updateFaq'])->name('home.faqs.update');
+    Route::delete('/home/faqs/{id}', [\App\Http\Controllers\Admin\AdminHomeController::class, 'destroyFaq'])->name('home.faqs.destroy');
+
+    // Site Ayarları
+    Route::get('/home/settings', [\App\Http\Controllers\Admin\AdminHomeController::class, 'settings'])->name('home.settings');
+    Route::put('/home/settings', [\App\Http\Controllers\Admin\AdminHomeController::class, 'updateSettings'])->name('home.settings.update');
 
     // Talepler Yönetimi
     Route::get('/requests', [\App\Http\Controllers\Admin\AdminRequestController::class, 'index'])->name('requests.index');
