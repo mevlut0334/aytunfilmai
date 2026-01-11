@@ -18,8 +18,27 @@
         <div class="row">
             <!-- Sol: Form Alanları -->
             <div class="col-lg-8 mb-4">
-                <!-- Film Bilgileri -->
+                <!-- Karakterler -->
                 <div class="card shadow-sm mb-3">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-people"></i> Karakterler (Opsiyonel)</h5>
+                        <button type="button" class="btn btn-sm btn-light" id="addCharacterBtn">
+                            <i class="bi bi-plus-circle"></i> Karakter Ekle
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle-fill"></i>
+                            İsterseniz karakterler ekleyebilirsiniz. Her karakter için <strong>farklı açılardan çekilmiş en az 5 görsel</strong> yüklemeniz gerekir.
+                        </div>
+
+                        <!-- Karakterler Listesi -->
+                        <div id="charactersList"></div>
+                    </div>
+                </div>
+
+                <!-- Film Bilgileri -->
+                <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0"><i class="bi bi-info-circle"></i> Film Bilgileri</h5>
                     </div>
@@ -52,25 +71,6 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
-                </div>
-
-                <!-- Karakterler -->
-                <div class="card shadow-sm">
-                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-people"></i> Karakterler (Opsiyonel)</h5>
-                        <button type="button" class="btn btn-sm btn-light" id="addCharacterBtn">
-                            <i class="bi bi-plus-circle"></i> Karakter Ekle
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle-fill"></i>
-                            İsterseniz karakterler ekleyebilirsiniz. Her karakter için <strong>farklı açılardan çekilmiş en az 5 görsel</strong> yüklemeniz gerekir.
-                        </div>
-
-                        <!-- Karakterler Listesi -->
-                        <div id="charactersList"></div>
                     </div>
                 </div>
             </div>

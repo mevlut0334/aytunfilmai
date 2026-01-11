@@ -61,40 +61,24 @@
             </div>
 
             <!-- Video (Eğer tamamlandıysa) -->
-            @if($request->status === 'completed' && $request->video_url)
-                <div class="card shadow-sm mb-3">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="bi bi-play-circle"></i> Üretilen Film</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="ratio ratio-16x9">
-                            <video controls>
-                                <source src="{{ $request->video_url }}" type="video/mp4">
-                                Tarayıcınız video oynatmayı desteklemiyor.
-                            </video>
-                        </div>
-                        <div class="mt-3">
-                            <a href="{{ $request->video_url }}" class="btn btn-success" download>
-                                <i class="bi bi-download"></i> İndir
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            <!-- Açıklama -->
-            <div class="card shadow-sm mb-3">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="bi bi-textarea-t"></i> Film Açıklaması</h5>
-                </div>
-                <div class="card-body">
-                    <p class="mb-0" style="white-space: pre-wrap;">{{ $request->description }}</p>
-                </div>
-            </div>
+@if($request->status === 'completed' && $request->video_url)
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-check-circle"></i> Film Hazır!</h5>
+        </div>
+        <div class="card-body text-center py-5">
+            <i class="bi bi-film display-1 text-success mb-4"></i>
+            <h4 class="mb-4">Filminiz başarıyla oluşturuldu!</h4>
+            <a href="{{ $request->video_url }}" class="btn btn-success btn-lg" download>
+                <i class="bi bi-download"></i> Filmi İndir
+            </a>
+        </div>
+    </div>
+@endif
 
             <!-- Karakterler -->
             @if($request->characters->count() > 0)
-                <div class="card shadow-sm">
+                <div class="card shadow-sm mb-3">
                     <div class="card-header bg-success text-white">
                         <h5 class="mb-0"><i class="bi bi-people"></i> Karakterler ({{ $request->characters->count() }})</h5>
                     </div>
@@ -128,6 +112,16 @@
                     </div>
                 </div>
             @endif
+
+            <!-- Açıklama -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-textarea-t"></i> Film Açıklaması</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0" style="white-space: pre-wrap;">{{ $request->description }}</p>
+                </div>
+            </div>
         </div>
 
         <!-- Sağ: İşlem ve Bilgi -->
