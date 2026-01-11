@@ -42,6 +42,26 @@ Route::middleware('guest')->group(function () {
 // Paketler - Herkese açık
 Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
 
+
+// Paketler - Herkese açık
+Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
+
+// Yasal Sayfalar - Herkese açık
+Route::get('/terms', function () {
+    return view('legal.terms');
+})->name('legal.terms');
+
+Route::get('/copyright', function () {
+    return view('legal.copyright');
+})->name('legal.copyright');
+
+Route::get('/kvkk', function () {
+    return view('legal.kvkk');
+})->name('legal.kvkk');
+
+Route::get('/personal-data', function () {
+    return view('legal.personal-data');
+})->name('legal.personal-data');
 /*
 |--------------------------------------------------------------------------
 | İyzico Callback Route (Auth dışında, CSRF bootstrap/app.php'de muaf)

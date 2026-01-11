@@ -157,18 +157,18 @@
                         </div>
 
                         <!-- Sözleşmeler -->
-                        <div class="mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input"
-                                       type="checkbox"
-                                       id="terms"
-                                       required>
-                                <label class="form-check-label" for="terms">
-                                    <a href="#" target="_blank">Kullanım Koşulları</a>'nı ve
-                                    <a href="#" target="_blank">Gizlilik Politikası</a>'nı okudum, kabul ediyorum.
-                                </label>
-                            </div>
-                        </div>
+<div class="mb-4">
+    <div class="form-check">
+        <input class="form-check-input"
+               type="checkbox"
+               id="terms"
+               required>
+        <label class="form-check-label" for="terms">
+            <a href="{{ route('legal.terms') }}" target="_blank">Kullanım Koşulları</a>'nı ve
+            <a href="{{ route('legal.kvkk') }}" target="_blank">Gizlilik Politikası</a>'nı okudum, kabul ediyorum.
+        </label>
+    </div>
+</div>
 
                         <!-- Ödeme Butonu -->
                         <button type="submit" class="btn btn-success btn-lg w-100" id="submit-btn">

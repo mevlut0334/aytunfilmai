@@ -97,7 +97,7 @@
                                    {{ old('terms_accepted') ? 'checked' : '' }}
                                    required>
                             <label class="form-check-label" for="terms_accepted">
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Kullanım Koşulları</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
+                                <a href="{{ route('legal.terms') }}" target="_blank">Kullanım Koşulları</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
                             </label>
                             @error('terms_accepted')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -114,7 +114,7 @@
                                    {{ old('copyright_accepted') ? 'checked' : '' }}
                                    required>
                             <label class="form-check-label" for="copyright_accepted">
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#copyrightModal">Telif Hakları Beyanı</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
+                                <a href="{{ route('legal.copyright') }}" target="_blank">Telif Hakları Beyanı</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
                             </label>
                             @error('copyright_accepted')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -131,7 +131,7 @@
                                    {{ old('kvkk_accepted') ? 'checked' : '' }}
                                    required>
                             <label class="form-check-label" for="kvkk_accepted">
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#kvkkModal">KVKK Aydınlatma Metni</a>'ni okudum ve kabul ediyorum. <span class="text-danger">*</span>
+                                <a href="{{ route('legal.kvkk') }}" target="_blank">KVKK Aydınlatma Metni</a>'ni okudum ve kabul ediyorum. <span class="text-danger">*</span>
                             </label>
                             @error('kvkk_accepted')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -148,7 +148,7 @@
                                    {{ old('personal_data_accepted') ? 'checked' : '' }}
                                    required>
                             <label class="form-check-label" for="personal_data_accepted">
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#personalDataModal">Kişisel Verilerin İşlenmesi Onayı</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
+                                <a href="{{ route('legal.personal-data') }}" target="_blank">Kişisel Verilerin İşlenmesi Onayı</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
                             </label>
                             @error('personal_data_accepted')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -167,79 +167,6 @@
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modals -->
-<!-- Kullanım Koşulları Modal -->
-<div class="modal fade" id="termsModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Kullanım Koşulları</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Kullanım koşulları metni buraya gelecek...</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Telif Hakları Modal -->
-<div class="modal fade" id="copyrightModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Telif Hakları Beyanı</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Telif hakları beyanı metni buraya gelecek...</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- KVKK Modal -->
-<div class="modal fade" id="kvkkModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">KVKK Aydınlatma Metni</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>KVKK aydınlatma metni buraya gelecek...</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Kişisel Verilerin İşlenmesi Modal -->
-<div class="modal fade" id="personalDataModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Kişisel Verilerin İşlenmesi Onayı</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Kişisel verilerin işlenmesi onayı metni buraya gelecek...</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
             </div>
         </div>
     </div>

@@ -62,9 +62,6 @@
                         </div>
 
                         <div class="text-center mt-3">
-                            <p class="mb-1">
-                                <a href="#">Şifremi Unuttum</a>
-                            </p>
                             <p class="mb-0">
                                 Hesabınız yok mu? <a href="{{ route('register') }}">Kayıt Olun</a>
                             </p>
