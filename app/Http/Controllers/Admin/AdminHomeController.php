@@ -42,7 +42,6 @@ class AdminHomeController extends Controller
             'image' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
             'link' => 'nullable|string|max:255',
             'order' => 'required|integer|min:0',
-            'is_active' => 'boolean',
         ]);
 
         if ($request->hasFile('image')) {
@@ -72,7 +71,6 @@ class AdminHomeController extends Controller
             'image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
             'link' => 'nullable|string|max:255',
             'order' => 'required|integer|min:0',
-            'is_active' => 'boolean',
         ]);
 
         if ($request->hasFile('image')) {
@@ -126,7 +124,6 @@ class AdminHomeController extends Controller
             'image' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
             'link' => 'nullable|string|max:255',
             'order' => 'required|integer|min:0',
-            'is_active' => 'boolean',
         ]);
 
         if ($request->hasFile('image')) {
@@ -156,7 +153,6 @@ class AdminHomeController extends Controller
             'image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:5120',
             'link' => 'nullable|string|max:255',
             'order' => 'required|integer|min:0',
-            'is_active' => 'boolean',
         ]);
 
         if ($request->hasFile('image')) {
@@ -209,7 +205,6 @@ class AdminHomeController extends Controller
             'question' => 'required|string|max:255',
             'answer' => 'required|string',
             'order' => 'required|integer|min:0',
-            'is_active' => 'boolean',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
@@ -234,7 +229,6 @@ class AdminHomeController extends Controller
             'question' => 'required|string|max:255',
             'answer' => 'required|string',
             'order' => 'required|integer|min:0',
-            'is_active' => 'boolean',
         ]);
 
         $validated['is_active'] = $request->has('is_active');
