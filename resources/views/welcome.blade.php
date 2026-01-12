@@ -23,6 +23,11 @@
             /* Arka Plan */
             --bg-dark: #000000;
             --bg-medium: #0A0A0A;
+            /* Bootstrap Accordion Override */
+            --bs-accordion-color: #FFFFFF;
+            --bs-accordion-active-color: #FFFFFF;
+            --bs-accordion-btn-color: #FFFFFF;
+            --bs-accordion-btn-active-color: #FFFFFF;
         }
 
         * {
@@ -84,20 +89,64 @@
         /* Slider Section */
         .slider-section {
             margin-top: 76px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .carousel {
+            width: 100%;
+        }
+
+        .carousel-inner {
+            width: 100%;
+        }
+
+        .carousel-item {
+            width: 100%;
+            height: 600px;
+            position: relative;
         }
 
         .carousel-item img {
-            height: 600px;
-            object-fit: cover;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
             filter: brightness(0.8);
+            display: block;
         }
 
         .carousel-caption {
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
-            padding: 2rem;
-            border-radius: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
             border: 1px solid rgba(0, 217, 255, 0.3);
+            max-width: 600px;
+            margin: 0 auto;
+            bottom: 3rem;
+            left: 50%;
+            right: auto;
+            transform: translateX(-50%);
+            z-index: 5; /* Kontrol butonlarının altında */
+        }
+
+        .carousel-caption h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .carousel-caption .btn {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .carousel-control-prev,
+        .carousel-control-next {
+            z-index: 10; /* Caption'ın üstünde */
+        }
+
+        .carousel-indicators {
+            display: none !important; /* Çizgileri tamamen kaldır */
         }
 
         /* How It Works Section */
@@ -140,6 +189,16 @@
             text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
         }
 
+        .step-card h4 {
+            color: white;
+            font-weight: bold;
+        }
+
+        .step-card p {
+            color: white;
+            font-size: 1rem;
+        }
+
         /* Scrolling Images */
         .scrolling-section {
             padding: 5rem 0;
@@ -157,10 +216,42 @@
             -webkit-text-fill-color: transparent;
         }
 
+        .scroll-wrapper {
+            overflow-x: auto;
+            overflow-y: hidden;
+            cursor: grab;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: var(--secondary) rgba(255, 255, 255, 0.1);
+        }
+
+        .scroll-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 10px;
+        }
+
+        .scroll-wrapper:active {
+            cursor: grabbing;
+        }
+
         .scroll-container {
             display: flex;
             gap: 2rem;
             animation: scroll 30s linear infinite;
+            width: fit-content;
+        }
+
+        .scroll-wrapper:hover .scroll-container {
+            animation-play-state: paused;
         }
 
         .scroll-item {
@@ -203,10 +294,6 @@
             }
         }
 
-        .scroll-container:hover {
-            animation-play-state: paused;
-        }
-
         /* FAQ Section */
         .faq-section {
             padding: 5rem 0;
@@ -223,34 +310,57 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .accordion-item {
+        .faq-item {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(131, 56, 236, 0.2);
             margin-bottom: 1rem;
             border-radius: 10px;
             overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .accordion-button {
+        .faq-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 5px 15px rgba(131, 56, 236, 0.2);
+        }
+
+        .faq-question {
+            padding: 1.25rem 1.5rem;
             background: rgba(131, 56, 236, 0.1);
-            color: white;
+            color: #FFFFFF;
             font-weight: bold;
-            border: none;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .accordion-button:not(.collapsed) {
+        .faq-question i {
+            transition: transform 0.3s;
+            color: #FFFFFF;
+        }
+
+        .faq-item.active .faq-question {
             background: rgba(131, 56, 236, 0.3);
-            color: var(--accent);
-            box-shadow: 0 0 20px rgba(131, 56, 236, 0.3);
         }
 
-        .accordion-button::after {
-            filter: invert(1);
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
         }
 
-        .accordion-body {
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding: 0 1.5rem;
             background: rgba(0, 0, 0, 0.3);
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            padding: 1.25rem 1.5rem;
         }
 
         /* Footer */
@@ -261,16 +371,20 @@
         }
 
         .footer-logo {
-            max-height: 60px;
-            filter: brightness(0) invert(1);
+            max-height: 80px;
+            max-width: 300px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
         }
 
         .footer-links a {
             color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             transition: all 0.3s;
+            font-size: 0.95rem;
         }
 
         .footer-links a:hover {
@@ -339,8 +453,37 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            /* Slider - Mobil */
+            .slider-section {
+                margin-top: 56px; /* Navbar daha küçük mobilde */
+            }
+
+            .carousel-item {
+                height: 300px;
+                background: #000; /* Boşluklar siyah olsun */
+            }
+
             .carousel-item img {
-                height: 400px;
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important; /* Tüm görsel görünsün */
+            }
+
+            .carousel-caption {
+                padding: 0.5rem 0.75rem;
+                border-radius: 8px;
+                bottom: 0.5rem;
+                max-width: 85%;
+            }
+
+            .carousel-caption h2 {
+                font-size: 0.85rem;
+                margin-bottom: 0.35rem;
+            }
+
+            .carousel-caption .btn {
+                padding: 0.3rem 0.75rem;
+                font-size: 0.75rem;
             }
 
             .how-it-works h2,
@@ -349,14 +492,95 @@
                 font-size: 2rem;
             }
 
-            .sticky-footer-bar .btn {
-                font-size: 0.8rem;
-                padding: 0.5rem 1rem;
-                margin: 0.2rem;
+            /* How It Works - Yarı Alan */
+            .how-it-works {
+                padding: 2.5rem 0;
+            }
+
+            .step-card {
+                padding: 1rem;
+            }
+
+            .step-number {
+                font-size: 2rem;
+            }
+
+            .step-card h4 {
+                font-size: 1rem;
+            }
+
+            .step-card p {
+                font-size: 0.85rem;
+            }
+
+            /* Scrolling Images - Yarı Alan */
+            .scrolling-section {
+                padding: 2.5rem 0;
             }
 
             .scroll-item {
-                flex: 0 0 250px;
+                flex: 0 0 200px;
+            }
+
+            .scroll-item img {
+                height: 250px;
+            }
+
+            .scroll-overlay {
+                padding: 0.75rem;
+            }
+
+            .scroll-overlay h5 {
+                font-size: 0.9rem;
+            }
+
+            /* FAQ */
+            .faq-section {
+                padding: 2.5rem 0;
+            }
+
+            /* Footer - Mobil */
+            .footer {
+                padding: 2rem 0 1rem;
+            }
+
+            .footer-logo {
+                max-height: 40px;
+                margin-bottom: 1rem;
+            }
+
+            .footer-links a {
+                font-size: 0.85rem;
+                margin-bottom: 0.5rem;
+            }
+
+            /* Sticky Footer - Yan Yana Butonlar */
+            .sticky-footer-bar .btn {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.75rem;
+                margin: 0.25rem;
+                white-space: nowrap;
+            }
+
+            .sticky-footer-bar .btn i {
+                font-size: 0.9rem;
+            }
+
+            .sticky-footer-bar .d-flex {
+                gap: 0.25rem;
+            }
+        }
+
+        /* Ekstra küçük ekranlar için */
+        @media (max-width: 576px) {
+            .sticky-footer-bar {
+                padding: 0.75rem 0;
+            }
+
+            .sticky-footer-bar .btn {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.6rem;
+                margin: 0.2rem;
             }
         }
     </style>
@@ -463,35 +687,35 @@
             <h2>Nasıl Çalışır?</h2>
             <div class="row g-4">
                 <!-- Step 1 -->
-                <div class="col-md-3">
+                <div class="col-md-3 col-6">
                     <div class="step-card">
                         <div class="step-number">1</div>
                         <h4 class="mt-3">Kayıt Ol</h4>
-                        <p class="text-muted">Hızlı ve kolay kayıt işlemi ile başla</p>
+                        <p>Hızlı ve kolay kayıt işlemi ile başla</p>
                     </div>
                 </div>
                 <!-- Step 2 -->
-                <div class="col-md-3">
+                <div class="col-md-3 col-6">
                     <div class="step-card">
                         <div class="step-number">2</div>
                         <h4 class="mt-3">Token Satın Al</h4>
-                        <p class="text-muted">İhtiyacına göre token paketi seç</p>
+                        <p>İhtiyacına göre token paketi seç</p>
                     </div>
                 </div>
                 <!-- Step 3 -->
-                <div class="col-md-3">
+                <div class="col-md-3 col-6">
                     <div class="step-card">
                         <div class="step-number">3</div>
                         <h4 class="mt-3">Film Talebi Oluştur</h4>
-                        <p class="text-muted">Yapay zeka ile senaryonu yaz</p>
+                        <p>Yapay zeka ile senaryonu yaz</p>
                     </div>
                 </div>
                 <!-- Step 4 -->
-                <div class="col-md-3">
+                <div class="col-md-3 col-6">
                     <div class="step-card">
                         <div class="step-number">4</div>
                         <h4 class="mt-3">Filminizi Alın</h4>
-                        <p class="text-muted">Kısa sürede hazır videonuzu indirin</p>
+                        <p>Kısa sürede hazır videonuzu indirin</p>
                     </div>
                 </div>
             </div>
@@ -502,29 +726,31 @@
     <section class="scrolling-section">
         <div class="container-fluid">
             <h2>Son Üretilen Filmler</h2>
-            <div class="scroll-container">
-                @php
-                    $scrollingImages = \App\Models\ScrollingImage::active()->ordered()->get();
-                    // İkinci kez tekrarla (sonsuz döngü efekti için)
-                    $allImages = $scrollingImages->concat($scrollingImages);
-                @endphp
-                @foreach($allImages as $image)
-                    <div class="scroll-item">
-                        @if($image->link)
-                            <a href="{{ $image->link }}">
+            <div class="scroll-wrapper">
+                <div class="scroll-container">
+                    @php
+                        $scrollingImages = \App\Models\ScrollingImage::active()->ordered()->get();
+                        // İkinci kez tekrarla (sonsuz döngü efekti için)
+                        $allImages = $scrollingImages->concat($scrollingImages);
+                    @endphp
+                    @foreach($allImages as $image)
+                        <div class="scroll-item">
+                            @if($image->link)
+                                <a href="{{ $image->link }}">
+                                    <img src="{{ asset('storage/' . $image->image) }}" alt="{{ $image->title }}">
+                                    <div class="scroll-overlay">
+                                        <h5>{{ $image->title }}</h5>
+                                    </div>
+                                </a>
+                            @else
                                 <img src="{{ asset('storage/' . $image->image) }}" alt="{{ $image->title }}">
                                 <div class="scroll-overlay">
                                     <h5>{{ $image->title }}</h5>
                                 </div>
-                            </a>
-                        @else
-                            <img src="{{ asset('storage/' . $image->image) }}" alt="{{ $image->title }}">
-                            <div class="scroll-overlay">
-                                <h5>{{ $image->title }}</h5>
-                            </div>
-                        @endif
-                    </div>
-                @endforeach
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
             </div>
         </div>
     </section>
@@ -533,30 +759,20 @@
     <section class="faq-section">
         <div class="container">
             <h2>Sıkça Sorulan Sorular</h2>
-            <div class="accordion" id="faqAccordion">
-                @php
-                    $faqs = \App\Models\Faq::active()->ordered()->get();
-                @endphp
-                @foreach($faqs as $index => $faq)
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button {{ $index !== 0 ? 'collapsed' : '' }}"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#faq{{ $faq->id }}">
-                                {{ $faq->question }}
-                            </button>
-                        </h2>
-                        <div id="faq{{ $faq->id }}"
-                             class="accordion-collapse collapse {{ $index === 0 ? 'show' : '' }}"
-                             data-bs-parent="#faqAccordion">
-                            <div class="accordion-body">
-                                {{ $faq->answer }}
-                            </div>
-                        </div>
+            @php
+                $faqs = \App\Models\Faq::active()->ordered()->get();
+            @endphp
+            @foreach($faqs as $faq)
+                <div class="faq-item" onclick="this.classList.toggle('active')">
+                    <div class="faq-question">
+                        <span>{{ $faq->question }}</span>
+                        <i class="bi bi-chevron-down"></i>
                     </div>
-                @endforeach
-            </div>
+                    <div class="faq-answer">
+                        {{ $faq->answer }}
+                    </div>
+                </div>
+            @endforeach
         </div>
     </section>
 
@@ -566,7 +782,7 @@
             <div class="row">
                 <!-- Sol: İyzico Logo -->
                 <div class="col-md-6 text-center text-md-start mb-3">
-                    <img src="https://www.iyzico.com/assets/images/content/logo-white.svg"
+                    <img src="{{ asset('images/iyzico-logo.png') }}"
                          alt="iyzico"
                          class="footer-logo">
                     <p class="text-muted mt-2">Güvenli ödeme altyapısı</p>
@@ -575,7 +791,7 @@
                 <div class="col-md-6">
                     <div class="footer-links text-center text-md-end">
                         <a href="{{ route('legal.terms') }}">
-                            <i class="bi bi-file-text"></i> Kullanım Koşulları
+                            <i class="bi bi-file-text"></i> Gizlilik Politikası
                         </a>
                         <a href="{{ route('legal.copyright') }}">
                             <i class="bi bi-shield-check"></i> Telif Hakları

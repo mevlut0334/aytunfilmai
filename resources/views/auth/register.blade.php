@@ -97,7 +97,7 @@
                                    {{ old('terms_accepted') ? 'checked' : '' }}
                                    required>
                             <label class="form-check-label" for="terms_accepted">
-                                <a href="{{ route('legal.terms') }}" target="_blank">Kullanım Koşulları</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
+                                <a href="{{ route('legal.terms') }}" target="_blank">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
                             </label>
                             @error('terms_accepted')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
