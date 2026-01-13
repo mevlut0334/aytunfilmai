@@ -170,6 +170,13 @@
     </div>
 </div>
 
+                        <!-- İyzico Logosu -->
+                        <div class="text-center mb-3">
+                            <img src="{{ asset('images/iyzico_ile_ode_colored.png') }}"
+                                 alt="iyzico ile öde"
+                                 style="max-width: 200px; height: auto;">
+                        </div>
+
                         <!-- Ödeme Butonu -->
                         <button type="submit" class="btn btn-success btn-lg w-100" id="submit-btn">
                             <i class="bi bi-lock"></i> Güvenli Ödeme Yap
