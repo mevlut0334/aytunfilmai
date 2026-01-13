@@ -134,6 +134,12 @@ class CheckoutController extends Controller
             $firstName = $nameParts[0];
             $lastName = $nameParts[1] ?? $nameParts[0];
 
+            // İndirim oranını hesapla (kupon varsa)
+            $discountRate = 1;
+            if ($cartSummary['discount'] > 0 && $cartSummary['subtotal'] > 0) {
+                $discountRate = $cartSummary['total'] / $cartSummary['subtotal'];
+            }
+
             $orderData = [
                 'conversation_id' => 'order_' . $order->id,
                 'price' => number_format($cartSummary['total'], 2, '.', ''),
@@ -151,14 +157,33 @@ class CheckoutController extends Controller
                 'items' => [],
             ];
 
-            // Sepet öğelerini ekle
+            // Sepet öğelerini ekle - İndirimli fiyatlarla
+            $basketTotal = 0;
             foreach ($order->orderItems as $item) {
+                // Her item'ın fiyatını indirim oranıyla çarp
+                $discountedPrice = $item->subtotal * $discountRate;
+                $basketTotal += $discountedPrice;
+
                 $orderData['items'][] = [
                     'id' => 'item_' . $item->id,
                     'name' => $item->package->name,
                     'category' => 'Token Paketi',
-                    'price' => number_format($item->subtotal, 2, '.', ''),
+                    'price' => number_format($discountedPrice, 2, '.', ''),
                 ];
+            }
+
+            // Yuvarlama farkını son item'a ekle (İyzico tutarların eşit olmasını bekler)
+            $difference = $cartSummary['total'] - $basketTotal;
+            if (abs($difference) > 0.001 && count($orderData['items']) > 0) {
+                $lastIndex = count($orderData['items']) - 1;
+                $lastItemPrice = floatval($orderData['items'][$lastIndex]['price']);
+                $orderData['items'][$lastIndex]['price'] = number_format($lastItemPrice + $difference, 2, '.', '');
+
+                \Log::info('Yuvarlama farkı düzeltildi', [
+                    'difference' => $difference,
+                    'old_price' => $lastItemPrice,
+                    'new_price' => $orderData['items'][$lastIndex]['price'],
+                ]);
             }
 
             // Kart bilgileri
