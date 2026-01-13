@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Hash;
 
 class AdminUserController extends Controller
 {
@@ -44,9 +46,6 @@ class AdminUserController extends Controller
                 'requests' => function ($query) {
                     $query->latest()->limit(5);
                 },
-                'tokenTransactions' => function ($query) {
-                    $query->latest()->limit(10);
-                }
             ])
             ->findOrFail($userId);
 
@@ -60,5 +59,33 @@ class AdminUserController extends Controller
         ];
 
         return view('admin.users.show', compact('user', 'stats'));
+    }
+
+    /**
+     * Kullanıcı şifresini güncelleme (Admin)
+     */
+    public function updatePassword(HttpRequest $request, int $userId): RedirectResponse
+    {
+        // Validation
+        $request->validate([
+            'new_password' => 'required|string|min:8|confirmed',
+        ], [
+            'new_password.required' => 'Yeni şifre alanı zorunludur.',
+            'new_password.min' => 'Şifre en az 8 karakter olmalıdır.',
+            'new_password.confirmed' => 'Şifre onayı eşleşmiyor.',
+        ]);
+
+        try {
+            // Kullanıcıyı bul (admin olmamalı)
+            $user = User::where('is_admin', false)->findOrFail($userId);
+
+            // Şifreyi güncelle
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return back()->with('success', 'Kullanıcının şifresi başarıyla güncellendi.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Şifre güncellenirken bir hata oluştu.');
+        }
     }
 }

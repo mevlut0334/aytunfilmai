@@ -5,6 +5,21 @@
 
 @section('content')
 <div class="container-fluid">
+    <!-- Başarı/Hata Mesajları -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
     <div class="row">
         <!-- Sol: Kullanıcı Bilgileri ve İstatistikler -->
         <div class="col-lg-4 mb-4">
@@ -45,7 +60,7 @@
             </div>
 
             <!-- İstatistikler -->
-            <div class="card shadow-sm">
+            <div class="card shadow-sm mb-3">
                 <div class="card-header bg-success text-white">
                     <h6 class="mb-0"><i class="bi bi-graph-up"></i> İstatistikler</h6>
                 </div>
@@ -99,6 +114,48 @@
                             <div class="progress-bar bg-success" style="width: 100%"></div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Şifre Güncelleme -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-warning text-dark">
+                    <h6 class="mb-0"><i class="bi bi-key-fill"></i> Şifre Güncelleme</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('admin.users.update-password', $user->id) }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">Yeni Şifre</label>
+                            <input
+                                type="password"
+                                class="form-control @error('new_password') is-invalid @enderror"
+                                id="new_password"
+                                name="new_password"
+                                placeholder="En az 8 karakter"
+                                required
+                            >
+                            @error('new_password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="new_password_confirmation" class="form-label">Şifre Onayı</label>
+                            <input
+                                type="password"
+                                class="form-control"
+                                id="new_password_confirmation"
+                                name="new_password_confirmation"
+                                placeholder="Şifreyi tekrar girin"
+                                required
+                            >
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100">
+                            <i class="bi bi-shield-lock"></i> Şifreyi Güncelle
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -197,58 +254,6 @@
                                                 @endif
                                             </td>
                                             <td><small>{{ $request->created_at->format('d.m.Y H:i') }}</small></td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
-            </div>
-
-            <!-- Token İşlemleri -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white">
-                    <h6 class="mb-0"><i class="bi bi-coin"></i> Son Token İşlemleri ({{ $user->tokenTransactions->count() }})</h6>
-                </div>
-                <div class="card-body p-0">
-                    @if($user->tokenTransactions->isEmpty())
-                        <div class="text-center py-4">
-                            <i class="bi bi-inbox display-4 text-muted"></i>
-                            <p class="text-muted mt-2 mb-0">Henüz token işlemi yok</p>
-                        </div>
-                    @else
-                        <div class="table-responsive">
-                            <table class="table table-sm mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Tip</th>
-                                        <th>Miktar</th>
-                                        <th>Açıklama</th>
-                                        <th>Tarih</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($user->tokenTransactions as $transaction)
-                                        <tr>
-                                            <td>
-                                                @if($transaction->type === 'credit')
-                                                    <span class="badge bg-success">
-                                                        <i class="bi bi-plus-circle"></i> Yükleme
-                                                    </span>
-                                                @else
-                                                    <span class="badge bg-danger">
-                                                        <i class="bi bi-dash-circle"></i> Harcama
-                                                    </span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <strong class="{{ $transaction->type === 'credit' ? 'text-success' : 'text-danger' }}">
-                                                    {{ $transaction->type === 'credit' ? '+' : '-' }}{{ number_format($transaction->amount, 0) }}
-                                                </strong>
-                                            </td>
-                                            <td><small>{{ Str::limit($transaction->description, 40) }}</small></td>
-                                            <td><small>{{ $transaction->created_at->format('d.m.Y H:i') }}</small></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
