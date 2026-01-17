@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Yapay Zeka Film Yapımı</title>
+    <title>Yapay Zeka ile Film Yap</title>
     <meta name="description" content="Yapay zeka ile profesyonel film ve video içerikleri üretin. Token satın alın, senaryonuzu yazın ve dakikalar içinde filminizi alın. Hızlı, kolay ve uygun fiyatlı AI film üretimi.">
 
     <!-- Bootstrap 5 CSS -->
