@@ -599,6 +599,10 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
+                         <a class="nav-link" href="{{ route('articles.index') }}">
+                <i class="bi bi-newspaper"></i> Blog
+            </a>
+        </li>
                         <a class="nav-link" href="{{ route('packages.index') }}">
                             <i class="bi bi-box-seam"></i> Paketler
                         </a>

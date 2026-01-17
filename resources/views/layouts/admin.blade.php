@@ -213,6 +213,20 @@
 
             <hr style="border-color: rgba(255,255,255,0.1); margin: 1rem 0;">
 
+            <!-- Makale Kategorileri -->
+            <a href="{{ route('admin.article-categories.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.article-categories.*') ? 'active' : '' }}">
+                <i class="bi bi-folder"></i>
+                <span>Makale Kategorileri</span>
+            </a>
+
+            <!-- Makaleler -->
+            <a href="{{ route('admin.articles.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.articles.*') ? 'active' : '' }}">
+                <i class="bi bi-newspaper"></i>
+                <span>Makaleler</span>
+            </a>
+
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 1rem 0;">
+
             <!-- Ana Sayfa Yönetimi -->
             <a href="{{ route('admin.home.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.home.*') ? 'active' : '' }}">
                 <i class="bi bi-house-door"></i>

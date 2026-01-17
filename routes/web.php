@@ -8,6 +8,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RequestController;
+use App\Http\Controllers\ArticleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +42,10 @@ Route::middleware('guest')->group(function () {
 */
 // Paketler - Herkese açık
 Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
+
+// Makaleler - Herkese açık
+Route::get('/blog', [ArticleController::class, 'index'])->name('articles.index');
+Route::get('/blog/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 
 // Yasal Sayfalar - Herkese açık
 Route::get('/terms', function () {
@@ -154,6 +159,23 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('/home/settings', [\App\Http\Controllers\Admin\AdminHomeController::class, 'settings'])->name('home.settings');
     Route::put('/home/settings', [\App\Http\Controllers\Admin\AdminHomeController::class, 'updateSettings'])->name('home.settings.update');
 
+    // Makale Kategorileri Yönetimi
+    Route::get('/article-categories', [\App\Http\Controllers\Admin\AdminArticleCategoryController::class, 'index'])->name('article-categories.index');
+    Route::get('/article-categories/create', [\App\Http\Controllers\Admin\AdminArticleCategoryController::class, 'create'])->name('article-categories.create');
+    Route::post('/article-categories', [\App\Http\Controllers\Admin\AdminArticleCategoryController::class, 'store'])->name('article-categories.store');
+    Route::get('/article-categories/{id}/edit', [\App\Http\Controllers\Admin\AdminArticleCategoryController::class, 'edit'])->name('article-categories.edit');
+    Route::put('/article-categories/{id}', [\App\Http\Controllers\Admin\AdminArticleCategoryController::class, 'update'])->name('article-categories.update');
+    Route::delete('/article-categories/{id}', [\App\Http\Controllers\Admin\AdminArticleCategoryController::class, 'destroy'])->name('article-categories.destroy');
+
+    // Makale Yönetimi
+    Route::get('/articles', [\App\Http\Controllers\Admin\AdminArticleController::class, 'index'])->name('articles.index');
+    Route::get('/articles/create', [\App\Http\Controllers\Admin\AdminArticleController::class, 'create'])->name('articles.create');
+    Route::post('/articles', [\App\Http\Controllers\Admin\AdminArticleController::class, 'store'])->name('articles.store');
+    Route::get('/articles/{id}/edit', [\App\Http\Controllers\Admin\AdminArticleController::class, 'edit'])->name('articles.edit');
+    Route::put('/articles/{id}', [\App\Http\Controllers\Admin\AdminArticleController::class, 'update'])->name('articles.update');
+    Route::delete('/articles/{id}', [\App\Http\Controllers\Admin\AdminArticleController::class, 'destroy'])->name('articles.destroy');
+    Route::post('/articles/update-order', [\App\Http\Controllers\Admin\AdminArticleController::class, 'updateOrder'])->name('articles.update-order');
+
     // Talepler Yönetimi
     Route::get('/requests', [\App\Http\Controllers\Admin\AdminRequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/{requestId}', [\App\Http\Controllers\Admin\AdminRequestController::class, 'show'])->name('requests.show');
@@ -162,10 +184,7 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     // Kullanıcı Yönetimi
     Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('users.index');
     Route::get('/users/{userId}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('users.show');
-    Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('users.index');
-    Route::get('/users/{userId}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('users.show');
     Route::post('/users/{userId}/update-password', [\App\Http\Controllers\Admin\AdminUserController::class, 'updatePassword'])->name('users.update-password');
-
 
     // Admin Kullanıcı Yönetimi
     Route::get('/admins', [\App\Http\Controllers\Admin\AdminAdminController::class, 'index'])->name('admins.index');
