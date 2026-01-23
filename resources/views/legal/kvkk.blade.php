@@ -54,7 +54,7 @@
                     </ul>
 
                     <h4>7. Başvuru Yöntemi</h4>
-                    <p>KVKK haklarınızı kullanmak için: <a href="mailto:kvkk@aytunfilmai.com">kvkk@aytunfilmai.com</a></p>
+                    <p>KVKK haklarınızı kullanmak için: <a href="mailto:mevluttuncer0334@gmail.com">mevluttuncer0334@gmail.com</a></p>
 
                     <div class="mt-4">
                         <a href="{{ route('register') }}" class="btn btn-primary">

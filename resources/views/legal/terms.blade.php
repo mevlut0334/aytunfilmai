@@ -47,7 +47,7 @@
                     <p>Yapay zeka tarafından üretilen içeriklerden kaynaklanan sorunlardan platform sorumlu tutulamaz.</p>
 
                     <h4>8. İletişim</h4>
-                    <p>Sorularınız için: <a href="mailto:info@aytunfilmai.com">info@aytunfilmai.com</a></p>
+                    <p>Sorularınız için: <a href="mailto:mevluttuncer0334@gmail.com">mevluttuncer0334@gmail.com</a></p>
 
                     <div class="mt-4">
                         <a href="{{ route('register') }}" class="btn btn-primary">

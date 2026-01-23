@@ -50,7 +50,7 @@
                     <p>Platformumuz, kullanıcı deneyimini iyileştirmek için çerezler kullanır. Tarayıcı ayarlarından çerezleri reddedebilirsiniz.</p>
 
                     <h4>7. Onayın Geri Çekilmesi</h4>
-                    <p>Bu onayı istediğiniz zaman <a href="mailto:kvkk@aytunfilmai.com">kvkk@aytunfilmai.com</a> adresine e-posta göndererek geri çekebilirsiniz. Onay geri çekildiğinde hesabınız kapatılacaktır.</p>
+                    <p>Bu onayı istediğiniz zaman <a href="mailto:mevluttuncer0334@gmail.com">mevluttuncer0334@gmail.com</a> adresine e-posta göndererek geri çekebilirsiniz. Onay geri çekildiğinde hesabınız kapatılacaktır.</p>
 
                     <h4>8. Veri Güvenliği</h4>
                     <p>Kişisel verileriniz SSL şifreleme, güvenlik duvarı ve erişim kontrolü ile korunmaktadır.</p>

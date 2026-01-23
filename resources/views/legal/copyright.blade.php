@@ -36,7 +36,7 @@
                     <p>Yapay zeka ile üretilen filmlerin telif hakları kullanıcıya aittir. Ancak kullanıcı, platform tarafından pazarlama amaçlı kullanılmasına izin verir.</p>
 
                     <h4>5. İhlal Bildirimi</h4>
-                    <p>Telif hakkı ihlali bildirimleri için: <a href="mailto:copyright@aytunfilmai.com">copyright@aytunfilmai.com</a></p>
+                    <p>Telif hakkı ihlali bildirimleri için: <a href="mailto:mevluttuncer0334@gmail.com">mevluttuncer0334@gmail.com</a></p>
 
                     <h4>6. Yasal Süreç</h4>
                     <p>Telif hakkı ihlali yapan kullanıcılar hakkında yasal işlem başlatılabilir ve tazminat talep edilebilir.</p>
