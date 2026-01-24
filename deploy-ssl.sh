@@ -96,6 +96,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app
 
 # İzinleri düzelt
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/storage
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/public
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod -R 775 /var/www/html/storage
 
 # Certbot kurulumu
@@ -188,6 +189,15 @@ server {
         fastcgi_index index.php;
         include fastcgi_params;
         fastcgi_hide_header X-Powered-By;
+    }
+
+    # Storage klasörü için özel yönlendirme
+    location ^~ /storage/ {
+        alias /var/www/html/storage/app/public/;
+        try_files $uri =404;
+        access_log off;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
     }
 
     location ~ /\.(?!well-known).* {

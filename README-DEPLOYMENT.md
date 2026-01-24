@@ -1,272 +1,208 @@
-# Aytun Film AI - Docker VPS Deployment Rehberi
+# Aytun Film AI - Kurulum Talimatları
 
-## Gereksinimler
+## 📋 Değişen Dosyalar (GitHub'a Push Et)
 
-VPS sunucuda:
-- Ubuntu 20.04 veya üzeri
-- En az 2GB RAM
-- Docker ve Docker Compose
-- Domain (SSL için)
+Aşağıdaki dosyalar güncellendi ve GitHub'a push edilmeli:
 
-## 1. Sunucuya Docker Kurulumu
+1. **docker-compose.prod.yml** - Nginx'e storage volume eklendi
+2. **deploy-ssl.sh** - Storage link ve izinler düzeltildi + --env-file eklendi
+
+---
+
+## 🚀 Yeni Sunucuya Kurulum Adımları
+
+### 1. Sunucuya SSH ile Bağlan
 ```bash
-# Docker kurulumu
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Docker Compose kurulumu
-sudo apt-get update
-sudo apt-get install docker-compose-plugin -y
-
-# Docker'ı sudo olmadan kullanabilmek için
-sudo usermod -aG docker $USER
-newgrp docker
-
-# Test
-docker --version
-docker compose version
+ssh ubuntu@SUNUCU_IP
 ```
 
-## 2. Firewall Ayarları
+### 2. Sistem Güncellemesi
 ```bash
-# UFW kurulumu ve yapılandırması
+sudo apt update && sudo apt upgrade -y
+```
+
+### 3. Docker Kurulumu
+```bash
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo apt-get install docker-compose-plugin -y
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+### 4. Firewall Ayarları
+```bash
 sudo apt install ufw -y
 sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
-sudo ufw enable
-sudo ufw status
+sudo ufw --force enable
 ```
 
-## 3. Projeyi Sunucuya Yükleme
-
-### Git ile (Önerilen)
+### 5. Proje Klasörü Oluştur
 ```bash
-# Proje klasörünü oluştur
-sudo mkdir -p /var/www/aytunfilmai
-sudo chown -R $USER:$USER /var/www/aytunfilmai
+sudo mkdir -p /var/www
+sudo chown -R $USER:$USER /var/www
+```
 
-# Git clone
+### 6. GitHub'dan Projeyi Çek
+```bash
 cd /var/www
 git clone https://github.com/KULLANICI_ADI/aytunfilmai.git aytunfilmai
 cd aytunfilmai
 ```
 
-## 4. Deployment
+### 7. SSL ile Kurulum (Domain Gerekli)
 
-### A) SSL OLMADAN (Sadece HTTP)
+**Önemli:** Domain DNS kayıtlarını önce sunucuya yönlendir!
+
 ```bash
-cd /var/www/aytunfilmai
-
-# Script'e çalıştırma izni ver
-chmod +x deploy.sh
-
-# Deploy
-./deploy.sh
-```
-
-Script sizden şunları soracak:
-- Müşteri adı: aytunfilmai
-- Domain/IP adresi: IP_ADRESI veya domain.com
-- HTTP Port: 80
-- MySQL Port: 3306
-
-### B) SSL İLE (HTTPS)
-
-**Önemli:** Domain DNS kayıtları sunucuya yönlendirilmiş olmalı!
-```bash
-cd /var/www/aytunfilmai
-
-# Script'e çalıştırma izni ver
 chmod +x deploy-ssl.sh
-
-# Deploy
 ./deploy-ssl.sh
 ```
 
-Script sizden şunları soracak:
-- Müşteri adı: aytunfilmai
-- Domain adı: domain.com
-- SSL için email: email@example.com
-- MySQL Port: 3306
+**Script Soruları:**
+- Müşteri adı: `aytunfilmai`
+- Domain adı: `example.com` (IP adresi DEĞIL!)
+- SSL için email: `email@example.com`
+- MySQL Port: `3306`
 
-## 5. Container'ları Yönetme
+---
+
+## ✅ Kurulum Sonrası Kontroller
+
+### Container'ları Kontrol Et
 ```bash
 cd /var/www/aytunfilmai
-
-# Container'ları görüntüle
-docker compose -f docker-compose.prod.yml ps
-
-# Log'ları görüntüle
-docker compose -f docker-compose.prod.yml logs -f
-
-# Container'ı yeniden başlat
-docker compose -f docker-compose.prod.yml restart
-
-# Container'ları durdur
-docker compose -f docker-compose.prod.yml down
-
-# Container'ları başlat
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml --env-file .env.production ps
 ```
 
-## 6. Laravel Komutları
+**Beklenen Çıktı:** Tüm container'lar "Up" durumunda
+
+### Log'ları İzle
 ```bash
-cd /var/www/aytunfilmai
-
-# Migration çalıştır
-docker compose -f docker-compose.prod.yml exec app php artisan migrate --force
-
-# Seeder çalıştır
-docker compose -f docker-compose.prod.yml exec app php artisan db:seed --force
-
-# Cache temizle
-docker compose -f docker-compose.prod.yml exec app php artisan cache:clear
-docker compose -f docker-compose.prod.yml exec app php artisan config:clear
-docker compose -f docker-compose.prod.yml exec app php artisan route:clear
-docker compose -f docker-compose.prod.yml exec app php artisan view:clear
-
-# Optimize
-docker compose -f docker-compose.prod.yml exec app php artisan optimize
-
-# Storage izinlerini düzelt
-docker compose -f docker-compose.prod.yml exec app chown -R www-data:www-data /var/www/html/storage
-docker compose -f docker-compose.prod.yml exec app chmod -R 775 /var/www/html/storage
+docker compose -f docker-compose.prod.yml --env-file .env.production logs -f
 ```
 
-## 7. Veritabanı İşlemleri
+### Görsellerin Çalıştığını Test Et
+1. Admin panele gir: `https://example.com/admin/login`
+2. Email: `admin@aytunfilmai.com`
+3. Şifre: `admin123`
+4. **Şifreyi hemen değiştir!**
+5. Slider veya Scrolling Image yükle
+6. Görselin sitede göründüğünü kontrol et
+
+---
+
+## 🔧 Yararlı Yönetim Komutları
+
+**ÖNEMLİ:** Her komutta `--env-file .env.production` kullan!
+
+### Container'ları Durdur
 ```bash
-# Veritabanı yedeği al
+docker compose -f docker-compose.prod.yml --env-file .env.production down
+```
+
+### Container'ları Başlat
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d
+```
+
+### Veritabanını Sıfırla (Tüm Veriler Silinir!)
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan migrate:fresh --seed --force
+```
+
+### Cache Temizle
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan cache:clear
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan config:clear
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan view:clear
+```
+
+### Veritabanı Yedeği Al
+```bash
 docker exec aytunfilmai_mysql mysqldump -u root -p'ROOT_PASSWORD' aytunfilmai_db > backup_$(date +%Y%m%d).sql
-
-# Yedekten geri yükle
-docker exec -i aytunfilmai_mysql mysql -u root -p'ROOT_PASSWORD' aytunfilmai_db < backup_20251215.sql
-
-# MySQL'e bağlan
-docker exec -it aytunfilmai_mysql mysql -u root -p
 ```
 
-## 8. Proje Güncelleme (GitHub'dan)
+**Not:** `ROOT_PASSWORD` yerine `.env.production` dosyasındaki `DB_ROOT_PASSWORD` değerini kullan.
+
+---
+
+## 🐛 Sorun Giderme
+
+### Sorun: Görseller Yüklenmiyor
 ```bash
-cd /var/www/aytunfilmai
+# Storage link'i kontrol et
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app ls -la /var/www/html/public/storage
 
-# Son değişiklikleri çek
-git pull
+# Yoksa yeniden oluştur
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan storage:link
 
-# Container'ları yeniden build et
-docker compose -f docker-compose.prod.yml down
-docker compose -f docker-compose.prod.yml up -d --build
-
-# Migration çalıştır (gerekirse)
-docker compose -f docker-compose.prod.yml exec app php artisan migrate --force
-
-# Cache temizle ve optimize et
-docker compose -f docker-compose.prod.yml exec app php artisan optimize
+# İzinleri düzelt
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app chown -R www-data:www-data /var/www/html/storage
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app chown -R www-data:www-data /var/www/html/public
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app chmod -R 775 /var/www/html/storage
 ```
 
-## 9. SSL Sertifikası Yenileme
+### Sorun: 500 Server Error
 ```bash
-# Manuel yenileme
-sudo certbot renew
-
-# Yenileme testi
-sudo certbot renew --dry-run
-
-# Container'ları yeniden başlat (sertifika yenilendikten sonra)
-cd /var/www/aytunfilmai
-docker compose -f docker-compose.prod.yml restart nginx
-```
-
-## 10. Sorun Giderme
-
-### Container Çalışmıyor mu?
-```bash
-cd /var/www/aytunfilmai
-
-# Container durumunu kontrol et
-docker compose -f docker-compose.prod.yml ps
-
-# Log'ları kontrol et
-docker compose -f docker-compose.prod.yml logs app
-docker compose -f docker-compose.prod.yml logs nginx
-docker compose -f docker-compose.prod.yml logs mysql
-```
-
-### Site Açılmıyor mu?
-```bash
-# Nginx loglarını kontrol et
-docker compose -f docker-compose.prod.yml logs nginx
-
 # Laravel loglarını kontrol et
-docker compose -f docker-compose.prod.yml exec app tail -f /var/www/html/storage/logs/laravel.log
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app tail -50 /var/www/html/storage/logs/laravel.log
 
-# Firewall kontrol
-sudo ufw status
+# APP_KEY eksikse yeniden oluştur
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan key:generate --force
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan config:clear
 ```
 
-### Veritabanı Bağlantı Hatası?
+### Sorun: Container Başlamıyor
 ```bash
-# MySQL container'ının çalıştığını kontrol et
-docker compose -f docker-compose.prod.yml ps mysql
+# Log'ları kontrol et
+docker compose -f docker-compose.prod.yml --env-file .env.production logs
 
-# MySQL'e bağlan ve test et
-docker exec -it aytunfilmai_mysql mysql -u root -p
+# Container'ları tamamen sil ve yeniden başlat
+docker compose -f docker-compose.prod.yml --env-file .env.production down -v
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 ```
 
-## 11. Sistem Kaynakları
+---
+
+## 📝 Admin Paneli Varsayılan Giriş
+
+**İlk Kurulumda:**
+- Email: `admin@aytunfilmai.com`
+- Şifre: `admin123`
+
+⚠️ **Güvenlik:** İlk girişten sonra mutlaka şifreyi değiştir!
+
+---
+
+## 🔐 Güvenlik Önerileri
+
+1. **Admin şifresini hemen değiştir**
+2. **MySQL portunu (3306) firewall'da kapat** (sadece localhost'tan erişim)
+3. **SSH şifresi yerine SSH key kullan**
+4. **Düzenli veritabanı yedeği al**
+5. **SSL sertifikasını otomatik yenile** (Let's Encrypt 90 günde bir)
+
 ```bash
-# Container'ların kaynak kullanımını izle
-docker stats
+# SSL otomatik yenileme için cron job ekle
+sudo crontab -e
 
-# Disk kullanımı
-df -h
-
-# RAM kullanımı
-free -h
-
-# CPU kullanımı
-top
+# Şu satırı ekle:
+0 3 * * * certbot renew --quiet && docker compose -f /var/www/aytunfilmai/docker-compose.prod.yml --env-file /var/www/aytunfilmai/.env.production restart nginx
 ```
 
-## 12. Güvenlik
+---
 
-### Fail2Ban Kurulumu (Brute Force koruması)
-```bash
-sudo apt install fail2ban -y
-sudo systemctl enable fail2ban
-sudo systemctl start fail2ban
-```
+## 📞 Destek
 
-## 13. TAM TEMİZLİK (Projeyi Tamamen Silmek)
-```bash
-cd /var/www/aytunfilmai
+Sorun yaşarsan kontrol et:
+1. Container'lar çalışıyor mu? (`docker compose ps`)
+2. Log'larda hata var mı? (`docker compose logs`)
+3. Storage izinleri doğru mu?
+4. SSL sertifikası geçerli mi?
 
-# Container'ları ve volume'leri sil
-docker compose -f docker-compose.prod.yml down -v
+---
 
-# Proje klasörünü sil
-cd ..
-sudo rm -rf aytunfilmai
-
-# Docker image'larını temizle (opsiyonel)
-docker system prune -a
-```
-
-## Önemli Notlar
-
-- `.env.production` dosyası hassas bilgiler içerir, GÜVENLİ TUTUN
-- Düzenli yedek alın
-- Log dosyalarını düzenli kontrol edin
-- Güvenlik güncellemelerini takip edin
-- SSL sertifikaları 90 günde bir yenilenir (otomatik)
-
-## Deployment Scriptleri
-
-- `deploy.sh` - HTTP deployment (SSL olmadan)
-- `deploy-ssl.sh` - HTTPS deployment (SSL ile)
-
-Her ikisi de otomatik kurulum yapar:
-- Docker container'ları oluşturur
-- Veritabanını kurar
-- Migration ve seeder'ları çalıştırır
-- SSL sertifikası alır (deploy-ssl.sh)
+**Son Güncelleme:** 24 Ocak 2026
