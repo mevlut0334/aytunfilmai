@@ -49,7 +49,7 @@ class CartController extends Controller
     /**
  * Sepete ürün ekle
  */
-public function add(AddToCartRequest $request): RedirectResponse
+public function add(AddToCartRequest $request)
 {
     try {
         $userId = Auth::id();
@@ -60,8 +60,24 @@ public function add(AddToCartRequest $request): RedirectResponse
             $request->quantity
         );
 
+        // Ajax request ise JSON döndür
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Ürün sepete eklendi!'
+            ]);
+        }
+
         return back()->with('success', 'Ürün sepete eklendi.');
     } catch (\Exception $e) {
+        // Ajax request ise hata JSON döndür
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+
         return back()->with('error', $e->getMessage());
     }
 }

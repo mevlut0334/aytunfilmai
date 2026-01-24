@@ -65,13 +65,14 @@ class CheckoutController extends Controller
      */
     public function process(Request $request): View|RedirectResponse|Response
     {
-        // Kart bilgileri validation
+        // Kart bilgileri ve telefon validation
         $request->validate([
             'card_holder_name' => 'required|string|max:255',
             'card_number' => 'required|string|size:16',
             'expire_month' => 'required|string|size:2',
             'expire_year' => 'required|string|size:2',
             'cvc' => 'required|string|size:3',
+            'phone' => 'required|string|min:10|max:15',
         ], [
             'card_holder_name.required' => 'Kart üzerindeki isim zorunludur.',
             'card_number.required' => 'Kart numarası zorunludur.',
@@ -80,6 +81,8 @@ class CheckoutController extends Controller
             'expire_year.required' => 'Son kullanma yılı zorunludur.',
             'cvc.required' => 'CVC kodu zorunludur.',
             'cvc.size' => 'CVC kodu 3 haneli olmalıdır.',
+            'phone.required' => 'Telefon numarası zorunludur.',
+            'phone.min' => 'Telefon numarası en az 10 haneli olmalıdır.',
         ]);
 
         try {
@@ -113,7 +116,7 @@ class CheckoutController extends Controller
                 'final_amount' => $cartSummary['total'],
                 'coupon_id' => $cartSummary['coupon_id'] ?? null,
                 'status' => 'pending',
-                'callback_token' => $callbackToken, // Token ekledik
+                'callback_token' => $callbackToken,
             ]);
 
             // Sipariş kalemlerini oluştur
@@ -145,14 +148,29 @@ class CheckoutController extends Controller
                 'price' => number_format($cartSummary['total'], 2, '.', ''),
                 'paid_price' => number_format($cartSummary['total'], 2, '.', ''),
                 'basket_id' => 'basket_' . $order->id,
-                'callback_url' => route('checkout.callback', ['token' => $callbackToken]), // Token ekledik
+                'callback_url' => route('checkout.callback', ['token' => $callbackToken]),
                 'buyer' => [
                     'id' => 'user_' . $user->id,
                     'name' => $firstName,
                     'surname' => $lastName,
                     'email' => $user->email,
-                    'identity_number' => '11111111111', // Test için
+                    'identity_number' => '11111111111',
+                    'gsm_number' => $this->formatPhoneNumber($request->phone),
                     'ip' => $request->ip(),
+                ],
+                'shipping_address' => [
+                    'contact_name' => $user->name,
+                    'city' => 'İstanbul',
+                    'country' => 'Turkey',
+                    'address' => 'Dijital Ürün',
+                    'zip_code' => '34000',
+                ],
+                'billing_address' => [
+                    'contact_name' => $user->name,
+                    'city' => 'İstanbul',
+                    'country' => 'Turkey',
+                    'address' => 'Dijital Ürün',
+                    'zip_code' => '34000',
                 ],
                 'items' => [],
             ];
@@ -167,7 +185,8 @@ class CheckoutController extends Controller
                 $orderData['items'][] = [
                     'id' => 'item_' . $item->id,
                     'name' => $item->package->name,
-                    'category' => 'Token Paketi',
+                    'category1' => 'Token Paketi',
+                    'item_type' => 'VIRTUAL',
                     'price' => number_format($discountedPrice, 2, '.', ''),
                 ];
             }
@@ -319,7 +338,7 @@ class CheckoutController extends Controller
                     'status' => 'completed',
                     'payment_date' => now(),
                     'transaction_id' => $result['payment_id'] ?? null,
-                    'callback_token' => null, // Token'ı sil (tek kullanımlık)
+                    'callback_token' => null,
                 ]);
 
                 // OrderService ile siparişi tamamla (token yükle, kupon kaydet, sepet temizle)
@@ -344,7 +363,7 @@ class CheckoutController extends Controller
             DB::beginTransaction();
             $order->update([
                 'status' => 'failed',
-                'callback_token' => null, // Token'ı sil
+                'callback_token' => null,
             ]);
             DB::commit();
 
@@ -393,5 +412,36 @@ class CheckoutController extends Controller
     public function fail(): View
     {
         return view('checkout.fail');
+    }
+
+    /**
+     * Telefon numarasını iyzico formatına çevir (+90 ile başlamalı)
+     */
+    private function formatPhoneNumber($phone)
+    {
+        if (!$phone) {
+            return '+905555555555'; // Boşsa varsayılan
+        }
+
+        // Boşlukları, tire ve parantezleri temizle
+        $phone = preg_replace('/[\s\-\(\)]/', '', $phone);
+
+        // +90 ile başlıyorsa olduğu gibi dön
+        if (strpos($phone, '+90') === 0) {
+            return $phone;
+        }
+
+        // 90 ile başlıyorsa + ekle
+        if (strpos($phone, '90') === 0) {
+            return '+' . $phone;
+        }
+
+        // 0 ile başlıyorsa 0'ı çıkar ve +90 ekle
+        if (strpos($phone, '0') === 0) {
+            return '+9' . $phone;
+        }
+
+        // Sadece numaralar varsa +90 ekle
+        return '+90' . $phone;
     }
 }

@@ -26,17 +26,6 @@
                     <h5 class="mb-0"><i class="bi bi-credit-card"></i> Ödeme Bilgileri</h5>
                 </div>
                 <div class="card-body">
-                    <!-- Test Modu Bilgilendirme -->
-                    <div class="alert alert-warning">
-                        <h6><i class="bi bi-exclamation-triangle-fill"></i> Test Modu Aktif</h6>
-                        <p class="mb-2">Sandbox ortamındasınız. Gerçek para çekilmez.</p>
-                        <small>
-                            <strong>Test Kartları:</strong><br>
-                            • Başarılı: 5528790000000008 | 12/30 | 123<br>
-                            • Başarısız: 5406670000000009 | 12/30 | 123
-                        </small>
-                    </div>
-
                     <form action="{{ route('checkout.process') }}" method="POST" id="checkout-form">
                         @csrf
 
@@ -61,12 +50,18 @@
                                            readonly>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="phone" class="form-label">Telefon</label>
+                                    <label for="phone" class="form-label">Telefon <span class="text-danger">*</span></label>
                                     <input type="text"
-                                           class="form-control"
+                                           class="form-control @error('phone') is-invalid @enderror"
                                            id="phone"
-                                           value="{{ auth()->user()->phone }}"
-                                           readonly>
+                                           name="phone"
+                                           placeholder="0555 123 45 67"
+                                           value="{{ old('phone', auth()->user()->phone ?? '') }}"
+                                           required>
+                                    @error('phone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                    <small class="text-muted">Örn: 0555 123 45 67</small>
                                 </div>
                             </div>
                         </div>
@@ -101,7 +96,6 @@
                                     @error('card_number')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                    <small class="text-muted">Test: 5528790000000008 (Başarılı)</small>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="expire_month" class="form-label">Ay <span class="text-danger">*</span></label>
@@ -157,18 +151,18 @@
                         </div>
 
                         <!-- Sözleşmeler -->
-<div class="mb-4">
-    <div class="form-check">
-        <input class="form-check-input"
-               type="checkbox"
-               id="terms"
-               required>
-        <label class="form-check-label" for="terms">
-            <a href="{{ route('legal.terms') }}" target="_blank">Kullanım Koşulları</a>'nı ve
-            <a href="{{ route('legal.kvkk') }}" target="_blank">Gizlilik Politikası</a>'nı okudum, kabul ediyorum.
-        </label>
-    </div>
-</div>
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       id="terms"
+                                       required>
+                                <label class="form-check-label" for="terms">
+                                    <a href="{{ route('legal.terms') }}" target="_blank">Kullanım Koşulları</a>'nı ve
+                                    <a href="{{ route('legal.kvkk') }}" target="_blank">Gizlilik Politikası</a>'nı okudum, kabul ediyorum.
+                                </label>
+                            </div>
+                        </div>
 
                         <!-- İyzico Logosu -->
                         <div class="text-center mb-3">
@@ -264,6 +258,21 @@
 
 @push('scripts')
 <script>
+    // Telefon numarası formatla
+    document.getElementById('phone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 11) value = value.slice(0, 11);
+
+        // 0555 123 45 67 formatında göster
+        if (value.length > 7) {
+            e.target.value = value.slice(0, 4) + ' ' + value.slice(4, 7) + ' ' + value.slice(7, 9) + ' ' + value.slice(9);
+        } else if (value.length > 4) {
+            e.target.value = value.slice(0, 4) + ' ' + value.slice(4);
+        } else {
+            e.target.value = value;
+        }
+    });
+
     // Kart numarası formatla (boşluk ekle)
     document.getElementById('card_number').addEventListener('input', function(e) {
         let value = e.target.value.replace(/\s/g, '');
@@ -284,11 +293,21 @@
         }
     });
 
+    document.getElementById('phone').addEventListener('keypress', function(e) {
+        if (!/\d/.test(e.key) && e.key !== 'Backspace') {
+            e.preventDefault();
+        }
+    });
+
     // Form submit - boşlukları temizle ve buton devre dışı
     document.getElementById('checkout-form').addEventListener('submit', function(e) {
         // Kart numarasındaki boşlukları kaldır
         const cardInput = document.getElementById('card_number');
         cardInput.value = cardInput.value.replace(/\s/g, '');
+
+        // Telefon numarasındaki boşlukları kaldır
+        const phoneInput = document.getElementById('phone');
+        phoneInput.value = phoneInput.value.replace(/\s/g, '');
 
         // Butonu devre dışı bırak
         const btn = document.getElementById('submit-btn');

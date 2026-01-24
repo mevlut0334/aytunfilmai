@@ -306,6 +306,85 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
+        /* Custom Toast Notification */
+        .custom-toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 350px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.5);
+            backdrop-filter: blur(10px);
+            animation: slideInRight 0.4s ease-out;
+        }
+
+        .custom-toast.hide {
+            animation: slideOutRight 0.4s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-bottom: none;
+            border-radius: 13px 13px 0 0;
+            padding: 1rem 1.5rem;
+        }
+
+        .toast-header strong {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .toast-body {
+            padding: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .toast-body .btn {
+            margin-top: 1rem;
+        }
+
+        .btn-view-cart {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(255, 0, 110, 0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-view-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 0, 110, 0.5);
+            color: white;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .packages-container {
@@ -334,6 +413,12 @@
 
             .package-price {
                 font-size: 2rem;
+            }
+
+            .custom-toast {
+                min-width: 300px;
+                right: 10px;
+                left: 10px;
             }
         }
     </style>
@@ -465,7 +550,7 @@
                                 </div>
 
                                 <!-- Add to Cart Form -->
-                                <form action="{{ route('cart.add') }}" method="POST" class="mt-auto">
+                                <form action="{{ route('cart.add') }}" method="POST" class="mt-auto add-to-cart-form">
                                     @csrf
                                     <input type="hidden" name="package_id" value="{{ $package->id }}">
 
@@ -507,7 +592,89 @@
         </div>
     </div>
 
+    <!-- Custom Toast Container -->
+    <div id="toastContainer"></div>
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript for Cart Notification -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tüm sepete ekle formlarını dinle
+            const forms = document.querySelectorAll('.add-to-cart-form');
+
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showCartNotification(data.message || 'Ürün sepete eklendi!');
+                        } else {
+                            alert(data.message || 'Bir hata oluştu!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+                    });
+                });
+            });
+        });
+
+        function showCartNotification(message) {
+            const toastContainer = document.getElementById('toastContainer');
+
+            const toastHTML = `
+                <div class="custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <i class="bi bi-check-circle-fill me-2" style="font-size: 1.5rem;"></i>
+                        <strong class="me-auto">Başarılı!</strong>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        <p class="mb-0"><i class="bi bi-cart-check"></i> ${message}</p>
+                        <a href="{{ route('cart.index') }}" class="btn btn-view-cart w-100">
+                            <i class="bi bi-cart3"></i> Sepeti Görüntüle
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            toastContainer.innerHTML = toastHTML;
+            const toastElement = toastContainer.querySelector('.custom-toast');
+
+            // Close button functionality
+            const closeBtn = toastElement.querySelector('.btn-close');
+            closeBtn.addEventListener('click', function() {
+                toastElement.classList.add('hide');
+                setTimeout(() => {
+                    toastElement.remove();
+                }, 400);
+            });
+
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                if (toastElement) {
+                    toastElement.classList.add('hide');
+                    setTimeout(() => {
+                        toastElement.remove();
+                    }, 400);
+                }
+            }, 10000);
+        }
+    </script>
 </body>
 </html>
