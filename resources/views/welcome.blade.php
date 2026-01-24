@@ -712,7 +712,7 @@
                     <div class="step-card">
                         <div class="step-number">3</div>
                         <h4 class="mt-3">Film Talebi Oluştur</h4>
-                        <p>Yapay zeka ile senaryonu yaz</p>
+                        <p>Senaryonu yükle</p>
                     </div>
                 </div>
                 <!-- Step 4 -->
