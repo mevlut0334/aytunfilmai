@@ -601,12 +601,21 @@
     <!-- Custom JavaScript for Cart Notification -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Kullanıcı giriş kontrolü
+            const isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
+
             // Tüm sepete ekle formlarını dinle
             const forms = document.querySelectorAll('.add-to-cart-form');
 
             forms.forEach(form => {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
+
+                    // Giriş yapmamış kullanıcıyı login sayfasına yönlendir
+                    if (!isAuthenticated) {
+                        window.location.href = "{{ route('login') }}";
+                        return;
+                    }
 
                     const formData = new FormData(this);
 
@@ -665,7 +674,7 @@
                 }, 400);
             });
 
-            // Auto hide after 5 seconds
+            // Auto hide after 10 seconds
             setTimeout(() => {
                 if (toastElement) {
                     toastElement.classList.add('hide');
