@@ -60,7 +60,7 @@ echo -e "${GREEN}✓ .env dosyası oluşturuldu${NC}"
 
 # Docker container'ları başlat (önce HTTP ile)
 echo -e "${BLUE}[2/10] Docker container'ları başlatılıyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}✗ Docker container'ları başlatılamadı!${NC}"
@@ -71,32 +71,32 @@ echo -e "${GREEN}✓ Container'lar başlatıldı${NC}"
 
 # Container'ların hazır olmasını bekle
 echo -e "${BLUE}[3/10] Container'ların hazır olması bekleniyor...${NC}"
-sleep 10
+sleep 20
 
 # APP_KEY oluştur
 echo -e "${BLUE}[4/10] APP_KEY oluşturuluyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
 
 # Cache temizle
 echo -e "${BLUE}[5/10] Cache temizleniyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan config:clear
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan cache:clear
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan config:clear
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan cache:clear
 
 # Migration çalıştır
 echo -e "${BLUE}[6/10] Veritabanı migration'ları çalıştırılıyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan migrate --force
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan migrate --force
 
 # Seeder çalıştır
 echo -e "${BLUE}[7/10] Seeder'lar çalıştırılıyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan db:seed --force
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan db:seed --force
 
 # Storage link
 echo -e "${BLUE}[8/10] Storage link oluşturuluyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan storage:link
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan storage:link
 
 # İzinleri düzelt
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/storage
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod -R 775 /var/www/html/storage
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/storage
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod -R 775 /var/www/html/storage
 
 # Certbot kurulumu
 echo -e "${BLUE}[9/10] Certbot kurulumu ve SSL sertifikası alınıyor...${NC}"
@@ -205,15 +205,9 @@ NGINX_SSL_EOF
     # Domain placeholder'ı değiştir
     sed -i "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" docker/nginx/prod-ssl.conf
 
-    # Docker compose'u SSL ile güncelle
-    sed -i 's|./docker/nginx/prod.conf|./docker/nginx/prod-ssl.conf|g' docker-compose.prod.yml
-
-    # SSL volume ekle
-    sed -i '/volumes:/a\      - /etc/letsencrypt:/etc/letsencrypt:ro' docker-compose.prod.yml
-
     # Container'ları yeniden başlat
-    docker-compose -f docker-compose.prod.yml --env-file .env.production down
-    docker-compose -f docker-compose.prod.yml --env-file .env.production up -d
+    docker compose -f docker-compose.prod.yml --env-file .env.production down
+    docker compose -f docker-compose.prod.yml --env-file .env.production up -d
 
     echo -e "${GREEN}✓ SSL yapılandırması tamamlandı${NC}"
 fi
