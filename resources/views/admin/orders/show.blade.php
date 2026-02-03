@@ -62,6 +62,19 @@
                                     </tr>
                                 @endforeach
                             </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Toplam Token:</strong></td>
+                                    <td class="text-end">
+                                        <strong class="text-warning">
+                                            <i class="bi bi-coin"></i>
+                                            {{ number_format($order->orderItems->sum(function($item) {
+                                                return $item->package->token_amount * $item->quantity;
+                                            }), 0) }}
+                                        </strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -96,7 +109,7 @@
 
         <!-- Sağ: Sipariş Özeti -->
         <div class="col-lg-4">
-            <!-- Sipariş Durumu -->
+            <!-- Sipariş Durumu ve Onaylama -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header
                     @if($order->status === 'pending') bg-warning text-dark
@@ -109,15 +122,46 @@
                     @if($order->status === 'pending')
                         <i class="bi bi-clock display-1 text-warning"></i>
                         <h5 class="mt-3">Beklemede</h5>
+                        <p class="text-muted small">Havale/EFT onayı bekleniyor</p>
+
+                        <!-- Onaylama Butonu -->
+                        <form action="{{ route('admin.orders.approve', $order->id) }}" method="POST" onsubmit="return confirm('Bu siparişi onaylamak istediğinize emin misiniz? Tokenlar kullanıcıya yüklenecektir.')">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-lg w-100 mt-3">
+                                <i class="bi bi-check-circle"></i> Ödemeyi Onayla
+                            </button>
+                        </form>
+
+                        <div class="alert alert-info mt-3 text-start small">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Onay Sonrası:</strong>
+                            <ul class="mb-0 mt-1">
+                                <li>Sipariş durumu "Tamamlandı" olur</li>
+                                <li>Tokenlar otomatik yüklenir</li>
+                                <li>Kupon kullanımı kaydedilir</li>
+                            </ul>
+                        </div>
+
                     @elseif($order->status === 'completed')
                         <i class="bi bi-check-circle display-1 text-success"></i>
                         <h5 class="mt-3">Tamamlandı</h5>
                         @if($order->payment_date)
                             <small class="text-muted">{{ $order->payment_date->format('d.m.Y H:i') }}</small>
                         @endif
+
+                        <div class="alert alert-success mt-3 text-start small">
+                            <i class="bi bi-check-circle"></i>
+                            Bu sipariş onaylanmış ve tokenlar kullanıcıya yüklenmiştir.
+                        </div>
+
                     @else
                         <i class="bi bi-x-circle display-1 text-danger"></i>
                         <h5 class="mt-3">Başarısız</h5>
+
+                        <div class="alert alert-danger mt-3 text-start small">
+                            <i class="bi bi-x-circle"></i>
+                            Bu sipariş başarısız olarak işaretlenmiştir.
+                        </div>
                     @endif
                 </div>
             </div>

@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Ödeme Başarılı - Aytun Film AI')
+@section('title', 'Sipariş Oluşturuldu - Aytun Film AI')
 
 @section('content')
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
+        <div class="col-lg-10">
             <!-- Başarı Kartı -->
             <div class="card shadow-lg border-0">
                 <div class="card-body text-center p-5">
@@ -15,9 +15,9 @@
                     </div>
 
                     <!-- Başlık -->
-                    <h1 class="text-success mb-3">Ödeme Başarılı!</h1>
+                    <h1 class="text-success mb-3">Siparişiniz Oluşturuldu!</h1>
                     <p class="lead text-muted mb-4">
-                        Siparişiniz başarıyla tamamlandı. Tokenlarınız hesabınıza yüklendi.
+                        Siparişiniz başarıyla oluşturuldu. Havale/EFT işlemini tamamladıktan sonra tokenlarınız hesabınıza yüklenecektir.
                     </p>
 
                     <!-- Sipariş Bilgileri -->
@@ -26,18 +26,19 @@
                             <div class="row text-start">
                                 <div class="col-md-6 mb-3">
                                     <small class="text-muted">Sipariş Numarası</small>
-                                    <h5 class="mb-0">#{{ $order->id }}</h5>
+                                    <h5 class="mb-0 text-danger">#{{ $order->id }}</h5>
+                                    <small class="text-danger">⚠️ Bu numarayı havale açıklamasına yazınız</small>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <small class="text-muted">Tarih</small>
                                     <h5 class="mb-0">{{ $order->created_at->format('d.m.Y H:i') }}</h5>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <small class="text-muted">Toplam Tutar</small>
+                                    <small class="text-muted">Ödenecek Tutar</small>
                                     <h5 class="mb-0 text-success">{{ number_format($order->final_amount, 2) }} ₺</h5>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <small class="text-muted">Yüklenen Token</small>
+                                    <small class="text-muted">Yüklenecek Token</small>
                                     <h5 class="mb-0 text-warning">
                                         <i class="bi bi-coin"></i> {{ number_format($order->totalTokens, 0) }}
                                     </h5>
@@ -65,12 +66,37 @@
                         </div>
                     </div>
 
-                    <!-- Mevcut Token Bakiyesi -->
+                    <!-- Ödeme Talimatları -->
+                    <div class="card border-primary mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Ödeme Nasıl Yapılır?</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning text-start">
+                                <h6><i class="bi bi-exclamation-triangle"></i> Önemli Uyarılar:</h6>
+                                <ul class="mb-0">
+                                    <li><strong>Ana sayfamızdan banka hesap bilgilerimize ulaşabilir veya WhatsApp destek hattımızdan banka bilgilerimizi talep edip ödemenizi yapabilirsiniz.</strong></li>
+                                    <li><strong>Havale/EFT açıklamasına mutlaka sipariş numaranızı (#{{ $order->id }}) yazınız.</strong></li>
+                                    <li>Ödeme yaptıktan sonra dekontunuzu WhatsApp üzerinden bize gönderin.</li>
+                                    <li>Ödemeniz onaylandıktan sonra tokenlarınız otomatik olarak hesabınıza yüklenecektir.</li>
+                                </ul>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <a href="{{ route('home') }}" class="btn btn-success btn-lg">
+                                    <i class="bi bi-house-door"></i> Ana Sayfaya Git - Banka Bilgilerini Gör
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Durum Bilgisi -->
                     <div class="alert alert-info mb-4">
-                        <h5><i class="bi bi-info-circle-fill"></i> Güncel Token Bakiyeniz</h5>
-                        <h2 class="mb-0 text-primary">
-                            <i class="bi bi-coin"></i> {{ number_format((int) $order->totalTokens, 0) }}
-                        </h2>
+                        <h6><i class="bi bi-info-circle"></i> Sipariş Durumu</h6>
+                        <p class="mb-0">
+                            Siparişiniz şu anda <span class="badge bg-warning text-dark">Ödeme Bekleniyor</span> durumundadır.
+                            Ödemeniz onaylandığında durumu <span class="badge bg-success">Tamamlandı</span> olarak güncellenecektir.
+                        </p>
                     </div>
 
                     <!-- Aksiyon Butonları -->

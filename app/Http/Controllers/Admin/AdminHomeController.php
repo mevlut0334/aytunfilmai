@@ -255,16 +255,22 @@ class AdminHomeController extends Controller
     public function settings()
     {
         $whatsappNumber = SiteSetting::get('whatsapp_number', '');
-        return view('admin.home.settings', compact('whatsappNumber'));
+        $bankAccountName = SiteSetting::get('bank_account_name', '');
+        $bankIban = SiteSetting::get('bank_iban', '');
+        return view('admin.home.settings', compact('whatsappNumber', 'bankAccountName', 'bankIban'));
     }
 
     public function updateSettings(Request $request)
     {
         $validated = $request->validate([
-            'whatsapp_number' => 'required|string|max:20',
+            'whatsapp_number'   => 'required|string|max:20',
+            'bank_account_name' => 'required|string|max:255',
+            'bank_iban'         => 'required|string|max:80',
         ]);
 
         SiteSetting::set('whatsapp_number', $validated['whatsapp_number']);
+        SiteSetting::set('bank_account_name', $validated['bank_account_name']);
+        SiteSetting::set('bank_iban', $validated['bank_iban']);
 
         return redirect()->route('admin.home.settings')
             ->with('success', 'Ayarlar başarıyla güncellendi!');

@@ -128,7 +128,7 @@
             left: 50%;
             right: auto;
             transform: translateX(-50%);
-            z-index: 5; /* Kontrol butonlarının altında */
+            z-index: 5;
         }
 
         .carousel-caption h2 {
@@ -143,11 +143,11 @@
 
         .carousel-control-prev,
         .carousel-control-next {
-            z-index: 10; /* Caption'ın üstünde */
+            z-index: 10;
         }
 
         .carousel-indicators {
-            display: none !important; /* Çizgileri tamamen kaldır */
+            display: none !important;
         }
 
         /* How It Works Section */
@@ -368,15 +368,7 @@
         .footer {
             background: var(--bg-dark);
             border-top: 1px solid rgba(0, 217, 255, 0.2);
-            padding: 3rem 0 1rem;
-        }
-
-        .footer-logo {
-            max-height: 80px;
-            max-width: 300px;
-            width: auto;
-            height: auto;
-            object-fit: contain;
+            padding: 3rem 0 5rem; /* alt sticky bar için extra padding */
         }
 
         .footer-links a {
@@ -391,6 +383,118 @@
         .footer-links a:hover {
             color: var(--primary);
             padding-left: 10px;
+        }
+
+        /* =========================================
+           BANKA BİLGİLERİ KARTI
+           ========================================= */
+        .bank-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: 0 0 25px rgba(0, 217, 255, 0.25);
+            max-width: 480px;
+            width: 100%;
+        }
+
+        .bank-card-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+            padding-bottom: 0.75rem;
+        }
+
+        .bank-card-title i {
+            font-size: 1.3rem;
+        }
+
+        .bank-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .bank-row-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .bank-row-value {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .bank-row-value.iban-value {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            color: var(--primary);
+        }
+
+        .btn-copy {
+            background: rgba(0, 217, 255, 0.15);
+            border: 1px solid rgba(0, 217, 255, 0.4);
+            color: var(--primary);
+            border-radius: 6px;
+            padding: 0.2rem 0.55rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-copy:hover {
+            background: rgba(0, 217, 255, 0.3);
+            border-color: var(--primary);
+        }
+
+        .btn-copy.copied {
+            background: rgba(37, 211, 102, 0.2);
+            border-color: #25D366;
+            color: #25D366;
+        }
+
+        /* Note kutusu */
+        .bank-note {
+            background: rgba(255, 0, 110, 0.1);
+            border: 1px solid rgba(255, 0, 110, 0.4);
+            border-radius: 10px;
+            padding: 0.9rem 1rem;
+            margin-top: 1rem;
+        }
+
+        .bank-note-title {
+            font-size: 0.82rem;
+            font-weight: bold;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .bank-note p {
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.5;
+            margin-bottom: 0;
         }
 
         /* Sticky Footer Bar */
@@ -454,20 +558,19 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            /* Slider - Mobil */
             .slider-section {
-                margin-top: 56px; /* Navbar daha küçük mobilde */
+                margin-top: 56px;
             }
 
             .carousel-item {
                 height: 300px;
-                background: #000; /* Boşluklar siyah olsun */
+                background: #000;
             }
 
             .carousel-item img {
                 width: 100% !important;
                 height: 100% !important;
-                object-fit: contain !important; /* Tüm görsel görünsün */
+                object-fit: contain !important;
             }
 
             .carousel-caption {
@@ -493,7 +596,6 @@
                 font-size: 2rem;
             }
 
-            /* How It Works - Yarı Alan */
             .how-it-works {
                 padding: 2.5rem 0;
             }
@@ -514,7 +616,6 @@
                 font-size: 0.85rem;
             }
 
-            /* Scrolling Images - Yarı Alan */
             .scrolling-section {
                 padding: 2.5rem 0;
             }
@@ -535,19 +636,12 @@
                 font-size: 0.9rem;
             }
 
-            /* FAQ */
             .faq-section {
                 padding: 2.5rem 0;
             }
 
-            /* Footer - Mobil */
             .footer {
-                padding: 2rem 0 1rem;
-            }
-
-            .footer-logo {
-                max-height: 40px;
-                margin-bottom: 1rem;
+                padding: 2rem 0 5rem;
             }
 
             .footer-links a {
@@ -555,7 +649,16 @@
                 margin-bottom: 0.5rem;
             }
 
-            /* Sticky Footer - Yan Yana Butonlar */
+            /* Banka karti mobil */
+            .bank-card {
+                padding: 1.25rem;
+            }
+
+            .bank-row-value.iban-value {
+                font-size: 0.88rem;
+                flex-wrap: wrap;
+            }
+
             .sticky-footer-bar .btn {
                 font-size: 0.75rem;
                 padding: 0.5rem 0.75rem;
@@ -572,7 +675,6 @@
             }
         }
 
-        /* Ekstra küçük ekranlar için */
         @media (max-width: 576px) {
             .sticky-footer-bar {
                 padding: 0.75rem 0;
@@ -691,7 +793,6 @@
         <div class="container">
             <h2>Nasıl Çalışır?</h2>
             <div class="row g-4">
-                <!-- Step 1 -->
                 <div class="col-md-3 col-6">
                     <div class="step-card">
                         <div class="step-number">1</div>
@@ -699,7 +800,6 @@
                         <p>Hızlı ve kolay kayıt işlemi ile başla</p>
                     </div>
                 </div>
-                <!-- Step 2 -->
                 <div class="col-md-3 col-6">
                     <div class="step-card">
                         <div class="step-number">2</div>
@@ -707,7 +807,6 @@
                         <p>İhtiyacına göre token paketi seç</p>
                     </div>
                 </div>
-                <!-- Step 3 -->
                 <div class="col-md-3 col-6">
                     <div class="step-card">
                         <div class="step-number">3</div>
@@ -715,7 +814,6 @@
                         <p>Senaryonu yükle</p>
                     </div>
                 </div>
-                <!-- Step 4 -->
                 <div class="col-md-3 col-6">
                     <div class="step-card">
                         <div class="step-number">4</div>
@@ -735,7 +833,6 @@
                 <div class="scroll-container">
                     @php
                         $scrollingImages = \App\Models\ScrollingImage::active()->ordered()->get();
-                        // İkinci kez tekrarla (sonsuz döngü efekti için)
                         $allImages = $scrollingImages->concat($scrollingImages);
                     @endphp
                     @foreach($allImages as $image)
@@ -785,13 +882,54 @@
     <footer class="footer">
         <div class="container">
             <div class="row">
-                <!-- Sol: İyzico Logo -->
-                <div class="col-md-6 text-center text-md-start mb-3">
-                    <img src="{{ asset('images/iyzico-logo.png') }}"
-                         alt="iyzico"
-                         class="footer-logo">
-                    <p class="text-muted mt-2">Güvenli ödeme altyapısı</p>
+                <!-- Sol: Banka Bilgileri Kartı -->
+                <div class="col-md-6 mb-4 d-flex justify-content-center justify-content-md-start">
+                    @php
+                        $bankAccountName = \App\Models\SiteSetting::get('bank_account_name', '');
+                        $bankIban        = \App\Models\SiteSetting::get('bank_iban', '');
+                    @endphp
+
+                    <div class="bank-card">
+                        <!-- Başlık -->
+                        <div class="bank-card-title">
+                            <i class="bi bi-bank2"></i> Ödeme Bilgileri
+                        </div>
+
+                        <!-- Alıcı Adı -->
+                        <div class="bank-row">
+                            <span class="bank-row-label">Alıcı Adı</span>
+                            <div class="bank-row-value">
+                                <span id="bankName">{{ $bankAccountName }}</span>
+                                <button class="btn-copy" onclick="copyText('bankName', this)">
+                                    <i class="bi bi-copy"></i> Kopya
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- IBAN -->
+                        <div class="bank-row">
+                            <span class="bank-row-label">IBAN</span>
+                            <div class="bank-row-value">
+                                <span class="iban-value" id="bankIban">{{ $bankIban }}</span>
+                                <button class="btn-copy" onclick="copyText('bankIban', this)">
+                                    <i class="bi bi-copy"></i> Kopya
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Not Kutusu -->
+                        <div class="bank-note">
+                            <div class="bank-note-title">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Önemli Not
+                            </div>
+                            <p>
+                                Havalenizi yaparken <strong>sipariş numaranızı</strong> açıklama kısmına belirtmeyi unutmayınız.
+                                Ödeme yaptıktan sonra <strong>WhatsApp destek hattımıza</strong> dekontunuzu göndererek ödeme bildiriminde bulununuz.
+                            </p>
+                        </div>
+                    </div>
                 </div>
+
                 <!-- Sağ: Yasal Linkler -->
                 <div class="col-md-6">
                     <div class="footer-links text-center text-md-end">
@@ -848,5 +986,20 @@
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Kopyalama Scripti -->
+    <script>
+        function copyText(elementId, btn) {
+            var text = document.getElementById(elementId).textContent.trim();
+            navigator.clipboard.writeText(text).then(function () {
+                btn.classList.add('copied');
+                btn.innerHTML = '<i class="bi bi-check-lg"></i> Kopyalandı';
+                setTimeout(function () {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = '<i class="bi bi-copy"></i> Kopya';
+                }, 1800);
+            });
+        }
+    </script>
 </body>
 </html>

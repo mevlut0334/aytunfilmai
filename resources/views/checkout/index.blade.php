@@ -23,31 +23,44 @@
         <div class="col-lg-8 mb-4">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-credit-card"></i> Ödeme Bilgileri</h5>
+                    <h5 class="mb-0"><i class="bi bi-person"></i> Bilgileriniz</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('checkout.process') }}" method="POST" id="checkout-form">
                         @csrf
 
-                        <!-- Fatura Bilgileri -->
+                        <!-- Bilgi Kutusu -->
+                        <div class="alert alert-info mb-4">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Havale/EFT ile Ödeme:</strong> Siparişinizi oluşturduktan sonra Havale/EFT yapmanız gerekmektedir.Banka bilgilerimize ana sayfadan ulaşabilir veya whatsapp destek hattımızdan talep edebilirsiniz. Havale/EFT yaptıktan sonra dekontunuzu WhatsApp'tan bize gönderebilirsiniz.
+                        </div>
+
+                        <!-- Bilgiler -->
                         <div class="mb-4">
-                            <h6 class="border-bottom pb-2 mb-3">Fatura Bilgileri</h6>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="name" class="form-label">Ad Soyad</label>
+                                    <label for="name" class="form-label">Ad Soyad <span class="text-danger">*</span></label>
                                     <input type="text"
-                                           class="form-control"
+                                           class="form-control @error('name') is-invalid @enderror"
                                            id="name"
-                                           value="{{ auth()->user()->name }}"
-                                           readonly>
+                                           name="name"
+                                           value="{{ old('name', auth()->user()->name) }}"
+                                           required>
+                                    @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="email" class="form-label">E-posta</label>
+                                    <label for="email" class="form-label">E-posta <span class="text-danger">*</span></label>
                                     <input type="email"
-                                           class="form-control"
+                                           class="form-control @error('email') is-invalid @enderror"
                                            id="email"
-                                           value="{{ auth()->user()->email }}"
-                                           readonly>
+                                           name="email"
+                                           value="{{ old('email', auth()->user()->email) }}"
+                                           required>
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="phone" class="form-label">Telefon <span class="text-danger">*</span></label>
@@ -66,114 +79,27 @@
                             </div>
                         </div>
 
-                        <!-- Kredi Kartı Bilgileri -->
-                        <div class="mb-4">
-                            <h6 class="border-bottom pb-2 mb-3">Kredi Kartı Bilgileri</h6>
-                            <div class="row">
-                                <div class="col-12 mb-3">
-                                    <label for="card_holder_name" class="form-label">Kart Üzerindeki İsim <span class="text-danger">*</span></label>
-                                    <input type="text"
-                                           class="form-control @error('card_holder_name') is-invalid @enderror"
-                                           id="card_holder_name"
-                                           name="card_holder_name"
-                                           placeholder="Örn: AHMET YILMAZ"
-                                           value="{{ old('card_holder_name') }}"
-                                           required>
-                                    @error('card_holder_name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label for="card_number" class="form-label">Kart Numarası <span class="text-danger">*</span></label>
-                                    <input type="text"
-                                           class="form-control @error('card_number') is-invalid @enderror"
-                                           id="card_number"
-                                           name="card_number"
-                                           placeholder="1234 5678 9012 3456"
-                                           maxlength="19"
-                                           value="{{ old('card_number') }}"
-                                           required>
-                                    @error('card_number')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="expire_month" class="form-label">Ay <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('expire_month') is-invalid @enderror"
-                                            id="expire_month"
-                                            name="expire_month"
-                                            required>
-                                        <option value="">Seçiniz</option>
-                                        @for($i = 1; $i <= 12; $i++)
-                                            <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}"
-                                                {{ old('expire_month') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
-                                                {{ str_pad($i, 2, '0', STR_PAD_LEFT) }}
-                                            </option>
-                                        @endfor
-                                    </select>
-                                    @error('expire_month')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="expire_year" class="form-label">Yıl <span class="text-danger">*</span></label>
-                                    <select class="form-select @error('expire_year') is-invalid @enderror"
-                                            id="expire_year"
-                                            name="expire_year"
-                                            required>
-                                        <option value="">Seçiniz</option>
-                                        @for($i = date('y'); $i <= date('y') + 10; $i++)
-                                            <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}"
-                                                {{ old('expire_year') == str_pad($i, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
-                                                20{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}
-                                            </option>
-                                        @endfor
-                                    </select>
-                                    @error('expire_year')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label for="cvc" class="form-label">CVC <span class="text-danger">*</span></label>
-                                    <input type="text"
-                                           class="form-control @error('cvc') is-invalid @enderror"
-                                           id="cvc"
-                                           name="cvc"
-                                           placeholder="123"
-                                           maxlength="3"
-                                           value="{{ old('cvc') }}"
-                                           required>
-                                    @error('cvc')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- Sözleşmeler -->
                         <div class="mb-4">
                             <div class="form-check">
-                                <input class="form-check-input"
+                                <input class="form-check-input @error('terms') is-invalid @enderror"
                                        type="checkbox"
                                        id="terms"
+                                       name="terms"
                                        required>
                                 <label class="form-check-label" for="terms">
                                     <a href="{{ route('legal.terms') }}" target="_blank">Kullanım Koşulları</a>'nı ve
                                     <a href="{{ route('legal.kvkk') }}" target="_blank">Gizlilik Politikası</a>'nı okudum, kabul ediyorum.
                                 </label>
+                                @error('terms')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                        </div>
-
-                        <!-- İyzico Logosu -->
-                        <div class="text-center mb-3">
-                            <img src="{{ asset('images/iyzico_ile_ode_colored.png') }}"
-                                 alt="iyzico ile öde"
-                                 style="max-width: 200px; height: auto;">
                         </div>
 
                         <!-- Ödeme Butonu -->
                         <button type="submit" class="btn btn-success btn-lg w-100" id="submit-btn">
-                            <i class="bi bi-lock"></i> Güvenli Ödeme Yap
+                            <i class="bi bi-check-circle"></i> Siparişi Oluştur
                         </button>
                     </form>
                 </div>
@@ -247,8 +173,8 @@
                 <div class="card-body text-center">
                     <i class="bi bi-shield-check text-success display-5"></i>
                     <p class="mb-0 mt-2 small">
-                        <strong>İyzico</strong> altyapısı ile güvenli ödeme<br>
-                        256-bit SSL şifreleme
+                        <strong>Güvenli Ödeme</strong><br>
+                        Havale/EFT ile ödeme
                     </p>
                 </div>
             </div>
@@ -273,38 +199,15 @@
         }
     });
 
-    // Kart numarası formatla (boşluk ekle)
-    document.getElementById('card_number').addEventListener('input', function(e) {
-        let value = e.target.value.replace(/\s/g, '');
-        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-        e.target.value = formattedValue;
-    });
-
     // Sadece rakam girişi
-    document.getElementById('card_number').addEventListener('keypress', function(e) {
-        if (!/\d/.test(e.key) && e.key !== 'Backspace') {
-            e.preventDefault();
-        }
-    });
-
-    document.getElementById('cvc').addEventListener('keypress', function(e) {
-        if (!/\d/.test(e.key) && e.key !== 'Backspace') {
-            e.preventDefault();
-        }
-    });
-
     document.getElementById('phone').addEventListener('keypress', function(e) {
         if (!/\d/.test(e.key) && e.key !== 'Backspace') {
             e.preventDefault();
         }
     });
 
-    // Form submit - boşlukları temizle ve buton devre dışı
+    // Form submit - telefon boşluklarını temizle ve buton devre dışı
     document.getElementById('checkout-form').addEventListener('submit', function(e) {
-        // Kart numarasındaki boşlukları kaldır
-        const cardInput = document.getElementById('card_number');
-        cardInput.value = cardInput.value.replace(/\s/g, '');
-
         // Telefon numarasındaki boşlukları kaldır
         const phoneInput = document.getElementById('phone');
         phoneInput.value = phoneInput.value.replace(/\s/g, '');

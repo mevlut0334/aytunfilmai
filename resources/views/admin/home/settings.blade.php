@@ -51,6 +51,53 @@
                             @enderror
                         </div>
 
+                        <!-- Banka Alıcı Adı -->
+                        <div class="mb-4">
+                            <label for="bank_account_name" class="form-label">
+                                Banka Alıcı Adı <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person-fill text-primary"></i>
+                                </span>
+                                <input type="text"
+                                       class="form-control @error('bank_account_name') is-invalid @enderror"
+                                       id="bank_account_name"
+                                       name="bank_account_name"
+                                       placeholder="Şirket Adı"
+                                       value="{{ old('bank_account_name', $bankAccountName) }}"
+                                       required>
+                            </div>
+                            @error('bank_account_name')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Banka IBAN -->
+                        <div class="mb-4">
+                            <label for="bank_iban" class="form-label">
+                                Banka IBAN <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-bank2 text-warning"></i>
+                                </span>
+                                <input type="text"
+                                       class="form-control @error('bank_iban') is-invalid @enderror"
+                                       id="bank_iban"
+                                       name="bank_iban"
+                                       placeholder="TR00 0000 0000 0000 0000 0000 00"
+                                       value="{{ old('bank_iban', $bankIban) }}"
+                                       required>
+                            </div>
+                            <small class="text-muted">
+                                Örnek: TR00 0000 0000 0000 0000 0000 00
+                            </small>
+                            @error('bank_iban')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <!-- Butonlar -->
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-success">
@@ -79,8 +126,14 @@
                         <li class="mb-2">
                             Format: <code>+90XXXXXXXXXX</code>
                         </li>
-                        <li class="mb-0">
+                        <li class="mb-2">
                             Tıklandığında WhatsApp konuşması başlatır
+                        </li>
+                        <li class="mb-2">
+                            <strong>Alıcı Adı:</strong> Ana sayfada ödeme bilgilerinde gösterilir
+                        </li>
+                        <li class="mb-0">
+                            <strong>IBAN:</strong> Kopyalama butonu ile birlikte gösterilir
                         </li>
                     </ul>
                 </div>
@@ -92,12 +145,19 @@
                     <h6 class="card-title">
                         <i class="bi bi-eye text-primary"></i> Önizleme
                     </h6>
-                    <p class="small text-muted mb-2">Sticky Footer Bar'da şöyle görünecek:</p>
-                    <div class="border rounded p-2 bg-white text-center">
-                        <a href="#" class="text-decoration-none">
-                            <i class="bi bi-whatsapp text-success"></i>
-                            <span class="ms-1">WhatsApp Destek</span>
-                        </a>
+                    <p class="small text-muted mb-2">Ana sayfada şöyle görünecek:</p>
+                    <div class="border rounded p-3 bg-white">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-person-fill text-primary me-2"></i>
+                            <span class="small text-muted me-2">Alıcı:</span>
+                            <strong class="small">Şirket Adı</strong>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-bank2 text-warning me-2"></i>
+                            <span class="small text-muted me-2">IBAN:</span>
+                            <span class="small font-monospace">TR00 0000...</span>
+                            <i class="bi bi-copy text-primary ms-2" style="cursor:pointer; font-size:0.85rem;"></i>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -66,15 +66,6 @@ Route::get('/personal-data', function () {
 
 /*
 |--------------------------------------------------------------------------
-| İyzico Callback Route (Auth dışında, CSRF bootstrap/app.php'de muaf)
-| Token tabanlı güvenlik ile korunuyor
-|--------------------------------------------------------------------------
-*/
-Route::post('/checkout/callback', [CheckoutController::class, 'callback'])
-    ->name('checkout.callback');
-
-/*
-|--------------------------------------------------------------------------
 | Auth Routes (Giriş yapmış kullanıcılar - Normal User)
 |--------------------------------------------------------------------------
 */
@@ -101,7 +92,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/cart/coupon/apply', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
     Route::delete('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
-    // Ödeme (callback hariç - yukarıda tanımlandı)
+    // Ödeme (Havale/EFT)
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/success/{orderId}', [CheckoutController::class, 'success'])->name('checkout.success');
@@ -211,6 +202,8 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     // Sipariş Yönetimi
     Route::get('/orders', [\App\Http\Controllers\Admin\AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{orderId}', [\App\Http\Controllers\Admin\AdminOrderController::class, 'show'])->name('orders.show');
+    // Sipariş onaylama (yeni)
+    Route::post('/orders/{orderId}/approve', [\App\Http\Controllers\Admin\AdminOrderController::class, 'approve'])->name('orders.approve');
 
     // İstatistikler
     Route::get('/statistics', [\App\Http\Controllers\Admin\AdminStatisticsController::class, 'index'])->name('statistics.index');
