@@ -27,7 +27,7 @@ DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 DB_ROOT_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 
 # .env.production dosyasını oluştur
-echo -e "${BLUE}[1/10] .env dosyası oluşturuluyor...${NC}"
+echo -e "${BLUE}[1/11] .env dosyası oluşturuluyor...${NC}"
 cat > .env.production << EOF
 CLIENT_NAME=${CLIENT_NAME}
 HTTP_PORT=80
@@ -59,7 +59,7 @@ EOF
 echo -e "${GREEN}✓ .env dosyası oluşturuldu${NC}"
 
 # Docker container'ları başlat (önce HTTP ile)
-echo -e "${BLUE}[2/10] Docker container'ları başlatılıyor...${NC}"
+echo -e "${BLUE}[2/11] Docker container'ları başlatılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 
 if [ $? -ne 0 ]; then
@@ -70,28 +70,40 @@ fi
 echo -e "${GREEN}✓ Container'lar başlatıldı${NC}"
 
 # Container'ların hazır olmasını bekle
-echo -e "${BLUE}[3/10] Container'ların hazır olması bekleniyor...${NC}"
+echo -e "${BLUE}[3/11] Container'ların hazır olması bekleniyor...${NC}"
 sleep 20
 
 # APP_KEY oluştur
-echo -e "${BLUE}[4/10] APP_KEY oluşturuluyor...${NC}"
+echo -e "${BLUE}[4/11] APP_KEY oluşturuluyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
 
+# .env dosyasını .env.production'dan güncelle (APP_KEY için)
+APP_KEY=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php -r "echo env('APP_KEY');")
+sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env.production
+
+echo -e "${GREEN}✓ APP_KEY oluşturuldu ve kaydedildi${NC}"
+
 # Cache temizle
-echo -e "${BLUE}[5/10] Cache temizleniyor...${NC}"
+echo -e "${BLUE}[5/11] Cache temizleniyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan config:clear
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan cache:clear
 
+# .env izinlerini düzelt
+echo -e "${BLUE}[6/11] .env izinleri ayarlanıyor...${NC}"
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown www-data:www-data /var/www/html/.env
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod 644 /var/www/html/.env
+echo -e "${GREEN}✓ .env izinleri ayarlandı${NC}"
+
 # Migration çalıştır
-echo -e "${BLUE}[6/10] Veritabanı migration'ları çalıştırılıyor...${NC}"
+echo -e "${BLUE}[7/11] Veritabanı migration'ları çalıştırılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan migrate --force
 
 # Seeder çalıştır
-echo -e "${BLUE}[7/10] Seeder'lar çalıştırılıyor...${NC}"
+echo -e "${BLUE}[8/11] Seeder'lar çalıştırılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan db:seed --force
 
 # Storage link
-echo -e "${BLUE}[8/10] Storage link oluşturuluyor...${NC}"
+echo -e "${BLUE}[9/11] Storage link oluşturuluyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan storage:link
 
 # İzinleri düzelt
@@ -100,7 +112,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod -R 775 /var/www/html/storage
 
 # Certbot kurulumu
-echo -e "${BLUE}[9/10] Certbot kurulumu ve SSL sertifikası alınıyor...${NC}"
+echo -e "${BLUE}[10/11] Certbot kurulumu ve SSL sertifikası alınıyor...${NC}"
 sudo apt update
 sudo apt install certbot -y
 
@@ -119,7 +131,7 @@ else
     echo -e "${GREEN}✓ SSL sertifikası alındı${NC}"
 
     # Nginx SSL konfigürasyonu oluştur
-    echo -e "${BLUE}[10/10] SSL yapılandırması oluşturuluyor...${NC}"
+    echo -e "${BLUE}[11/11] SSL yapılandırması oluşturuluyor...${NC}"
 
     cat > docker/nginx/prod-ssl.conf << 'NGINX_SSL_EOF'
 # Client body size (upload limiti)

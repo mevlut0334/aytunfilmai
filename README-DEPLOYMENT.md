@@ -4,8 +4,8 @@
 
 Aşağıdaki dosyalar güncellendi ve GitHub'a push edilmeli:
 
-1. **docker-compose.prod.yml** - Nginx'e storage volume eklendi
-2. **deploy-ssl.sh** - Storage link ve izinler düzeltildi + --env-file eklendi
+1. **docker-compose.prod.yml** - .env volume eklendi (kalıcı çözüm)
+2. **deploy-ssl.sh** - .env izinleri ve APP_KEY kaydetme eklendi
 
 ---
 
@@ -36,6 +36,7 @@ sudo apt install ufw -y
 sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
+# MySQL portunu AÇMA - Docker internal network kullanacak
 sudo ufw --force enable
 ```
 
@@ -55,7 +56,6 @@ cd aytunfilmai
 ### 7. SSL ile Kurulum (Domain Gerekli)
 
 **Önemli:** Domain DNS kayıtlarını önce sunucuya yönlendir!
-
 ```bash
 chmod +x deploy-ssl.sh
 ./deploy-ssl.sh
@@ -84,13 +84,12 @@ docker compose -f docker-compose.prod.yml --env-file .env.production ps
 docker compose -f docker-compose.prod.yml --env-file .env.production logs -f
 ```
 
-### Görsellerin Çalıştığını Test Et
-1. Admin panele gir: `https://example.com/admin/login`
-2. Email: `admin@aytunfilmai.com`
-3. Şifre: `admin123`
-4. **Şifreyi hemen değiştir!**
-5. Slider veya Scrolling Image yükle
-6. Görselin sitede göründüğünü kontrol et
+### Siteyi Test Et
+1. Ana sayfa: `https://example.com`
+2. Admin panel: `https://example.com/admin/login`
+   - Email: `admin@aytunfilmai.com`
+   - Şifre: `admin123`
+   - **Şifreyi hemen değiştir!**
 
 ---
 
@@ -106,6 +105,16 @@ docker compose -f docker-compose.prod.yml --env-file .env.production down
 ### Container'ları Başlat
 ```bash
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d
+```
+
+### Güncellemeleri GitHub'dan Çek
+```bash
+cd /var/www/aytunfilmai
+git pull origin main
+docker compose -f docker-compose.prod.yml --env-file .env.production down
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan migrate --force
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan config:clear
 ```
 
 ### Veritabanını Sıfırla (Tüm Veriler Silinir!)
@@ -131,6 +140,22 @@ docker exec aytunfilmai_mysql mysqldump -u root -p'ROOT_PASSWORD' aytunfilmai_db
 
 ## 🐛 Sorun Giderme
 
+### Sorun: Site Açılmıyor (500 Error veya Timeout)
+```bash
+# 1. Container'lar çalışıyor mu?
+docker compose -f docker-compose.prod.yml --env-file .env.production ps
+
+# 2. Laravel log'larını kontrol et
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app tail -100 /var/www/html/storage/logs/laravel.log
+
+# 3. .env dosyası var mı?
+docker compose -f docker-compose.prod.yml --env-file .env.production exec app cat /var/www/html/.env | head -5
+
+# 4. .env yoksa (Bu durumda container'ları yeniden başlat)
+docker compose -f docker-compose.prod.yml --env-file .env.production down
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d
+```
+
 ### Sorun: Görseller Yüklenmiyor
 ```bash
 # Storage link'i kontrol et
@@ -145,14 +170,25 @@ docker compose -f docker-compose.prod.yml --env-file .env.production exec app ch
 docker compose -f docker-compose.prod.yml --env-file .env.production exec app chmod -R 775 /var/www/html/storage
 ```
 
-### Sorun: 500 Server Error
+### Sorun: APP_KEY Hatası
 ```bash
-# Laravel loglarını kontrol et
-docker compose -f docker-compose.prod.yml --env-file .env.production exec app tail -50 /var/www/html/storage/logs/laravel.log
-
-# APP_KEY eksikse yeniden oluştur
+# APP_KEY yeniden oluştur
 docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan key:generate --force
 docker compose -f docker-compose.prod.yml --env-file .env.production exec app php artisan config:clear
+docker compose -f docker-compose.prod.yml --env-file .env.production restart
+```
+
+### Sorun: MySQL Bağlantı Hatası
+```bash
+# MySQL çalışıyor mu?
+docker compose -f docker-compose.prod.yml --env-file .env.production logs mysql --tail=30
+
+# MySQL'i yeniden başlat
+docker compose -f docker-compose.prod.yml --env-file .env.production restart mysql
+
+# 10 saniye bekle, sonra test et
+sleep 10
+curl -I https://aytunfilmai.com
 ```
 
 ### Sorun: Container Başlamıyor
@@ -164,6 +200,20 @@ docker compose -f docker-compose.prod.yml --env-file .env.production logs
 docker compose -f docker-compose.prod.yml --env-file .env.production down -v
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 ```
+
+---
+
+## 🚨 Önemli Notlar
+
+### .env Dosyası
+- `.env` dosyası artık `docker-compose.prod.yml` içinde volume olarak bağlanmış
+- Container restart edilse bile `.env` kaybolmaz
+- Bu sorunun kalıcı çözümü sağlanmıştır
+
+### Firewall ve MySQL
+- MySQL portu (3306) firewall'da **AÇILMAMALI**
+- Docker container'ları internal network üzerinden iletişim kurar
+- Eğer dışarıdan MySQL'e erişim gerekirse SSH tunnel kullanın
 
 ---
 
@@ -180,11 +230,10 @@ docker compose -f docker-compose.prod.yml --env-file .env.production up -d --bui
 ## 🔐 Güvenlik Önerileri
 
 1. **Admin şifresini hemen değiştir**
-2. **MySQL portunu (3306) firewall'da kapat** (sadece localhost'tan erişim)
+2. **MySQL portunu firewall'da açma** (Docker internal network kullan)
 3. **SSH şifresi yerine SSH key kullan**
 4. **Düzenli veritabanı yedeği al**
 5. **SSL sertifikasını otomatik yenile** (Let's Encrypt 90 günde bir)
-
 ```bash
 # SSL otomatik yenileme için cron job ekle
 sudo crontab -e
@@ -200,9 +249,10 @@ sudo crontab -e
 Sorun yaşarsan kontrol et:
 1. Container'lar çalışıyor mu? (`docker compose ps`)
 2. Log'larda hata var mı? (`docker compose logs`)
-3. Storage izinleri doğru mu?
-4. SSL sertifikası geçerli mi?
+3. .env dosyası var mı? (`docker compose exec app cat /var/www/html/.env`)
+4. Storage izinleri doğru mu?
+5. SSL sertifikası geçerli mi?
 
 ---
 
-**Son Güncelleme:** 24 Ocak 2026
+**Son Güncelleme:** 03 Şubat 2026
