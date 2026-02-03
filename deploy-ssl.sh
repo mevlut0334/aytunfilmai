@@ -27,7 +27,7 @@ DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 DB_ROOT_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 
 # .env.production dosyasını oluştur
-echo -e "${BLUE}[1/11] .env dosyası oluşturuluyor...${NC}"
+echo -e "${BLUE}[1/12] .env dosyası oluşturuluyor...${NC}"
 cat > .env.production << EOF
 CLIENT_NAME=${CLIENT_NAME}
 HTTP_PORT=80
@@ -59,7 +59,7 @@ EOF
 echo -e "${GREEN}✓ .env dosyası oluşturuldu${NC}"
 
 # Docker container'ları başlat (önce HTTP ile)
-echo -e "${BLUE}[2/11] Docker container'ları başlatılıyor...${NC}"
+echo -e "${BLUE}[2/12] Docker container'ları başlatılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 
 if [ $? -ne 0 ]; then
@@ -70,11 +70,41 @@ fi
 echo -e "${GREEN}✓ Container'lar başlatıldı${NC}"
 
 # Container'ların hazır olmasını bekle
-echo -e "${BLUE}[3/11] Container'ların hazır olması bekleniyor...${NC}"
+echo -e "${BLUE}[3/12] Container'ların hazır olması bekleniyor...${NC}"
 sleep 20
 
+# Storage dizinlerini oluştur - YENİ ADIM!
+echo -e "${BLUE}[4/12] Storage dizin yapısı oluşturuluyor...${NC}"
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app sh -c "
+cd /var/www/html/storage 2>/dev/null || cd /var/www/html
+mkdir -p storage/app/public
+mkdir -p storage/framework/cache
+mkdir -p storage/framework/sessions
+mkdir -p storage/framework/testing
+mkdir -p storage/framework/views
+mkdir -p storage/logs
+mkdir -p bootstrap/cache
+touch storage/logs/laravel.log
+"
+
+if [ $? -ne 0 ]; then
+    echo -e "${YELLOW}⚠ Storage dizinleri oluşturulamadı, tekrar deneniyor...${NC}"
+    docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
+    cd /var/www/html
+    cd storage 2>/dev/null || true
+    mkdir -p app framework logs
+    cd app && mkdir -p public && cd ..
+    cd framework && mkdir -p cache sessions testing views && cd ..
+    cd ..
+    mkdir -p bootstrap/cache
+    touch storage/logs/laravel.log
+    "
+fi
+
+echo -e "${GREEN}✓ Storage dizinleri oluşturuldu${NC}"
+
 # APP_KEY oluştur
-echo -e "${BLUE}[4/11] APP_KEY oluşturuluyor...${NC}"
+echo -e "${BLUE}[5/12] APP_KEY oluşturuluyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
 
 # .env dosyasını .env.production'dan güncelle (APP_KEY için)
@@ -84,35 +114,35 @@ sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env.production
 echo -e "${GREEN}✓ APP_KEY oluşturuldu ve kaydedildi${NC}"
 
 # Cache temizle
-echo -e "${BLUE}[5/11] Cache temizleniyor...${NC}"
+echo -e "${BLUE}[6/12] Cache temizleniyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan config:clear
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan cache:clear
 
-# .env izinlerini düzelt
-echo -e "${BLUE}[6/11] .env izinleri ayarlanıyor...${NC}"
+# İzinleri düzelt - GÜNCELLENDİ!
+echo -e "${BLUE}[7/12] Dizin izinleri ayarlanıyor...${NC}"
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/storage
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/bootstrap/cache
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/public
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod -R 775 /var/www/html/storage
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod -R 775 /var/www/html/bootstrap/cache
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown www-data:www-data /var/www/html/.env
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod 644 /var/www/html/.env
-echo -e "${GREEN}✓ .env izinleri ayarlandı${NC}"
+echo -e "${GREEN}✓ İzinler ayarlandı${NC}"
 
 # Migration çalıştır
-echo -e "${BLUE}[7/11] Veritabanı migration'ları çalıştırılıyor...${NC}"
+echo -e "${BLUE}[8/12] Veritabanı migration'ları çalıştırılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan migrate --force
 
 # Seeder çalıştır
-echo -e "${BLUE}[8/11] Seeder'lar çalıştırılıyor...${NC}"
+echo -e "${BLUE}[9/12] Seeder'lar çalıştırılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan db:seed --force
 
 # Storage link
-echo -e "${BLUE}[9/11] Storage link oluşturuluyor...${NC}"
+echo -e "${BLUE}[10/12] Storage link oluşturuluyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan storage:link
 
-# İzinleri düzelt
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/storage
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/public
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod -R 775 /var/www/html/storage
-
 # Certbot kurulumu
-echo -e "${BLUE}[10/11] Certbot kurulumu ve SSL sertifikası alınıyor...${NC}"
+echo -e "${BLUE}[11/12] Certbot kurulumu ve SSL sertifikası alınıyor...${NC}"
 sudo apt update
 sudo apt install certbot -y
 
@@ -131,7 +161,7 @@ else
     echo -e "${GREEN}✓ SSL sertifikası alındı${NC}"
 
     # Nginx SSL konfigürasyonu oluştur
-    echo -e "${BLUE}[11/11] SSL yapılandırması oluşturuluyor...${NC}"
+    echo -e "${BLUE}[12/12] SSL yapılandırması oluşturuluyor...${NC}"
 
     cat > docker/nginx/prod-ssl.conf << 'NGINX_SSL_EOF'
 # Client body size (upload limiti)
