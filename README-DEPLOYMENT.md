@@ -1,11 +1,12 @@
 # Aytun Film AI - Kurulum Talimatları
 
-## 📋 Değişen Dosyalar (GitHub'a Push Et)
+## 📋 Son Güncellemeler
 
-Aşağıdaki dosyalar güncellendi ve GitHub'a push edilmeli:
-
-1. **docker-compose.prod.yml** - .env volume eklendi (kalıcı çözüm)
-2. **deploy-ssl.sh** - .env izinleri ve APP_KEY kaydetme eklendi
+- ✅ **PHP-FPM Optimization** - Worker processes (pm.max_children = 3)
+- ✅ **OPcache** - Performance improvement
+- ✅ **Memory Optimization** - memory_limit = 256M (low-resource servers için)
+- ✅ **.env Persistence** - Volume mounting (container restart'ta kaybolmaz)
+- ✅ **Auto Restart** - `restart: unless-stopped` (sunucu restart'ta otomatik başlar)
 
 ---
 
@@ -49,7 +50,7 @@ sudo chown -R $USER:$USER /var/www
 ### 6. GitHub'dan Projeyi Çek
 ```bash
 cd /var/www
-git clone https://github.com/KULLANICI_ADI/aytunfilmai.git aytunfilmai
+git clone https://github.com/mevlut0334/aytunfilmai.git aytunfilmai
 cd aytunfilmai
 ```
 
@@ -63,8 +64,8 @@ chmod +x deploy-ssl.sh
 
 **Script Soruları:**
 - Müşteri adı: `aytunfilmai`
-- Domain adı: `example.com` (IP adresi DEĞIL!)
-- SSL için email: `email@example.com`
+- Domain adı: `aytunfilmai.com`
+- SSL için email: `admin@aytunfilmai.com`
 - MySQL Port: `3306`
 
 ---
@@ -85,8 +86,8 @@ docker compose -f docker-compose.prod.yml --env-file .env.production logs -f
 ```
 
 ### Siteyi Test Et
-1. Ana sayfa: `https://example.com`
-2. Admin panel: `https://example.com/admin/login`
+1. Ana sayfa: `https://aytunfilmai.com`
+2. Admin panel: `https://aytunfilmai.com/admin/login`
    - Email: `admin@aytunfilmai.com`
    - Şifre: `admin123`
    - **Şifreyi hemen değiştir!**
@@ -201,19 +202,39 @@ docker compose -f docker-compose.prod.yml --env-file .env.production down -v
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 ```
 
+### Sorun: Bağlantı Kopması / Sunucu Restart'ı
+```bash
+# Container'lar otomatik başlasın mı kontrol et
+docker inspect aytunfilmai_app | grep RestartPolicy
+
+# Eğer otomatik başlamıyorsa, manuel başlat
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d
+```
+
 ---
 
 ## 🚨 Önemli Notlar
 
-### .env Dosyası
-- `.env` dosyası artık `docker-compose.prod.yml` içinde volume olarak bağlanmış
-- Container restart edilse bile `.env` kaybolmaz
-- Bu sorunun kalıcı çözümü sağlanmıştır
+### .env Dosyası (Yeni!)
+- `.env.production` dosyası artık `docker-compose.prod.yml` içinde **volume** olarak bağlanmış
+- Container restart edilse bile `.env` kaybolmaz ✅
+- Sunucu restart edilse bile `.env` kalır ✅
+- **Bu sorunun kalıcı çözümü sağlanmıştır!**
+
+### PHP-FPM Optimizasyonları (Yeni!)
+- **pm.max_children = 3** (low-resource servers için optimize)
+- **memory_limit = 256M** (önceki 512M'den azaltıldı)
+- **OPcache enabled** (performance boost)
+- **Dockerfile.prod'da php-fpm.conf mount edilir**
 
 ### Firewall ve MySQL
 - MySQL portu (3306) firewall'da **AÇILMAMALI**
 - Docker container'ları internal network üzerinden iletişim kurar
 - Eğer dışarıdan MySQL'e erişim gerekirse SSH tunnel kullanın
+
+### Auto Restart
+- Tüm container'larda `restart: unless-stopped` aktif
+- Sunucu restart edilirse container'lar otomatik başlar
 
 ---
 
@@ -255,4 +276,4 @@ Sorun yaşarsan kontrol et:
 
 ---
 
-**Son Güncelleme:** 03 Şubat 2026
+**Son Güncelleme:** 03 Şubat 2026 - PHP-FPM, OPcache ve .env Persistence optimizasyonları eklendi
