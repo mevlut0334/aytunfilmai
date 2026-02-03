@@ -27,7 +27,7 @@ DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 DB_ROOT_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 
 # .env.production dosyasını oluştur
-echo -e "${BLUE}[1/12] .env dosyası oluşturuluyor...${NC}"
+echo -e "${BLUE}[1/13] .env dosyası oluşturuluyor...${NC}"
 cat > .env.production << EOF
 CLIENT_NAME=${CLIENT_NAME}
 HTTP_PORT=80
@@ -58,8 +58,8 @@ EOF
 
 echo -e "${GREEN}✓ .env dosyası oluşturuldu${NC}"
 
-# Docker container'ları başlat (önce HTTP ile)
-echo -e "${BLUE}[2/12] Docker container'ları başlatılıyor...${NC}"
+# Docker container'ları başlat
+echo -e "${BLUE}[2/13] Docker container'ları başlatılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 
 if [ $? -ne 0 ]; then
@@ -70,13 +70,23 @@ fi
 echo -e "${GREEN}✓ Container'lar başlatıldı${NC}"
 
 # Container'ların hazır olmasını bekle
-echo -e "${BLUE}[3/12] Container'ların hazır olması bekleniyor...${NC}"
-sleep 20
+echo -e "${BLUE}[3/13] Container'ların hazır olması bekleniyor...${NC}"
+sleep 25
 
-# Storage dizinlerini oluştur - YENİ ADIM!
-echo -e "${BLUE}[4/12] Storage dizin yapısı oluşturuluyor...${NC}"
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app sh -c "
-cd /var/www/html/storage 2>/dev/null || cd /var/www/html
+# Storage dizin yapısını oluştur - KRİTİK ADIM!
+echo -e "${BLUE}[4/13] Storage dizin yapısı oluşturuluyor...${NC}"
+
+# Önce storage klasörünün varlığını kontrol et
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
+if [ ! -d '/var/www/html/storage' ]; then
+    echo 'Storage klasörü yok, oluşturuluyor...'
+    mkdir -p /var/www/html/storage
+fi
+"
+
+# Alt dizinleri oluştur
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
+cd /var/www/html
 mkdir -p storage/app/public
 mkdir -p storage/framework/cache
 mkdir -p storage/framework/sessions
@@ -85,68 +95,95 @@ mkdir -p storage/framework/views
 mkdir -p storage/logs
 mkdir -p bootstrap/cache
 touch storage/logs/laravel.log
+echo 'Storage dizinleri oluşturuldu'
+ls -la storage/
 "
 
 if [ $? -ne 0 ]; then
-    echo -e "${YELLOW}⚠ Storage dizinleri oluşturulamadı, tekrar deneniyor...${NC}"
-    docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
-    cd /var/www/html
-    cd storage 2>/dev/null || true
-    mkdir -p app framework logs
-    cd app && mkdir -p public && cd ..
-    cd framework && mkdir -p cache sessions testing views && cd ..
-    cd ..
-    mkdir -p bootstrap/cache
-    touch storage/logs/laravel.log
-    "
+    echo -e "${RED}✗ Storage dizinleri oluşturulamadı!${NC}"
+    exit 1
 fi
 
 echo -e "${GREEN}✓ Storage dizinleri oluşturuldu${NC}"
 
+# İzinleri düzelt
+echo -e "${BLUE}[5/13] Dizin izinleri ayarlanıyor...${NC}"
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/public
+chmod -R 775 /var/www/html/storage
+chmod -R 775 /var/www/html/bootstrap/cache
+"
+echo -e "${GREEN}✓ İzinler ayarlandı${NC}"
+
 # APP_KEY oluştur
-echo -e "${BLUE}[5/12] APP_KEY oluşturuluyor...${NC}"
+echo -e "${BLUE}[6/13] APP_KEY oluşturuluyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
 
-# .env dosyasını .env.production'dan güncelle (APP_KEY için)
+if [ $? -ne 0 ]; then
+    echo -e "${RED}✗ APP_KEY oluşturulamadı!${NC}"
+    exit 1
+fi
+
+# .env dosyasını güncelle
 APP_KEY=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php -r "echo env('APP_KEY');")
 sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env.production
 
-echo -e "${GREEN}✓ APP_KEY oluşturuldu ve kaydedildi${NC}"
+echo -e "${GREEN}✓ APP_KEY oluşturuldu${NC}"
+
+# .env izinlerini düzelt
+echo -e "${BLUE}[7/13] .env izinleri ayarlanıyor...${NC}"
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
+chown www-data:www-data /var/www/html/.env
+chmod 644 /var/www/html/.env
+"
+echo -e "${GREEN}✓ .env izinleri ayarlandı${NC}"
 
 # Cache temizle
-echo -e "${BLUE}[6/12] Cache temizleniyor...${NC}"
+echo -e "${BLUE}[8/13] Cache temizleniyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan config:clear
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan cache:clear
-
-# İzinleri düzelt - GÜNCELLENDİ!
-echo -e "${BLUE}[7/12] Dizin izinleri ayarlanıyor...${NC}"
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/storage
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/bootstrap/cache
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/public
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod -R 775 /var/www/html/storage
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod -R 775 /var/www/html/bootstrap/cache
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown www-data:www-data /var/www/html/.env
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod 644 /var/www/html/.env
-echo -e "${GREEN}✓ İzinler ayarlandı${NC}"
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan view:clear
 
 # Migration çalıştır
-echo -e "${BLUE}[8/12] Veritabanı migration'ları çalıştırılıyor...${NC}"
+echo -e "${BLUE}[9/13] Veritabanı migration'ları çalıştırılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan migrate --force
 
+if [ $? -ne 0 ]; then
+    echo -e "${YELLOW}⚠ Migration hatası oldu, devam ediliyor...${NC}"
+fi
+
 # Seeder çalıştır
-echo -e "${BLUE}[9/12] Seeder'lar çalıştırılıyor...${NC}"
+echo -e "${BLUE}[10/13] Seeder'lar çalıştırılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan db:seed --force
 
+if [ $? -ne 0 ]; then
+    echo -e "${YELLOW}⚠ Seeder hatası oldu, devam ediliyor...${NC}"
+fi
+
 # Storage link
-echo -e "${BLUE}[10/12] Storage link oluşturuluyor...${NC}"
+echo -e "${BLUE}[11/13] Storage link oluşturuluyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan storage:link
 
-# Certbot kurulumu
-echo -e "${BLUE}[11/12] Certbot kurulumu ve SSL sertifikası alınıyor...${NC}"
-sudo apt update
-sudo apt install certbot -y
+# Optimize
+echo -e "${BLUE}[12/13] Uygulama optimize ediliyor...${NC}"
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan config:cache
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan route:cache
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan view:cache
 
-# Certbot ile SSL al
+echo -e "${GREEN}✓ Optimizasyon tamamlandı${NC}"
+
+# Certbot kurulumu ve SSL
+echo -e "${BLUE}[13/13] SSL sertifikası alınıyor...${NC}"
+
+# Certbot kurulu mu kontrol et
+if ! command -v certbot &> /dev/null; then
+    sudo apt update
+    sudo apt install certbot -y
+fi
+
+# SSL sertifikası al
 sudo certbot certonly --webroot \
   --webroot-path=/var/www/${CLIENT_NAME}/public \
   --email ${SSL_EMAIL} \
@@ -154,43 +191,32 @@ sudo certbot certonly --webroot \
   --no-eff-email \
   -d ${DOMAIN}
 
-if [ $? -ne 0 ]; then
-    echo -e "${RED}✗ SSL sertifikası alınamadı!${NC}"
-    echo -e "${YELLOW}HTTP ile devam ediliyor...${NC}"
-else
+if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ SSL sertifikası alındı${NC}"
 
-    # Nginx SSL konfigürasyonu oluştur
-    echo -e "${BLUE}[12/12] SSL yapılandırması oluşturuluyor...${NC}"
-
+    # SSL config oluştur
     cat > docker/nginx/prod-ssl.conf << 'NGINX_SSL_EOF'
-# Client body size (upload limiti)
 client_max_body_size 100M;
 
-# Timeout ayarları
 proxy_connect_timeout 600;
 proxy_send_timeout 600;
 proxy_read_timeout 600;
 send_timeout 600;
 
-# HTTP to HTTPS redirect
 server {
     listen 80;
     server_name DOMAIN_PLACEHOLDER;
     return 301 https://$server_name$request_uri;
 }
 
-# HTTPS server
 server {
     listen 443 ssl http2;
     server_name DOMAIN_PLACEHOLDER;
     root /var/www/html/public;
 
-    # SSL Certificates
     ssl_certificate /etc/letsencrypt/live/DOMAIN_PLACEHOLDER/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/DOMAIN_PLACEHOLDER/privkey.pem;
 
-    # SSL Security
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers on;
@@ -203,7 +229,6 @@ server {
     index index.php;
     charset utf-8;
 
-    # Gzip compression
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
@@ -213,15 +238,8 @@ server {
         try_files $uri $uri/ /index.php?$query_string;
     }
 
-    location = /favicon.ico {
-        access_log off;
-        log_not_found off;
-    }
-
-    location = /robots.txt {
-        access_log off;
-        log_not_found off;
-    }
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt { access_log off; log_not_found off; }
 
     error_page 404 /index.php;
 
@@ -233,7 +251,6 @@ server {
         fastcgi_hide_header X-Powered-By;
     }
 
-    # Storage klasörü için özel yönlendirme
     location ^~ /storage/ {
         alias /var/www/html/storage/app/public/;
         try_files $uri =404;
@@ -246,7 +263,6 @@ server {
         deny all;
     }
 
-    # Statik dosyalar için cache
     location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
         expires 30d;
         add_header Cache-Control "public, immutable";
@@ -254,14 +270,14 @@ server {
 }
 NGINX_SSL_EOF
 
-    # Domain placeholder'ı değiştir
     sed -i "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" docker/nginx/prod-ssl.conf
 
-    # Container'ları yeniden başlat
     docker compose -f docker-compose.prod.yml --env-file .env.production down
     docker compose -f docker-compose.prod.yml --env-file .env.production up -d
 
     echo -e "${GREEN}✓ SSL yapılandırması tamamlandı${NC}"
+else
+    echo -e "${YELLOW}⚠ SSL alınamadı, HTTP ile devam ediliyor${NC}"
 fi
 
 echo ""
@@ -273,7 +289,7 @@ echo -e "${BLUE}Erişim Bilgileri:${NC}"
 if [ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
     echo -e "URL: ${GREEN}https://${DOMAIN}${NC}"
 else
-    echo -e "URL: ${GREEN}http://${DOMAIN}${NC}"
+    echo -e "URL: ${GREEN}http://${DOMAIN}${NC} veya ${GREEN}http://$(hostname -I | awk '{print $1}')${NC}"
 fi
 echo ""
 echo -e "${BLUE}Veritabanı Bilgileri:${NC}"
