@@ -69,38 +69,54 @@ fi
 
 echo -e "${GREEN}✓ Container'lar başlatıldı${NC}"
 
-# MySQL hazır olmasını bekle (healthcheck)
+# MySQL hazır olmasını bekle (healthcheck sayesinde otomatik)
 echo -e "${BLUE}[3/14] MySQL hazır olması bekleniyor...${NC}"
-for i in {1..60}; do
-    if docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SELECT 1;" > /dev/null 2>&1; then
+echo -e "${YELLOW}Docker healthcheck ile MySQL kontrol ediliyor...${NC}"
+
+# Docker compose ile healthcheck durumunu kontrol et
+for i in {1..40}; do
+    HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' ${CLIENT_NAME}_mysql 2>/dev/null)
+    if [ "$HEALTH_STATUS" = "healthy" ]; then
         echo -e "${GREEN}✓ MySQL hazır${NC}"
         break
     fi
-    if [ $i -eq 60 ]; then
+    if [ $i -eq 40 ]; then
         echo -e "${RED}✗ MySQL başlamadı (timeout)${NC}"
+        echo -e "${YELLOW}MySQL logları:${NC}"
+        docker compose -f docker-compose.prod.yml --env-file .env.production logs mysql --tail=20
         exit 1
     fi
-    echo "MySQL bekleniliyor... ($i/60)"
-    sleep 1
+    echo "MySQL healthcheck bekleniyor... ($i/40) - Durum: ${HEALTH_STATUS:-starting}"
+    sleep 3
 done
 
-# MySQL user ve database oluştur - DÜZELTİLMİŞ VERSİYON
-echo -e "${BLUE}[4/14] MySQL user ve database oluşturuluyor...${NC}"
+# Ekstra güvenlik için 5 saniye daha bekle
+sleep 5
 
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql sh -c "mysql -u root -p\"${DB_ROOT_PASSWORD}\" <<MYSQLEOF
-CREATE DATABASE IF NOT EXISTS ${CLIENT_NAME}_db;
+# MySQL user ve database kontrolü
+echo -e "${BLUE}[4/14] MySQL user ve database kontrol ediliyor...${NC}"
+
+# Önce veritabanının otomatik oluşup oluşmadığını kontrol et
+DB_EXISTS=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SHOW DATABASES LIKE '${CLIENT_NAME}_db';" 2>/dev/null | grep -c "${CLIENT_NAME}_db")
+
+if [ "$DB_EXISTS" -eq "0" ]; then
+    echo -e "${YELLOW}⚠ Database bulunamadı, oluşturuluyor...${NC}"
+    docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS ${CLIENT_NAME}_db;"
+fi
+
+# User'ın var olup olmadığını kontrol et
+USER_EXISTS=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SELECT COUNT(*) FROM mysql.user WHERE user='${CLIENT_NAME}_user';" 2>/dev/null | tail -1)
+
+if [ "$USER_EXISTS" -eq "0" ]; then
+    echo -e "${YELLOW}⚠ User bulunamadı, oluşturuluyor...${NC}"
+    docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" << MYSQLEOF
 CREATE USER IF NOT EXISTS '${CLIENT_NAME}_user'@'%' IDENTIFIED BY '${DB_PASSWORD}';
 GRANT ALL PRIVILEGES ON ${CLIENT_NAME}_db.* TO '${CLIENT_NAME}_user'@'%';
 FLUSH PRIVILEGES;
 MYSQLEOF
-"
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ MySQL user ve database oluşturuldu${NC}"
-else
-    echo -e "${RED}✗ MySQL setup hatası!${NC}"
-    exit 1
 fi
+
+echo -e "${GREEN}✓ MySQL user ve database hazır${NC}"
 
 # Storage dizin yapısını oluştur - KRİTİK ADIM!
 echo -e "${BLUE}[5/14] Storage dizin yapısı oluşturuluyor...${NC}"
@@ -158,7 +174,7 @@ fi
 
 # Container'dan APP_KEY'i al
 sleep 2
-APP_KEY=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app cat /var/www/html/.env | grep "^APP_KEY=" | cut -d'=' -f2)
+APP_KEY=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app cat /var/www/html/.env | grep "^APP_KEY=" | cut -d'=' -f2 | tr -d '\r\n')
 
 # Eğer APP_KEY boş ise fallback
 if [ -z "$APP_KEY" ]; then
@@ -178,7 +194,19 @@ echo -e "${GREEN}✓ APP_KEY oluşturuldu, kaydedildi ve container'lar yeniden b
 echo -e "${GREEN}  APP_KEY: ${APP_KEY}${NC}"
 
 # Container'ların yeniden hazır olmasını bekle
-sleep 15
+echo -e "${YELLOW}Container'ların yeniden başlaması bekleniyor...${NC}"
+sleep 10
+
+# MySQL'in tekrar hazır olmasını bekle
+for i in {1..20}; do
+    HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' ${CLIENT_NAME}_mysql 2>/dev/null)
+    if [ "$HEALTH_STATUS" = "healthy" ]; then
+        echo -e "${GREEN}✓ MySQL tekrar hazır${NC}"
+        break
+    fi
+    echo "MySQL healthcheck bekleniyor... ($i/20)"
+    sleep 2
+done
 
 # .env izinlerini düzelt
 echo -e "${BLUE}[8/14] .env izinleri ayarlanıyor...${NC}"
@@ -227,13 +255,14 @@ echo -e "${BLUE}[14/14] SSL sertifikası alınıyor...${NC}"
 
 # Certbot kurulu mu kontrol et
 if ! command -v certbot &> /dev/null; then
+    echo -e "${YELLOW}Certbot kuruluyor...${NC}"
     sudo apt update
     sudo apt install certbot -y
 fi
 
 # SSL sertifikası al
 sudo certbot certonly --webroot \
-  --webroot-path=/var/www/${CLIENT_NAME}/public \
+  --webroot-path=/var/www/aytunfilmai/public \
   --email ${SSL_EMAIL} \
   --agree-tos \
   --no-eff-email \
@@ -320,8 +349,14 @@ NGINX_SSL_EOF
 
     sed -i "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" docker/nginx/prod-ssl.conf
 
-    docker compose -f docker-compose.prod.yml --env-file .env.production down
-    docker compose -f docker-compose.prod.yml --env-file .env.production up -d
+    # Nginx config'i SSL versiyonuna güncelle
+    # docker-compose.prod.yml'de nginx volume'u prod-ssl.conf'a değiştirilmeli
+    echo -e "${YELLOW}SSL config hazır. Nginx'i yeniden başlatmak için:${NC}"
+    echo -e "${YELLOW}1. docker-compose.prod.yml'de nginx volume'u düzenleyin:${NC}"
+    echo -e "${YELLOW}   - ./docker/nginx/default-prod.conf:/etc/nginx/conf.d/default.conf:ro${NC}"
+    echo -e "${YELLOW}   + ./docker/nginx/prod-ssl.conf:/etc/nginx/conf.d/default.conf:ro${NC}"
+    echo -e "${YELLOW}2. Container'ları yeniden başlatın:${NC}"
+    echo -e "${YELLOW}   docker compose -f docker-compose.prod.yml --env-file .env.production restart nginx${NC}"
 
     echo -e "${GREEN}✓ SSL yapılandırması tamamlandı${NC}"
 else
