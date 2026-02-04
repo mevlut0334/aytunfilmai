@@ -84,15 +84,16 @@ for i in {1..60}; do
     sleep 1
 done
 
-# MySQL user ve database oluştur
+# MySQL user ve database oluştur - DÜZELTİLMİŞ VERSİYON
 echo -e "${BLUE}[4/14] MySQL user ve database oluşturuluyor...${NC}"
 
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" <<MYSQLEOF
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql sh -c "mysql -u root -p\"${DB_ROOT_PASSWORD}\" <<MYSQLEOF
 CREATE DATABASE IF NOT EXISTS ${CLIENT_NAME}_db;
 CREATE USER IF NOT EXISTS '${CLIENT_NAME}_user'@'%' IDENTIFIED BY '${DB_PASSWORD}';
 GRANT ALL PRIVILEGES ON ${CLIENT_NAME}_db.* TO '${CLIENT_NAME}_user'@'%';
 FLUSH PRIVILEGES;
 MYSQLEOF
+"
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}✓ MySQL user ve database oluşturuldu${NC}"
