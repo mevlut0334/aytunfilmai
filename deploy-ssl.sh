@@ -69,14 +69,25 @@ fi
 
 echo -e "${GREEN}✓ Container'lar başlatıldı${NC}"
 
-# Container'ların hazır olmasını bekle
-echo -e "${BLUE}[3/14] Container'ların hazır olması bekleniyor...${NC}"
-sleep 25
+# MySQL hazır olmasını bekle (healthcheck)
+echo -e "${BLUE}[3/14] MySQL hazır olması bekleniyor...${NC}"
+for i in {1..60}; do
+    if docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SELECT 1;" > /dev/null 2>&1; then
+        echo -e "${GREEN}✓ MySQL hazır${NC}"
+        break
+    fi
+    if [ $i -eq 60 ]; then
+        echo -e "${RED}✗ MySQL başlamadı (timeout)${NC}"
+        exit 1
+    fi
+    echo "MySQL bekleniliyor... ($i/60)"
+    sleep 1
+done
 
 # MySQL user ve database oluştur
 echo -e "${BLUE}[4/14] MySQL user ve database oluşturuluyor...${NC}"
 
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p${DB_ROOT_PASSWORD} <<MYSQLEOF
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" <<MYSQLEOF
 CREATE DATABASE IF NOT EXISTS ${CLIENT_NAME}_db;
 CREATE USER IF NOT EXISTS '${CLIENT_NAME}_user'@'%' IDENTIFIED BY '${DB_PASSWORD}';
 GRANT ALL PRIVILEGES ON ${CLIENT_NAME}_db.* TO '${CLIENT_NAME}_user'@'%';
