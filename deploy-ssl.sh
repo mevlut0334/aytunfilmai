@@ -96,7 +96,6 @@ mkdir -p storage/logs
 mkdir -p bootstrap/cache
 touch storage/logs/laravel.log
 echo 'Storage dizinleri oluşturuldu'
-ls -la storage/
 "
 
 if [ $? -ne 0 ]; then
@@ -117,7 +116,7 @@ chmod -R 775 /var/www/html/bootstrap/cache
 "
 echo -e "${GREEN}✓ İzinler ayarlandı${NC}"
 
-# APP_KEY oluştur
+# APP_KEY oluştur ve .env.production'a kaydet
 echo -e "${BLUE}[6/13] APP_KEY oluşturuluyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
 
@@ -126,11 +125,19 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# .env dosyasını güncelle
-APP_KEY=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php -r "echo env('APP_KEY');")
+# Container'dan APP_KEY'i al - DOĞRU YÖNTEMİ
+sleep 2
+APP_KEY=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app cat /var/www/html/.env | grep "^APP_KEY=" | cut -d'=' -f2)
+
+if [ -z "$APP_KEY" ]; then
+    echo -e "${YELLOW}⚠ APP_KEY okunamadı, manual olarak oluşturuluyor...${NC}"
+    APP_KEY="base64:$(openssl rand -base64 32)"
+fi
+
+# .env.production dosyasını güncelle
 sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env.production
 
-echo -e "${GREEN}✓ APP_KEY oluşturuldu${NC}"
+echo -e "${GREEN}✓ APP_KEY oluşturuldu ve kaydedildi: ${APP_KEY}${NC}"
 
 # .env izinlerini düzelt
 echo -e "${BLUE}[7/13] .env izinleri ayarlanıyor...${NC}"
@@ -299,5 +306,5 @@ echo -e "Database: ${GREEN}${CLIENT_NAME}_db${NC}"
 echo -e "Username: ${GREEN}${CLIENT_NAME}_user${NC}"
 echo -e "Password: ${GREEN}${DB_PASSWORD}${NC}"
 echo ""
-echo -e "${YELLOW}Not: Şifreler .env.production dosyasına kaydedildi${NC}"
+echo -e "${YELLOW}Not: Şifreler ve APP_KEY .env.production dosyasına kaydedildi${NC}"
 echo ""
