@@ -116,8 +116,10 @@ chmod -R 775 /var/www/html/bootstrap/cache
 "
 echo -e "${GREEN}✓ İzinler ayarlandı${NC}"
 
-# APP_KEY oluştur ve .env.production'a kaydet
-echo -e "${BLUE}[6/13] APP_KEY oluşturuluyor...${NC}"
+# APP_KEY oluştur ve .env.production'a kaydet - PROFESYONEL ÇÖZÜM
+echo -e "${BLUE}[6/13] APP_KEY oluşturuluyor ve kaydediliyor...${NC}"
+
+# APP_KEY oluştur
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
 
 if [ $? -ne 0 ]; then
@@ -125,19 +127,29 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Container'dan APP_KEY'i al - DOĞRU YÖNTEMİ
+# Container'dan APP_KEY'i al
 sleep 2
 APP_KEY=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app cat /var/www/html/.env | grep "^APP_KEY=" | cut -d'=' -f2)
 
+# Eğer APP_KEY boş ise fallback
 if [ -z "$APP_KEY" ]; then
-    echo -e "${YELLOW}⚠ APP_KEY okunamadı, manual olarak oluşturuluyor...${NC}"
+    echo -e "${YELLOW}⚠ APP_KEY okunamadı, yeni bir tane oluşturuluyor...${NC}"
     APP_KEY="base64:$(openssl rand -base64 32)"
 fi
 
 # .env.production dosyasını güncelle
 sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env.production
 
-echo -e "${GREEN}✓ APP_KEY oluşturuldu ve kaydedildi: ${APP_KEY}${NC}"
+# Güncellenmiş .env.production ile container'ları yeniden başlat
+docker compose -f docker-compose.prod.yml --env-file .env.production down
+sleep 3
+docker compose -f docker-compose.prod.yml --env-file .env.production up -d
+
+echo -e "${GREEN}✓ APP_KEY oluşturuldu, kaydedildi ve container'lar yeniden başlatıldı${NC}"
+echo -e "${GREEN}  APP_KEY: ${APP_KEY}${NC}"
+
+# Container'ların yeniden hazır olmasını bekle
+sleep 15
 
 # .env izinlerini düzelt
 echo -e "${BLUE}[7/13] .env izinleri ayarlanıyor...${NC}"
@@ -307,4 +319,5 @@ echo -e "Username: ${GREEN}${CLIENT_NAME}_user${NC}"
 echo -e "Password: ${GREEN}${DB_PASSWORD}${NC}"
 echo ""
 echo -e "${YELLOW}Not: Şifreler ve APP_KEY .env.production dosyasına kaydedildi${NC}"
+echo -e "${YELLOW}APP_KEY: ${GREEN}${APP_KEY}${NC}"
 echo ""
