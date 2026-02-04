@@ -262,7 +262,7 @@ fi
 
 # SSL sertifikası al
 sudo certbot certonly --webroot \
-  --webroot-path=/var/www/aytunfilmai/public \
+  --webroot-path=/var/www/${CLIENT_NAME}/public \
   --email ${SSL_EMAIL} \
   --agree-tos \
   --no-eff-email \
