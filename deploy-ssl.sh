@@ -27,7 +27,7 @@ DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 DB_ROOT_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
 
 # .env.production dosyasını oluştur
-echo -e "${BLUE}[1/13] .env dosyası oluşturuluyor...${NC}"
+echo -e "${BLUE}[1/14] .env dosyası oluşturuluyor...${NC}"
 cat > .env.production << EOF
 CLIENT_NAME=${CLIENT_NAME}
 HTTP_PORT=80
@@ -59,7 +59,7 @@ EOF
 echo -e "${GREEN}✓ .env dosyası oluşturuldu${NC}"
 
 # Docker container'ları başlat
-echo -e "${BLUE}[2/13] Docker container'ları başlatılıyor...${NC}"
+echo -e "${BLUE}[2/14] Docker container'ları başlatılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
 
 if [ $? -ne 0 ]; then
@@ -70,11 +70,28 @@ fi
 echo -e "${GREEN}✓ Container'lar başlatıldı${NC}"
 
 # Container'ların hazır olmasını bekle
-echo -e "${BLUE}[3/13] Container'ların hazır olması bekleniyor...${NC}"
+echo -e "${BLUE}[3/14] Container'ların hazır olması bekleniyor...${NC}"
 sleep 25
 
+# MySQL user ve database oluştur
+echo -e "${BLUE}[4/14] MySQL user ve database oluşturuluyor...${NC}"
+
+docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p${DB_ROOT_PASSWORD} <<MYSQLEOF
+CREATE DATABASE IF NOT EXISTS ${CLIENT_NAME}_db;
+CREATE USER IF NOT EXISTS '${CLIENT_NAME}_user'@'%' IDENTIFIED BY '${DB_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${CLIENT_NAME}_db.* TO '${CLIENT_NAME}_user'@'%';
+FLUSH PRIVILEGES;
+MYSQLEOF
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✓ MySQL user ve database oluşturuldu${NC}"
+else
+    echo -e "${RED}✗ MySQL setup hatası!${NC}"
+    exit 1
+fi
+
 # Storage dizin yapısını oluştur - KRİTİK ADIM!
-echo -e "${BLUE}[4/13] Storage dizin yapısı oluşturuluyor...${NC}"
+echo -e "${BLUE}[5/14] Storage dizin yapısı oluşturuluyor...${NC}"
 
 # Önce storage klasörünün varlığını kontrol et
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
@@ -106,7 +123,7 @@ fi
 echo -e "${GREEN}✓ Storage dizinleri oluşturuldu${NC}"
 
 # İzinleri düzelt
-echo -e "${BLUE}[5/13] Dizin izinleri ayarlanıyor...${NC}"
+echo -e "${BLUE}[6/14] Dizin izinleri ayarlanıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
 chown -R www-data:www-data /var/www/html/storage
 chown -R www-data:www-data /var/www/html/bootstrap/cache
@@ -117,7 +134,7 @@ chmod -R 775 /var/www/html/bootstrap/cache
 echo -e "${GREEN}✓ İzinler ayarlandı${NC}"
 
 # APP_KEY oluştur ve .env.production'a kaydet - PROFESYONEL ÇÖZÜM
-echo -e "${BLUE}[6/13] APP_KEY oluşturuluyor ve kaydediliyor...${NC}"
+echo -e "${BLUE}[7/14] APP_KEY oluşturuluyor ve kaydediliyor...${NC}"
 
 # APP_KEY oluştur
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
@@ -152,7 +169,7 @@ echo -e "${GREEN}  APP_KEY: ${APP_KEY}${NC}"
 sleep 15
 
 # .env izinlerini düzelt
-echo -e "${BLUE}[7/13] .env izinleri ayarlanıyor...${NC}"
+echo -e "${BLUE}[8/14] .env izinleri ayarlanıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
 chown www-data:www-data /var/www/html/.env
 chmod 644 /var/www/html/.env
@@ -160,13 +177,13 @@ chmod 644 /var/www/html/.env
 echo -e "${GREEN}✓ .env izinleri ayarlandı${NC}"
 
 # Cache temizle
-echo -e "${BLUE}[8/13] Cache temizleniyor...${NC}"
+echo -e "${BLUE}[9/14] Cache temizleniyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan config:clear
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan cache:clear
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan view:clear
 
 # Migration çalıştır
-echo -e "${BLUE}[9/13] Veritabanı migration'ları çalıştırılıyor...${NC}"
+echo -e "${BLUE}[10/14] Veritabanı migration'ları çalıştırılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan migrate --force
 
 if [ $? -ne 0 ]; then
@@ -174,7 +191,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Seeder çalıştır
-echo -e "${BLUE}[10/13] Seeder'lar çalıştırılıyor...${NC}"
+echo -e "${BLUE}[11/14] Seeder'lar çalıştırılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan db:seed --force
 
 if [ $? -ne 0 ]; then
@@ -182,11 +199,11 @@ if [ $? -ne 0 ]; then
 fi
 
 # Storage link
-echo -e "${BLUE}[11/13] Storage link oluşturuluyor...${NC}"
+echo -e "${BLUE}[12/14] Storage link oluşturuluyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan storage:link
 
 # Optimize
-echo -e "${BLUE}[12/13] Uygulama optimize ediliyor...${NC}"
+echo -e "${BLUE}[13/14] Uygulama optimize ediliyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan config:cache
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan route:cache
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan view:cache
@@ -194,7 +211,7 @@ docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app
 echo -e "${GREEN}✓ Optimizasyon tamamlandı${NC}"
 
 # Certbot kurulumu ve SSL
-echo -e "${BLUE}[13/13] SSL sertifikası alınıyor...${NC}"
+echo -e "${BLUE}[14/14] SSL sertifikası alınıyor...${NC}"
 
 # Certbot kurulu mu kontrol et
 if ! command -v certbot &> /dev/null; then
