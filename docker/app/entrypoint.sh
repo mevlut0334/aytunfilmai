@@ -1,28 +1,16 @@
 #!/bin/bash
 set -e
 
-# APP_KEY kontrol et ve oluştur
-if grep -q "^APP_KEY=$" /var/www/html/.env; then
+# APP_KEY oluştur ve ortam değişkenine ata
+if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "" ]; then
     echo "APP_KEY oluşturuluyor..."
     php artisan key:generate --force
 
-    # Container içindeki .env'den APP_KEY'i al
+    # Oluşturulan APP_KEY'i al
     APP_KEY=$(grep ^APP_KEY= /var/www/html/.env | cut -d'=' -f2)
-
-    # Host'taki .env.production dosyasına kaydet (sed yerine cp + mv)
-    if [ -w /var/www/html/.env ]; then
-        # Geçici dosyaya yazı
-        grep -v "^APP_KEY=" /var/www/html/.env > /tmp/.env.tmp
-        echo "APP_KEY=${APP_KEY}" >> /tmp/.env.tmp
-
-        # Kopyala
-        cp /tmp/.env.tmp /var/www/html/.env
-        rm /tmp/.env.tmp
-
-        echo "APP_KEY başarıyla kaydedildi: ${APP_KEY}"
-    fi
+    export APP_KEY
+    echo "APP_KEY set edildi: $APP_KEY"
 fi
 
-# php-fpm başlat
 echo "PHP-FPM başlatılıyor..."
 exec php-fpm
