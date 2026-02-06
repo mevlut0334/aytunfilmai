@@ -20,13 +20,30 @@ read -p "MySQL Port (varsayılan 3306): " DB_PORT
 DB_PORT=${DB_PORT:-3306}
 
 echo ""
-echo -e "${YELLOW}Şifreler otomatik oluşturuluyor...${NC}"
 
-# Güvenli şifreler oluştur
-DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
-DB_ROOT_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+# .env.production dosyası zaten var mı kontrol et
+if [ -f ".env.production" ]; then
+    echo -e "${YELLOW}⚠ .env.production dosyası bulundu!${NC}"
+    echo -e "${YELLOW}Mevcut ayarlar kullanılacak.${NC}"
 
-# .env.production dosyasını oluştur
+    # Mevcut değerleri oku
+    DB_PASSWORD=$(grep "^DB_PASSWORD=" .env.production | cut -d'=' -f2)
+    DB_ROOT_PASSWORD=$(grep "^DB_ROOT_PASSWORD=" .env.production | cut -d'=' -f2)
+    APP_KEY=$(grep "^APP_KEY=" .env.production | cut -d'=' -f2)
+
+    echo -e "${GREEN}✓ Mevcut şifreler kullanılıyor${NC}"
+else
+    echo -e "${YELLOW}Yeni şifreler oluşturuluyor...${NC}"
+
+    # Güvenli şifreler oluştur
+    DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+    DB_ROOT_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+    APP_KEY=""
+
+    echo -e "${GREEN}✓ Yeni şifreler oluşturuldu${NC}"
+fi
+
+# .env.production dosyasını oluştur/güncelle
 echo -e "${BLUE}[1/14] .env dosyası oluşturuluyor...${NC}"
 cat > .env.production << EOF
 CLIENT_NAME=${CLIENT_NAME}
@@ -36,7 +53,7 @@ DB_PORT=${DB_PORT}
 
 APP_NAME="Aytun Film AI"
 APP_ENV=production
-APP_KEY=
+APP_KEY=${APP_KEY}
 APP_DEBUG=false
 APP_URL=https://${DOMAIN}
 
@@ -69,11 +86,10 @@ fi
 
 echo -e "${GREEN}✓ Container'lar başlatıldı${NC}"
 
-# MySQL hazır olmasını bekle (healthcheck sayesinde otomatik)
+# MySQL hazır olmasını bekle
 echo -e "${BLUE}[3/14] MySQL hazır olması bekleniyor...${NC}"
 echo -e "${YELLOW}Docker healthcheck ile MySQL kontrol ediliyor...${NC}"
 
-# Docker compose ile healthcheck durumunu kontrol et
 for i in {1..40}; do
     HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' ${CLIENT_NAME}_mysql 2>/dev/null)
     if [ "$HEALTH_STATUS" = "healthy" ]; then
@@ -82,7 +98,6 @@ for i in {1..40}; do
     fi
     if [ $i -eq 40 ]; then
         echo -e "${RED}✗ MySQL başlamadı (timeout)${NC}"
-        echo -e "${YELLOW}MySQL logları:${NC}"
         docker compose -f docker-compose.prod.yml --env-file .env.production logs mysql --tail=20
         exit 1
     fi
@@ -90,120 +105,69 @@ for i in {1..40}; do
     sleep 3
 done
 
-# Ekstra güvenlik için 5 saniye daha bekle
 sleep 5
 
-# MySQL user ve database kontrolü
-echo -e "${BLUE}[4/14] MySQL user ve database kontrol ediliyor...${NC}"
+# MySQL user ve database oluştur
+echo -e "${BLUE}[4/14] MySQL user ve database oluşturuluyor...${NC}"
 
-# MySQL'e bağlanmak için doğru komutu kullan
-# Önce veritabanının otomatik oluşup oluşmadığını kontrol et
-DB_EXISTS=$(docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SHOW DATABASES LIKE '${CLIENT_NAME}_db';" 2>/dev/null | grep -c "${CLIENT_NAME}_db")
+docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "
+CREATE DATABASE IF NOT EXISTS ${CLIENT_NAME}_db;
+CREATE USER IF NOT EXISTS '${CLIENT_NAME}_user'@'%' IDENTIFIED BY '${DB_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${CLIENT_NAME}_db.* TO '${CLIENT_NAME}_user'@'%';
+FLUSH PRIVILEGES;
+" 2>/dev/null
 
-if [ "$DB_EXISTS" -eq "0" ]; then
-    echo -e "${YELLOW}⚠ Database bulunamadı, oluşturuluyor...${NC}"
-    docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS ${CLIENT_NAME}_db;"
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✓ MySQL user ve database hazır${NC}"
+else
+    echo -e "${RED}✗ MySQL user/database oluşturulamadı!${NC}"
+    echo -e "${YELLOW}MySQL logları:${NC}"
+    docker compose -f docker-compose.prod.yml --env-file .env.production logs mysql --tail=30
+    exit 1
 fi
 
-# User'ın var olup olmadığını kontrol et
-USER_EXISTS=$(docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SELECT COUNT(*) FROM mysql.user WHERE user='${CLIENT_NAME}_user';" 2>/dev/null | tail -1)
-
-if [ -z "$USER_EXISTS" ] || [ "$USER_EXISTS" -eq "0" ]; then
-    echo -e "${YELLOW}⚠ User bulunamadı, oluşturuluyor...${NC}"
-    docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${CLIENT_NAME}_user'@'%' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON ${CLIENT_NAME}_db.* TO '${CLIENT_NAME}_user'@'%'; FLUSH PRIVILEGES;"
-fi
-
-echo -e "${GREEN}✓ MySQL user ve database hazır${NC}"
-
-# Storage dizin yapısını oluştur - KRİTİK ADIM!
+# Storage dizin yapısını oluştur
 echo -e "${BLUE}[5/14] Storage dizin yapısı oluşturuluyor...${NC}"
 
-# Önce storage klasörünün varlığını kontrol et
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
-if [ ! -d '/var/www/html/storage' ]; then
-    echo 'Storage klasörü yok, oluşturuluyor...'
-    mkdir -p /var/www/html/storage
-fi
-"
-
-# Alt dizinleri oluştur
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
-cd /var/www/html
 mkdir -p storage/app/public
-mkdir -p storage/framework/cache
-mkdir -p storage/framework/sessions
-mkdir -p storage/framework/testing
-mkdir -p storage/framework/views
+mkdir -p storage/framework/{cache,sessions,testing,views}
 mkdir -p storage/logs
 mkdir -p bootstrap/cache
 touch storage/logs/laravel.log
-echo 'Storage dizinleri oluşturuldu'
 "
-
-if [ $? -ne 0 ]; then
-    echo -e "${RED}✗ Storage dizinleri oluşturulamadı!${NC}"
-    exit 1
-fi
 
 echo -e "${GREEN}✓ Storage dizinleri oluşturuldu${NC}"
 
 # İzinleri düzelt
 echo -e "${BLUE}[6/14] Dizin izinleri ayarlanıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app bash -c "
-chown -R www-data:www-data /var/www/html/storage
-chown -R www-data:www-data /var/www/html/bootstrap/cache
-chown -R www-data:www-data /var/www/html/public
-chmod -R 775 /var/www/html/storage
-chmod -R 775 /var/www/html/bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache public
+chmod -R 775 storage bootstrap/cache
 "
 echo -e "${GREEN}✓ İzinler ayarlandı${NC}"
 
-# APP_KEY oluştur ve .env.production'a kaydet - PROFESYONEL ÇÖZÜM
-echo -e "${BLUE}[7/14] APP_KEY oluşturuluyor ve kaydediliyor...${NC}"
+# APP_KEY oluştur (eğer yoksa)
+echo -e "${BLUE}[7/14] APP_KEY kontrol ediliyor...${NC}"
 
-# APP_KEY oluştur
-docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
-
-if [ $? -ne 0 ]; then
-    echo -e "${RED}✗ APP_KEY oluşturulamadı!${NC}"
-    exit 1
-fi
-
-# Container'dan APP_KEY'i al
-sleep 2
-APP_KEY=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app cat /var/www/html/.env | grep "^APP_KEY=" | cut -d'=' -f2 | tr -d '\r\n')
-
-# Eğer APP_KEY boş ise fallback
 if [ -z "$APP_KEY" ]; then
-    echo -e "${YELLOW}⚠ APP_KEY okunamadı, yeni bir tane oluşturuluyor...${NC}"
-    APP_KEY="base64:$(openssl rand -base64 32)"
-fi
+    echo -e "${YELLOW}APP_KEY oluşturuluyor...${NC}"
 
-# .env.production dosyasını güncelle
-sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env.production
+    docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
 
-# Güncellenmiş .env.production ile container'ları yeniden başlat
-docker compose -f docker-compose.prod.yml --env-file .env.production down
-sleep 3
-docker compose -f docker-compose.prod.yml --env-file .env.production up -d
-
-echo -e "${GREEN}✓ APP_KEY oluşturuldu, kaydedildi ve container'lar yeniden başlatıldı${NC}"
-echo -e "${GREEN}  APP_KEY: ${APP_KEY}${NC}"
-
-# Container'ların yeniden hazır olmasını bekle
-echo -e "${YELLOW}Container'ların yeniden başlaması bekleniyor...${NC}"
-sleep 10
-
-# MySQL'in tekrar hazır olmasını bekle
-for i in {1..20}; do
-    HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' ${CLIENT_NAME}_mysql 2>/dev/null)
-    if [ "$HEALTH_STATUS" = "healthy" ]; then
-        echo -e "${GREEN}✓ MySQL tekrar hazır${NC}"
-        break
-    fi
-    echo "MySQL healthcheck bekleniyor... ($i/20)"
     sleep 2
-done
+    APP_KEY=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app cat /var/www/html/.env | grep "^APP_KEY=" | cut -d'=' -f2 | tr -d '\r\n')
+
+    if [ -z "$APP_KEY" ]; then
+        APP_KEY="base64:$(openssl rand -base64 32)"
+    fi
+
+    sed -i "s|^APP_KEY=.*|APP_KEY=${APP_KEY}|" .env.production
+
+    echo -e "${GREEN}✓ APP_KEY oluşturuldu: ${APP_KEY}${NC}"
+else
+    echo -e "${GREEN}✓ Mevcut APP_KEY kullanılıyor${NC}"
+fi
 
 # .env izinlerini düzelt
 echo -e "${BLUE}[8/14] .env izinleri ayarlanıyor...${NC}"
@@ -224,7 +188,7 @@ echo -e "${BLUE}[10/14] Veritabanı migration'ları çalıştırılıyor...${NC}
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan migrate --force
 
 if [ $? -ne 0 ]; then
-    echo -e "${YELLOW}⚠ Migration hatası oldu, devam ediliyor...${NC}"
+    echo -e "${YELLOW}⚠ Migration hatası oldu${NC}"
 fi
 
 # Seeder çalıştır
@@ -232,7 +196,7 @@ echo -e "${BLUE}[11/14] Seeder'lar çalıştırılıyor...${NC}"
 docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan db:seed --force
 
 if [ $? -ne 0 ]; then
-    echo -e "${YELLOW}⚠ Seeder hatası oldu, devam ediliyor...${NC}"
+    echo -e "${YELLOW}⚠ Seeder hatası oldu${NC}"
 fi
 
 # Storage link
@@ -247,31 +211,31 @@ docker compose -f docker-compose.prod.yml --env-file .env.production exec -T app
 
 echo -e "${GREEN}✓ Optimizasyon tamamlandı${NC}"
 
-# Certbot kurulumu ve SSL
-echo -e "${BLUE}[14/14] SSL sertifikası alınıyor...${NC}"
+# SSL sertifikası
+echo -e "${BLUE}[14/14] SSL sertifikası kontrol ediliyor...${NC}"
 
-# Certbot kurulu mu kontrol et
 if ! command -v certbot &> /dev/null; then
     echo -e "${YELLOW}Certbot kuruluyor...${NC}"
     sudo apt update
     sudo apt install certbot -y
 fi
 
-# SSL sertifikası al
-sudo certbot certonly --webroot \
-  --webroot-path=/var/www/${CLIENT_NAME}/public \
-  --email ${SSL_EMAIL} \
-  --agree-tos \
-  --no-eff-email \
-  -d ${DOMAIN}
+if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
+    sudo certbot certonly --webroot \
+      --webroot-path=/var/www/${CLIENT_NAME}/public \
+      --email ${SSL_EMAIL} \
+      --agree-tos \
+      --no-eff-email \
+      -d ${DOMAIN}
+fi
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ SSL sertifikası alındı${NC}"
+if [ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
+    echo -e "${GREEN}✓ SSL sertifikası mevcut${NC}"
 
-    # SSL config oluştur
-    cat > docker/nginx/prod-ssl.conf << 'NGINX_SSL_EOF'
+    # SSL config oluştur (sadece yoksa)
+    if [ ! -f "docker/nginx/prod-ssl.conf" ]; then
+        cat > docker/nginx/prod-ssl.conf << 'NGINX_SSL_EOF'
 client_max_body_size 100M;
-
 proxy_connect_timeout 600;
 proxy_send_timeout 600;
 proxy_read_timeout 600;
@@ -290,7 +254,6 @@ server {
 
     ssl_certificate /etc/letsencrypt/live/DOMAIN_PLACEHOLDER/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/DOMAIN_PLACEHOLDER/privkey.pem;
-
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
     ssl_prefer_server_ciphers on;
@@ -344,18 +307,10 @@ server {
 }
 NGINX_SSL_EOF
 
-    sed -i "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" docker/nginx/prod-ssl.conf
+        sed -i "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" docker/nginx/prod-ssl.conf
+    fi
 
-    # Nginx config'i SSL versiyonuna güncelle
-    # docker-compose.prod.yml'de nginx volume'u prod-ssl.conf'a değiştirilmeli
-    echo -e "${YELLOW}SSL config hazır. Nginx'i yeniden başlatmak için:${NC}"
-    echo -e "${YELLOW}1. docker-compose.prod.yml'de nginx volume'u düzenleyin:${NC}"
-    echo -e "${YELLOW}   - ./docker/nginx/default-prod.conf:/etc/nginx/conf.d/default.conf:ro${NC}"
-    echo -e "${YELLOW}   + ./docker/nginx/prod-ssl.conf:/etc/nginx/conf.d/default.conf:ro${NC}"
-    echo -e "${YELLOW}2. Container'ları yeniden başlatın:${NC}"
-    echo -e "${YELLOW}   docker compose -f docker-compose.prod.yml --env-file .env.production restart nginx${NC}"
-
-    echo -e "${GREEN}✓ SSL yapılandırması tamamlandı${NC}"
+    echo -e "${GREEN}✓ SSL yapılandırması hazır${NC}"
 else
     echo -e "${YELLOW}⚠ SSL alınamadı, HTTP ile devam ediliyor${NC}"
 fi
@@ -379,6 +334,5 @@ echo -e "Database: ${GREEN}${CLIENT_NAME}_db${NC}"
 echo -e "Username: ${GREEN}${CLIENT_NAME}_user${NC}"
 echo -e "Password: ${GREEN}${DB_PASSWORD}${NC}"
 echo ""
-echo -e "${YELLOW}Not: Şifreler ve APP_KEY .env.production dosyasına kaydedildi${NC}"
 echo -e "${YELLOW}APP_KEY: ${GREEN}${APP_KEY}${NC}"
 echo ""
