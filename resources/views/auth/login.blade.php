@@ -268,7 +268,7 @@
                                 </div>
 
                                 <!-- Şifre -->
-                                <div class="mb-3">
+                                <div class="mb-4">
                                     <label for="password" class="form-label">Şifre <span class="text-danger">*</span></label>
                                     <input type="password"
                                            class="form-control @error('password') is-invalid @enderror"
@@ -278,18 +278,6 @@
                                     @error('password')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                </div>
-
-                                <!-- Remember Me -->
-                                <div class="form-check mb-4">
-                                    <input class="form-check-input"
-                                           type="checkbox"
-                                           name="remember"
-                                           id="remember"
-                                           {{ old('remember') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="remember">
-                                        Beni Hatırla
-                                    </label>
                                 </div>
 
                                 <!-- Submit Button -->
