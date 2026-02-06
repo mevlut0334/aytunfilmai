@@ -47,6 +47,7 @@ fi
 echo -e "${BLUE}[1/14] .env dosyası oluşturuluyor...${NC}"
 cat > .env.production << EOF
 CLIENT_NAME=${CLIENT_NAME}
+DOMAIN=${DOMAIN}
 HTTP_PORT=80
 HTTPS_PORT=443
 DB_PORT=${DB_PORT}
@@ -230,85 +231,6 @@ fi
 
 if [ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
     echo -e "${GREEN}✓ SSL sertifikası mevcut${NC}"
-
-    # SSL config oluştur (sadece yoksa)
-    if [ ! -f "docker/nginx/prod-ssl.conf" ]; then
-        cat > docker/nginx/prod-ssl.conf << 'NGINX_SSL_EOF'
-client_max_body_size 100M;
-proxy_connect_timeout 600;
-proxy_send_timeout 600;
-proxy_read_timeout 600;
-send_timeout 600;
-
-server {
-    listen 80;
-    server_name DOMAIN_PLACEHOLDER;
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name DOMAIN_PLACEHOLDER;
-    root /var/www/html/public;
-
-    ssl_certificate /etc/letsencrypt/live/DOMAIN_PLACEHOLDER/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/DOMAIN_PLACEHOLDER/privkey.pem;
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-    ssl_prefer_server_ciphers on;
-
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-Content-Type-Options "nosniff";
-    add_header X-XSS-Protection "1; mode=block";
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-
-    index index.php;
-    charset utf-8;
-
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_types text/plain text/css text/xml text/javascript application/x-javascript application/xml+rss application/json;
-
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt { access_log off; log_not_found off; }
-
-    error_page 404 /index.php;
-
-    location ~ \.php$ {
-        fastcgi_pass app:9000;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-        fastcgi_index index.php;
-        include fastcgi_params;
-        fastcgi_hide_header X-Powered-By;
-    }
-
-    location ^~ /storage/ {
-        alias /var/www/html/storage/app/public/;
-        try_files $uri =404;
-        access_log off;
-        expires 30d;
-        add_header Cache-Control "public, immutable";
-    }
-
-    location ~ /\.(?!well-known).* {
-        deny all;
-    }
-
-    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
-        expires 30d;
-        add_header Cache-Control "public, immutable";
-    }
-}
-NGINX_SSL_EOF
-
-        sed -i "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" docker/nginx/prod-ssl.conf
-    fi
-
     echo -e "${GREEN}✓ SSL yapılandırması hazır${NC}"
 else
     echo -e "${YELLOW}⚠ SSL alınamadı, HTTP ile devam ediliyor${NC}"
