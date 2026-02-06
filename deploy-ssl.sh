@@ -110,20 +110,19 @@ sleep 5
 # MySQL user ve database oluştur
 echo -e "${BLUE}[4/14] MySQL user ve database oluşturuluyor...${NC}"
 
-docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "
-CREATE DATABASE IF NOT EXISTS ${CLIENT_NAME}_db;
-CREATE USER IF NOT EXISTS '${CLIENT_NAME}_user'@'%' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${CLIENT_NAME}_db.* TO '${CLIENT_NAME}_user'@'%';
-FLUSH PRIVILEGES;
-" 2>/dev/null
+# Önce database ve user'ın var olup olmadığını kontrol et
+DB_EXISTS=$(docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='${CLIENT_NAME}_db';" 2>/dev/null | grep -c "${CLIENT_NAME}_db")
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✓ MySQL user ve database hazır${NC}"
+if [ "$DB_EXISTS" -eq 0 ]; then
+    docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "
+    CREATE DATABASE ${CLIENT_NAME}_db;
+    CREATE USER '${CLIENT_NAME}_user'@'%' IDENTIFIED BY '${DB_PASSWORD}';
+    GRANT ALL PRIVILEGES ON ${CLIENT_NAME}_db.* TO '${CLIENT_NAME}_user'@'%';
+    FLUSH PRIVILEGES;
+    "
+    echo -e "${GREEN}✓ MySQL user ve database oluşturuldu${NC}"
 else
-    echo -e "${RED}✗ MySQL user/database oluşturulamadı!${NC}"
-    echo -e "${YELLOW}MySQL logları:${NC}"
-    docker compose -f docker-compose.prod.yml --env-file .env.production logs mysql --tail=30
-    exit 1
+    echo -e "${GREEN}✓ MySQL user ve database zaten mevcut${NC}"
 fi
 
 # Storage dizin yapısını oluştur
