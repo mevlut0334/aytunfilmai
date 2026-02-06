@@ -96,24 +96,21 @@ sleep 5
 # MySQL user ve database kontrolü
 echo -e "${BLUE}[4/14] MySQL user ve database kontrol ediliyor...${NC}"
 
+# MySQL'e bağlanmak için doğru komutu kullan
 # Önce veritabanının otomatik oluşup oluşmadığını kontrol et
-DB_EXISTS=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SHOW DATABASES LIKE '${CLIENT_NAME}_db';" 2>/dev/null | grep -c "${CLIENT_NAME}_db")
+DB_EXISTS=$(docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SHOW DATABASES LIKE '${CLIENT_NAME}_db';" 2>/dev/null | grep -c "${CLIENT_NAME}_db")
 
 if [ "$DB_EXISTS" -eq "0" ]; then
     echo -e "${YELLOW}⚠ Database bulunamadı, oluşturuluyor...${NC}"
-    docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS ${CLIENT_NAME}_db;"
+    docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE DATABASE IF NOT EXISTS ${CLIENT_NAME}_db;"
 fi
 
 # User'ın var olup olmadığını kontrol et
-USER_EXISTS=$(docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SELECT COUNT(*) FROM mysql.user WHERE user='${CLIENT_NAME}_user';" 2>/dev/null | tail -1)
+USER_EXISTS=$(docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "SELECT COUNT(*) FROM mysql.user WHERE user='${CLIENT_NAME}_user';" 2>/dev/null | tail -1)
 
-if [ "$USER_EXISTS" -eq "0" ]; then
+if [ -z "$USER_EXISTS" ] || [ "$USER_EXISTS" -eq "0" ]; then
     echo -e "${YELLOW}⚠ User bulunamadı, oluşturuluyor...${NC}"
-    docker compose -f docker-compose.prod.yml --env-file .env.production exec -T mysql mysql -u root -p"${DB_ROOT_PASSWORD}" << MYSQLEOF
-CREATE USER IF NOT EXISTS '${CLIENT_NAME}_user'@'%' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${CLIENT_NAME}_db.* TO '${CLIENT_NAME}_user'@'%';
-FLUSH PRIVILEGES;
-MYSQLEOF
+    docker exec ${CLIENT_NAME}_mysql mysql -u root -p"${DB_ROOT_PASSWORD}" -e "CREATE USER IF NOT EXISTS '${CLIENT_NAME}_user'@'%' IDENTIFIED BY '${DB_PASSWORD}'; GRANT ALL PRIVILEGES ON ${CLIENT_NAME}_db.* TO '${CLIENT_NAME}_user'@'%'; FLUSH PRIVILEGES;"
 fi
 
 echo -e "${GREEN}✓ MySQL user ve database hazır${NC}"
