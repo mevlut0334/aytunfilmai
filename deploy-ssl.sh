@@ -45,6 +45,16 @@ fi
 
 # .env.production dosyasını oluştur/güncelle
 echo -e "${BLUE}[1/14] .env dosyası oluşturuluyor...${NC}"
+
+# Eğer .env.production varsa ve izin sorunu varsa, sudo ile sil
+if [ -f ".env.production" ]; then
+    if [ ! -w ".env.production" ]; then
+        sudo rm -f .env.production
+    else
+        rm -f .env.production
+    fi
+fi
+
 cat > .env.production << EOF
 CLIENT_NAME=${CLIENT_NAME}
 DOMAIN=${DOMAIN}
@@ -220,6 +230,13 @@ if ! command -v certbot &> /dev/null; then
     sudo apt install certbot -y
 fi
 
+# Çalışan certbot process'leri varsa bekle
+CERTBOT_RUNNING=$(pgrep -x certbot)
+if [ ! -z "$CERTBOT_RUNNING" ]; then
+    echo -e "${YELLOW}Başka bir certbot işlemi çalışıyor, bekleniyor...${NC}"
+    sleep 10
+fi
+
 if [ ! -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
     sudo certbot certonly --webroot \
       --webroot-path=/var/www/${CLIENT_NAME}/public \
@@ -231,6 +248,11 @@ fi
 
 if [ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
     echo -e "${GREEN}✓ SSL sertifikası mevcut${NC}"
+
+    # Nginx'i restart ederek SSL'i aktif et
+    echo -e "${BLUE}Nginx SSL ile yeniden başlatılıyor...${NC}"
+    docker compose -f docker-compose.prod.yml --env-file .env.production restart nginx
+
     echo -e "${GREEN}✓ SSL yapılandırması hazır${NC}"
 else
     echo -e "${YELLOW}⚠ SSL alınamadı, HTTP ile devam ediliyor${NC}"
