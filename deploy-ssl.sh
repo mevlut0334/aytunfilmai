@@ -27,10 +27,7 @@ fi
 ########################################
 # SCRIPT & PROJE İZİNLERİ
 ########################################
-# Scriptin kendisine çalıştırma izni ver
 chmod +x "$0"
-
-# Proje klasörünü user'a ayarla
 sudo mkdir -p "$PROJECT_DIR"
 sudo chown -R $USER:$USER "$PROJECT_DIR"
 echo "✔ Script ve proje izinleri ayarlandı"
@@ -123,23 +120,16 @@ else
 fi
 
 ########################################
-# SSL INSTALL (opsiyonel)
+# SSL INSTALL
 ########################################
-sudo apt install certbot python3-certbot-nginx -y || true
+sudo apt install certbot python3-certbot-nginx nginx -y || true
 
 ########################################
 # CONTAINERS START
 ########################################
 echo "🐳 Docker containerlar başlatılıyor..."
-
-# Docker memory limit (low RAM ise)
-MEM_LIMIT="512m"
-if [ "$TOTAL_RAM_MB" -ge 2048 ]; then
-    MEM_LIMIT="1g"
-fi
-
 $COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" down || true
-$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build --memory "$MEM_LIMIT"
+$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build
 
 ########################################
 # WAIT DB
@@ -154,7 +144,6 @@ echo "✔ MySQL hazır"
 # LARAVEL SETUP
 ########################################
 echo "⚙ Laravel setup..."
-
 $COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan migrate --force
 $COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan db:seed --force
 $COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan config:cache
