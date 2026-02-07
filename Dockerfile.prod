@@ -1,6 +1,6 @@
 FROM php:8.3-fpm
 
-# Sistem paketleri
+# Sistem paketleri (tek layer'da, cache temizliği ile)
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -10,40 +10,48 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     libzip-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
-
-# Composer
+# Composer (multi-stage build'den)
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Çalışma dizini
 WORKDIR /var/www/html
 
-# PHP ayarlarını kopyala
+# PHP config dosyalarını kopyala
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY docker/php/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 
-# Önce composer dosyalarını kopyala (cache için)
+# Önce dependency dosyalarını kopyala (Docker layer cache için)
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
-# Tüm dosyaları kopyala
+# Composer install (production optimized)
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader \
+    --prefer-dist \
+    --optimize-autoloader \
+    --classmap-authoritative
+
+# Tüm uygulama dosyalarını kopyala
 COPY . .
 
-# Composer'ı tamamla
-RUN composer dump-autoload --optimize --no-dev
+# Composer autoload optimize et
+RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
-# İzinleri ayarla
+# İzinleri ayarla (tek komutta)
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Entrypoint script'i kopyala ve çalıştırılabilir yap
+# Entrypoint script
 COPY docker/app/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 9000
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]

@@ -209,10 +209,16 @@ docker exec aytunfilmai_app php artisan migrate --force || echo "⚠ Migration h
 docker exec aytunfilmai_app php artisan db:seed --force || echo "⚠ Seed hatası (normal olabilir)"
 
 # Cache temizle ve optimize et
-echo "🔧 Cache optimize ediliyor..."
+echo "🔧 Laravel optimize ediliyor..."
 docker exec aytunfilmai_app php artisan config:cache
 docker exec aytunfilmai_app php artisan route:cache
 docker exec aytunfilmai_app php artisan view:cache
+docker exec aytunfilmai_app php artisan event:cache
+docker exec aytunfilmai_app php artisan optimize
+
+# OPcache'i temizle (kod güncellemelerinin yansıması için)
+echo "🔄 OPcache temizleniyor..."
+docker exec aytunfilmai_app php -r "opcache_reset();"
 
 # SSL sertifikası al
 echo "🔒 SSL sertifikası alınıyor..."
