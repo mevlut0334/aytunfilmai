@@ -58,6 +58,11 @@ echo "📦 Gerekli paketler kuruluyor..."
 sudo apt update
 sudo apt install -y nginx python3-certbot-nginx git curl unzip zip
 
+# Sistem Nginx'i durdur (Docker Nginx kullanacağız)
+echo "🔧 Sistem Nginx durduruluyor..."
+sudo systemctl stop nginx 2>/dev/null || true
+sudo systemctl disable nginx 2>/dev/null || true
+
 # Repo clone / update
 if [ ! -d /var/www/aytunfilmai ]; then
     echo "📥 Repo clone..."
@@ -196,6 +201,9 @@ sudo sed -i "s/HTTP_PORT_PLACEHOLDER/${HTTP_PORT}/g" /etc/nginx/sites-available/
 # Nginx site'ı aktifleştir
 sudo ln -sf /etc/nginx/sites-available/${DOMAIN} /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
+
+# Nginx'i başlat (Certbot için gerekli)
+sudo systemctl start nginx
 sudo nginx -t && sudo systemctl reload nginx
 
 echo "✅ Nginx yapılandırıldı"
