@@ -1,6 +1,6 @@
 FROM php:8.3-fpm
 
-# Sistem paketleri (tek layer'da, cache temizliği ile)
+# Sistem paketleri ve PHP extensions (tek layer'da, cache temizliği ile)
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -32,9 +32,7 @@ RUN composer install \
     --no-dev \
     --no-scripts \
     --no-autoloader \
-    --prefer-dist \
-    --optimize-autoloader \
-    --classmap-authoritative
+    --prefer-dist
 
 # Tüm uygulama dosyalarını kopyala
 COPY . .
@@ -42,10 +40,9 @@ COPY . .
 # Composer autoload optimize et
 RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 
-# İzinleri ayarla (tek komutta)
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+# İzinleri ayarla - SADECE gerekli klasörler (ÇOK DAHA HIZLI)
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Entrypoint script
 COPY docker/app/entrypoint.sh /usr/local/bin/entrypoint.sh
