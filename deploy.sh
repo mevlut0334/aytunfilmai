@@ -233,6 +233,33 @@ docker exec aytunfilmai_app php -r "opcache_reset();" || echo "⚠ OPcache reset
 echo "🔄 SSL otomatik yenileme ayarlanıyor..."
 (crontab -l 2>/dev/null | grep -v certbot; echo "0 3 * * * certbot renew --quiet --deploy-hook 'docker restart aytunfilmai_nginx'") | crontab -
 
+# Systemd service oluştur (boot'ta otomatik başlatma GARANTİSİ)
+echo "🔧 Systemd service oluşturuluyor..."
+sudo tee /etc/systemd/system/aytunfilmai.service > /dev/null << SYSTEMD
+[Unit]
+Description=Aytun Film AI Docker Compose Application
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/var/www/aytunfilmai
+ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml --env-file .env.docker up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.prod.yml --env-file .env.docker down
+TimeoutStartSec=300
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+SYSTEMD
+
+sudo systemctl daemon-reload
+sudo systemctl enable aytunfilmai.service
+echo "✅ Systemd service aktif - Sunucu restart'ta otomatik başlayacak"
+
 # DB bilgilerini dosyaya kaydet
 echo "💾 DB bilgileri kaydediliyor..."
 cat > ~/deployment-info-${DOMAIN}.txt << EOF
@@ -269,6 +296,7 @@ echo "🌐 Web Sitesi: https://${DOMAIN}"
 echo "🔒 SSL: Aktif (otomatik yenileme ayarlı)"
 echo "🐳 Docker: Container'lar çalışıyor"
 echo "💾 Database: Hazır"
+echo "🔧 Systemd: Boot'ta otomatik başlatma aktif"
 echo ""
 echo "📋 DB Bilgileri ~/deployment-info-${DOMAIN}.txt dosyasına kaydedildi"
 echo "   Görüntülemek için: cat ~/deployment-info-${DOMAIN}.txt"
@@ -277,6 +305,7 @@ echo ""
 echo "📋 Faydalı Komutlar:"
 echo "  - Container durumu: docker ps"
 echo "  - Logları görüntüle: docker logs aytunfilmai_app"
+echo "  - Service durumu: sudo systemctl status aytunfilmai"
 echo "  - Container'ları durdur: cd /var/www/aytunfilmai && docker compose -f docker-compose.prod.yml down"
 echo "  - Container'ları başlat: cd /var/www/aytunfilmai && docker compose -f docker-compose.prod.yml up -d"
 echo "============================================"

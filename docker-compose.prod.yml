@@ -1,4 +1,27 @@
 services:
+  mysql:
+    image: mysql:8.0.35
+    container_name: aytunfilmai_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app_network
+    command: --default-authentication-plugin=mysql_native_password --max_connections=200
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 60s
+    # MySQL için güvenli kapanma
+    stop_grace_period: 30s
+
   app:
     build:
       context: .
@@ -24,6 +47,13 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    # Laravel için healthcheck ekleyelim
+    healthcheck:
+      test: ["CMD", "php", "-r", "echo 'OK';"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   nginx:
     image: nginx:alpine
@@ -43,28 +73,15 @@ services:
     networks:
       - app_network
     depends_on:
-      - app
-
-  mysql:
-    image: mysql:8.0.35
-    container_name: aytunfilmai_mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - app_network
-    command: --default-authentication-plugin=mysql_native_password
+      app:
+        condition: service_healthy
+    # Nginx için healthcheck
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 40s
+      retries: 5
+      start_period: 20s
 
 volumes:
   mysql_data:
