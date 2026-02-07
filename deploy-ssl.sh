@@ -25,6 +25,17 @@ if [[ -z "$DOMAIN" || -z "$SSL_EMAIL" ]]; then
 fi
 
 ########################################
+# SCRIPT & PROJE İZİNLERİ
+########################################
+# Scriptin kendisine çalıştırma izni ver
+chmod +x "$0"
+
+# Proje klasörünü user'a ayarla
+sudo mkdir -p "$PROJECT_DIR"
+sudo chown -R $USER:$USER "$PROJECT_DIR"
+echo "✔ Script ve proje izinleri ayarlandı"
+
+########################################
 # RAM & SWAP KONTROL
 ########################################
 TOTAL_RAM=$(grep MemTotal /proc/meminfo | awk '{print $2}')
@@ -65,25 +76,19 @@ else
 fi
 
 ########################################
-# PROJE KLASÖR
-########################################
-sudo mkdir -p /var/www
-sudo chown -R $USER:$USER /var/www
-
-########################################
 # REPO CLONE / UPDATE
 ########################################
-if [ ! -d "$PROJECT_DIR" ]; then
+if [ ! -d "$PROJECT_DIR/.git" ]; then
     echo "📥 Repo clone..."
-    git clone $REPO_URL $PROJECT_DIR
+    git clone $REPO_URL "$PROJECT_DIR"
 else
     echo "📥 Repo update..."
-    cd $PROJECT_DIR
+    cd "$PROJECT_DIR"
     git fetch origin main
     git reset --hard origin/main
 fi
 
-cd $PROJECT_DIR
+cd "$PROJECT_DIR"
 
 ########################################
 # ENV & APP_KEY
@@ -94,7 +99,7 @@ if [ ! -f "$ENV_FILE" ]; then
     MYSQL_DB_PASS=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 16)
     APP_KEY=$(openssl rand -base64 32)
 
-    cat > $ENV_FILE <<EOL
+    cat > "$ENV_FILE" <<EOL
 APP_NAME=AytunFilmAI
 APP_ENV=production
 APP_KEY=base64:$APP_KEY
@@ -133,14 +138,14 @@ if [ "$TOTAL_RAM_MB" -ge 2048 ]; then
     MEM_LIMIT="1g"
 fi
 
-$COMPOSE -f $COMPOSE_FILE --env-file $ENV_FILE down || true
-$COMPOSE -f $COMPOSE_FILE --env-file $ENV_FILE up -d --build --memory $MEM_LIMIT
+$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" down || true
+$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build --memory "$MEM_LIMIT"
 
 ########################################
 # WAIT DB
 ########################################
 echo "⏳ MySQL hazır olana kadar bekleniyor..."
-until $COMPOSE -f $COMPOSE_FILE --env-file $ENV_FILE exec -T mysql mysqladmin ping -h "mysql" --silent; do
+until $COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T mysql mysqladmin ping -h "mysql" --silent; do
     sleep 5
 done
 echo "✔ MySQL hazır"
@@ -150,17 +155,17 @@ echo "✔ MySQL hazır"
 ########################################
 echo "⚙ Laravel setup..."
 
-$COMPOSE -f $COMPOSE_FILE --env-file $ENV_FILE exec -T app php artisan migrate --force
-$COMPOSE -f $COMPOSE_FILE --env-file $ENV_FILE exec -T app php artisan db:seed --force
-$COMPOSE -f $COMPOSE_FILE --env-file $ENV_FILE exec -T app php artisan config:cache
-$COMPOSE -f $COMPOSE_FILE --env-file $ENV_FILE exec -T app php artisan route:cache
+$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan migrate --force
+$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan db:seed --force
+$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan config:cache
+$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan route:cache
 
 ########################################
 # SSL CERT
 ########################################
 if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
     echo "🔒 SSL sertifikası kuruluyor..."
-    sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos -m $SSL_EMAIL || true
+    sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$SSL_EMAIL" || true
 else
     echo "✔ SSL zaten kurulmuş"
 fi
