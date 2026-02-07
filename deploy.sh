@@ -1,15 +1,15 @@
 #!/bin/bash
-set -e  # Hata durumunda dur
+set -e
 
 echo "===================================="
-echo "🚀 SECURE & VPS-FRIENDLY AUTO DEPLOY"
+echo "🚀 DOCKER-ONLY AUTO DEPLOY WITH SSL"
 echo "===================================="
 
 # Sadece 2 soru sor
 read -p "Domain (örn: example.com): " DOMAIN
 read -p "SSL Email: " SSL_EMAIL
 
-# Domain'den DB name ve username oluştur (nokta ve tire olmadan)
+# Domain'den DB name ve username oluştur
 DB_NAME=$(echo "$DOMAIN" | sed 's/\..*//g' | sed 's/-//g')
 DB_USERNAME="${DB_NAME}"
 
@@ -19,12 +19,14 @@ DB_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-20)
 
 # Port default
 HTTP_PORT=80
+HTTPS_PORT=443
 
 echo ""
 echo "📋 Deployment Bilgileri:"
 echo "  Domain: $DOMAIN"
 echo "  SSL Email: $SSL_EMAIL"
 echo "  HTTP Port: $HTTP_PORT"
+echo "  HTTPS Port: $HTTPS_PORT"
 echo "  DB Name: $DB_NAME"
 echo "  DB Username: $DB_USERNAME"
 echo "  DB Root Password: $DB_ROOT_PASSWORD"
@@ -56,9 +58,9 @@ fi
 # Gerekli paketleri kur
 echo "📦 Gerekli paketler kuruluyor..."
 sudo apt update
-sudo apt install -y nginx python3-certbot-nginx git curl unzip zip
+sudo apt install -y certbot git curl unzip zip
 
-# Sistem Nginx'i durdur (Docker Nginx kullanacağız)
+# Sistem Nginx'i durdur ve devre dışı bırak
 echo "🔧 Sistem Nginx durduruluyor..."
 sudo systemctl stop nginx 2>/dev/null || true
 sudo systemctl disable nginx 2>/dev/null || true
@@ -81,7 +83,7 @@ sudo chown -R $USER:$USER /var/www/aytunfilmai
 echo "⚙ .env dosyası oluşturuluyor..."
 cp .env.example .env
 
-# APP_KEY üret (base64 encoded random 32 karakter)
+# APP_KEY üret
 APP_KEY="base64:$(openssl rand -base64 32)"
 
 # .env dosyasını doldur
@@ -160,6 +162,7 @@ EOF
 cat > .env.docker << EOF
 DOMAIN=${DOMAIN}
 HTTP_PORT=${HTTP_PORT}
+HTTPS_PORT=${HTTPS_PORT}
 DB_PORT=3306
 DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
 DB_DATABASE=${DB_NAME}
@@ -177,36 +180,16 @@ mkdir -p storage/logs
 mkdir -p bootstrap/cache
 chmod -R 775 storage bootstrap/cache
 
-# Nginx konfigürasyonu - önce HTTP için
-echo "🌐 Nginx konfigürasyonu oluşturuluyor..."
-sudo tee /etc/nginx/sites-available/${DOMAIN} > /dev/null << 'NGINXCONF'
-server {
-    listen 80;
-    server_name DOMAIN_PLACEHOLDER;
+# SSL sertifikası dizinini oluştur
+sudo mkdir -p /etc/letsencrypt
 
-    location / {
-        proxy_pass http://localhost:HTTP_PORT_PLACEHOLDER;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-NGINXCONF
+# SSL sertifikası al (certbot standalone mode)
+echo "🔒 SSL sertifikası alınıyor (HTTP challenge)..."
+sudo certbot certonly --standalone --non-interactive --agree-tos --email ${SSL_EMAIL} -d ${DOMAIN} --http-01-port=80
 
-# Domain ve port'u değiştir
-sudo sed -i "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" /etc/nginx/sites-available/${DOMAIN}
-sudo sed -i "s/HTTP_PORT_PLACEHOLDER/${HTTP_PORT}/g" /etc/nginx/sites-available/${DOMAIN}
-
-# Nginx site'ı aktifleştir
-sudo ln -sf /etc/nginx/sites-available/${DOMAIN} /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default
-
-# Nginx'i başlat (Certbot için gerekli)
-sudo systemctl start nginx
-sudo nginx -t && sudo systemctl reload nginx
-
-echo "✅ Nginx yapılandırıldı"
+# SSL sertifikası izinlerini ayarla
+sudo chmod -R 755 /etc/letsencrypt/live
+sudo chmod -R 755 /etc/letsencrypt/archive
 
 # Docker Compose ile başlat
 echo "🐳 Docker container'ları başlatılıyor..."
@@ -244,17 +227,13 @@ docker exec aytunfilmai_app php artisan view:cache
 docker exec aytunfilmai_app php artisan event:cache
 docker exec aytunfilmai_app php artisan optimize
 
-# OPcache'i temizle (kod güncellemelerinin yansıması için)
+# OPcache'i temizle
 echo "🔄 OPcache temizleniyor..."
-docker exec aytunfilmai_app php -r "opcache_reset();" || echo "⚠ OPcache reset edilemedi (normal olabilir)"
-
-# SSL sertifikası al
-echo "🔒 SSL sertifikası alınıyor..."
-sudo certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos --email ${SSL_EMAIL} --redirect
+docker exec aytunfilmai_app php -r "opcache_reset();" || echo "⚠ OPcache reset edilemedi"
 
 # SSL otomatik yenileme için cron job ekle
 echo "🔄 SSL otomatik yenileme ayarlanıyor..."
-(crontab -l 2>/dev/null | grep -v certbot; echo "0 3 * * * certbot renew --quiet --post-hook 'systemctl reload nginx'") | crontab -
+(crontab -l 2>/dev/null | grep -v certbot; echo "0 3 * * * certbot renew --quiet --deploy-hook 'docker restart aytunfilmai_nginx'") | crontab -
 
 # DB bilgilerini dosyaya kaydet
 echo "💾 DB bilgileri kaydediliyor..."
