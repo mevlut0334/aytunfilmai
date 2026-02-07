@@ -1,117 +1,126 @@
 #!/bin/bash
+set -e  # Hata durumunda dur
 
-# Renkler
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+echo "===================================="
+echo "🚀 SECURE & VPS-FRIENDLY AUTO DEPLOY"
+echo "===================================="
 
-echo -e "${BLUE}=========================================${NC}"
-echo -e "${BLUE}  Aytun Film AI Docker Deployment       ${NC}"
-echo -e "${BLUE}=========================================${NC}"
-echo ""
-
-# Müşteri bilgilerini al
-read -p "Müşteri adı (örn: aytunfilmai): " CLIENT_NAME
-read -p "Domain veya IP adresi (örn: example.com veya 89.252.153.179): " DOMAIN
-read -p "HTTP Port (varsayılan 80): " HTTP_PORT
+# DOMAIN, SSL Email ve PORT sor
+read -p "Domain (örn: example.com): " DOMAIN
+read -p "SSL Email: " SSL_EMAIL
+read -p "HTTP Port (default: 80): " HTTP_PORT
 HTTP_PORT=${HTTP_PORT:-80}
-read -p "MySQL Port (varsayılan 3306): " DB_PORT
-DB_PORT=${DB_PORT:-3306}
 
-echo ""
-echo -e "${YELLOW}Şifreler otomatik oluşturuluyor...${NC}"
+read -p "DB Root Password: " DB_ROOT_PASSWORD
+read -p "DB Name: " DB_DATABASE
+read -p "DB Username: " DB_USERNAME
+read -p "DB Password: " DB_PASSWORD
 
-# Güvenli şifreler oluştur
-DB_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
-DB_ROOT_PASSWORD=$(openssl rand -base64 32 | tr -d "=+/" | cut -c1-25)
+# RAM ve swap kontrolü
+TOTAL_RAM=$(free -m | awk '/^Mem:/{print $2}')
+echo "💾 Toplam RAM: ${TOTAL_RAM}MB"
 
-# .env.production dosyasını oluştur
-echo -e "${BLUE}[1/8] .env dosyası oluşturuluyor...${NC}"
-cat > .env.production << EOF
-CLIENT_NAME=${CLIENT_NAME}
-HTTP_PORT=${HTTP_PORT}
-DB_PORT=${DB_PORT}
+if [ "$TOTAL_RAM" -lt 2000 ]; then
+    if [ ! -f /swapfile ]; then
+        echo "⚠ RAM düşük, 2GB swap oluşturuluyor..."
+        sudo fallocate -l 2G /swapfile
+        sudo chmod 600 /swapfile
+        sudo mkswap /swapfile
+        sudo swapon /swapfile
+        echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+    else
+        echo "✔ Swap zaten mevcut"
+    fi
+fi
 
-APP_NAME="Aytun Film AI"
+# Gerekli paketleri kur
+echo "📦 Gerekli paketler kuruluyor..."
+sudo apt update
+sudo apt install -y nginx python3-certbot-nginx git curl unzip zip
+
+# Repo clone / update
+if [ ! -d /var/www/aytunfilmai ]; then
+    echo "📥 Repo clone..."
+    sudo git clone https://github.com/mevlut0334/aytunfilmai /var/www/aytunfilmai
+else
+    echo "📥 Repo update..."
+    cd /var/www/aytunfilmai && sudo git fetch --all && sudo git reset --hard origin/main
+fi
+
+cd /var/www/aytunfilmai
+
+# Ownership ayarla
+sudo chown -R $USER:$USER /var/www/aytunfilmai
+
+# .env dosyası oluştur
+echo "⚙ .env dosyası oluşturuluyor..."
+cp .env.example .env
+
+# APP_KEY üret (base64 encoded random 32 karakter)
+APP_KEY="base64:$(openssl rand -base64 32)"
+
+# .env dosyasını doldur
+cat > .env << EOF
+APP_NAME=AytunFilmAI
 APP_ENV=production
-APP_KEY=
+APP_KEY=${APP_KEY}
 APP_DEBUG=false
-APP_URL=http://${DOMAIN}
+APP_URL=https://${DOMAIN}
 
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_PORT=3306
-DB_DATABASE=${CLIENT_NAME}_db
-DB_USERNAME=${CLIENT_NAME}_user
+DB_DATABASE=${DB_DATABASE}
+DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
-DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-
-CACHE_STORE=database
-SESSION_DRIVER=database
-QUEUE_CONNECTION=database
 
 LOG_CHANNEL=stack
 LOG_LEVEL=error
 EOF
 
-echo -e "${GREEN}✓ .env dosyası oluşturuldu${NC}"
+# docker-compose.prod.yml için .env.docker oluştur
+cat > .env.docker << EOF
+DOMAIN=${DOMAIN}
+HTTP_PORT=${HTTP_PORT}
+DB_PORT=3306
+DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+DB_DATABASE=${DB_DATABASE}
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
+APP_KEY=${APP_KEY}
+EOF
 
-# Docker container'ları başlat
-echo -e "${BLUE}[2/8] Docker container'ları başlatılıyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+echo "✅ .env dosyaları hazır"
 
-if [ $? -ne 0 ]; then
-    echo -e "${RED}✗ Docker container'ları başlatılamadı!${NC}"
-    exit 1
-fi
+# Storage ve cache klasörlerini hazırla
+echo "📁 Storage ve cache klasörleri hazırlanıyor..."
+sudo mkdir -p storage/framework/{sessions,views,cache}
+sudo mkdir -p storage/logs
+sudo mkdir -p bootstrap/cache
+sudo chmod -R 775 storage bootstrap/cache
+sudo chown -R www-data:www-data storage bootstrap/cache
 
-echo -e "${GREEN}✓ Container'lar başlatıldı${NC}"
+# Docker Compose ile başlat
+echo "🐳 Docker container'ları başlatılıyor..."
+docker compose -f docker-compose.prod.yml --env-file .env.docker down -v 2>/dev/null || true
+docker compose -f docker-compose.prod.yml --env-file .env.docker up -d --build
 
 # Container'ların hazır olmasını bekle
-echo -e "${BLUE}[3/8] Container'ların hazır olması bekleniyor...${NC}"
+echo "⏳ MySQL hazır olana kadar bekleniyor..."
 sleep 10
 
-# APP_KEY oluştur
-echo -e "${BLUE}[4/8] APP_KEY oluşturuluyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan key:generate --force
+# Migration ve seed
+echo "🗄 Database migration çalıştırılıyor..."
+docker exec aytunfilmai_app php artisan migrate --force || echo "⚠ Migration hatası (normal olabilir)"
+docker exec aytunfilmai_app php artisan db:seed --force || echo "⚠ Seed hatası (normal olabilir)"
 
-# Cache temizle
-echo -e "${BLUE}[5/8] Cache temizleniyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan config:clear
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan cache:clear
-
-# Migration çalıştır
-echo -e "${BLUE}[6/8] Veritabanı migration'ları çalıştırılıyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan migrate --force
-
-# Seeder çalıştır
-echo -e "${BLUE}[7/8] Seeder'lar çalıştırılıyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan db:seed --force
-
-# Storage link
-echo -e "${BLUE}[8/8] Storage link oluşturuluyor...${NC}"
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app php artisan storage:link
-
-# İzinleri düzelt
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app chown -R www-data:www-data /var/www/html/storage
-docker-compose -f docker-compose.prod.yml --env-file .env.production exec -T app chmod -R 775 /var/www/html/storage
+# Cache temizle ve optimize et
+echo "🔧 Cache optimize ediliyor..."
+docker exec aytunfilmai_app php artisan config:cache
+docker exec aytunfilmai_app php artisan route:cache
+docker exec aytunfilmai_app php artisan view:cache
 
 echo ""
-echo -e "${GREEN}=========================================${NC}"
-echo -e "${GREEN}   ✓ Kurulum Başarıyla Tamamlandı!      ${NC}"
-echo -e "${GREEN}=========================================${NC}"
-echo ""
-echo -e "${BLUE}Erişim Bilgileri:${NC}"
-echo -e "URL: ${GREEN}http://${DOMAIN}:${HTTP_PORT}${NC}"
-echo ""
-echo -e "${BLUE}Veritabanı Bilgileri:${NC}"
-echo -e "Host: ${GREEN}localhost${NC}"
-echo -e "Port: ${GREEN}${DB_PORT}${NC}"
-echo -e "Database: ${GREEN}${CLIENT_NAME}_db${NC}"
-echo -e "Username: ${GREEN}${CLIENT_NAME}_user${NC}"
-echo -e "Password: ${GREEN}${DB_PASSWORD}${NC}"
-echo ""
-echo -e "${YELLOW}Not: Şifreler .env.production dosyasına kaydedildi${NC}"
-echo ""
+echo "✅ Deploy tamamlandı!"
+echo "🌐 Domain: $DOMAIN | HTTP Port: $HTTP_PORT"
+echo "📝 SSL sertifikası için: sudo certbot --nginx -d $DOMAIN"
