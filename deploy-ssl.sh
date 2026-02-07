@@ -1,175 +1,100 @@
 #!/bin/bash
+# ====================================
+# 🚀 SECURE & VPS-FRIENDLY AUTO DEPLOY
+# ====================================
+
 set -e
 
 echo "===================================="
 echo "🚀 SECURE & VPS-FRIENDLY AUTO DEPLOY"
 echo "===================================="
 
-########################################
-# SABIT AYARLAR
-########################################
-REPO_URL="https://github.com/mevlut0334/aytunfilmai.git"
-PROJECT_DIR="/var/www/aytunfilmai"
-COMPOSE_FILE="docker-compose.prod.yml"
-ENV_FILE=".env.production"
-
-########################################
-# INPUT
-########################################
+# --- 1️⃣ Domain ve Client bilgisi ---
 read -p "Domain (örn: example.com): " DOMAIN
+read -p "Client Name (örn: aytunfilmai): " CLIENT_NAME
 read -p "SSL Email: " SSL_EMAIL
 
-if [[ -z "$DOMAIN" || -z "$SSL_EMAIL" ]]; then
-    echo "❌ Domain ve Email zorunlu"
-    exit 1
-fi
+# --- 2️⃣ Environment Değişkenleri ---
+export CLIENT_NAME
+export DOMAIN
+export HTTP_PORT=80
+export DB_PORT=3306
+export DB_ROOT_PASSWORD="secret_root"  # Gerekirse prompt ile değiştir
+export DB_DATABASE="${CLIENT_NAME}_db"
+export DB_USERNAME="${CLIENT_NAME}"
+export DB_PASSWORD="secret_db"         # Gerekirse prompt ile değiştir
 
-########################################
-# SCRIPT & PROJE İZİNLERİ
-########################################
-chmod +x "$0"
-sudo mkdir -p "$PROJECT_DIR"
-sudo chown -R $USER:$USER "$PROJECT_DIR"
-echo "✔ Script ve proje izinleri ayarlandı"
+# --- 3️⃣ RAM ve Swap Kontrol ---
+TOTAL_RAM=$(free -m | awk '/^Mem:/{print $2}')
+echo "💾 Toplam RAM: ${TOTAL_RAM}MB"
 
-########################################
-# RAM & SWAP KONTROL
-########################################
-TOTAL_RAM=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-TOTAL_RAM_MB=$((TOTAL_RAM / 1024))
-echo "💾 Toplam RAM: ${TOTAL_RAM_MB}MB"
-
-if [ "$TOTAL_RAM_MB" -lt 2048 ]; then
-    if ! swapon --show | grep -q "/swapfile"; then
+if [ "$TOTAL_RAM" -lt 2000 ]; then
+    SWAP_FILE="/swapfile"
+    if ! swapon --show | grep -q "$SWAP_FILE"; then
         echo "⚠ RAM düşük, 2GB swap oluşturuluyor..."
-        sudo fallocate -l 2G /swapfile
-        sudo chmod 600 /swapfile
-        sudo mkswap /swapfile
-        sudo swapon /swapfile
-        echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+        sudo fallocate -l 2G $SWAP_FILE
+        sudo chmod 600 $SWAP_FILE
+        sudo mkswap $SWAP_FILE
+        sudo swapon $SWAP_FILE
+        echo "$SWAP_FILE none swap sw 0 0" | sudo tee -a /etc/fstab
     else
         echo "✔ Swap zaten mevcut"
     fi
-else
-    echo "✔ RAM yeterli, swap eklemeye gerek yok"
 fi
 
-########################################
-# DOCKER AUTO INSTALL
-########################################
-if ! command -v docker &> /dev/null; then
-    echo "🐳 Docker kuruluyor..."
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sudo sh get-docker.sh
-    sudo apt-get install docker-compose-plugin -y
-    sudo usermod -aG docker $USER
-    rm get-docker.sh
-fi
+# --- 4️⃣ Proje Dizini ve İzinler ---
+WEB_DIR="/var/www/${CLIENT_NAME}"
+sudo mkdir -p "$WEB_DIR"
+sudo chown -R $USER:$USER "$WEB_DIR"
+sudo chmod -R 775 "$WEB_DIR"
 
-if docker compose version &> /dev/null; then
-    COMPOSE="docker compose"
-else
-    COMPOSE="docker-compose"
-fi
-
-########################################
-# REPO CLONE / UPDATE
-########################################
-if [ ! -d "$PROJECT_DIR/.git" ]; then
+# --- 5️⃣ Repo Clone / Update ---
+if [ ! -d "$WEB_DIR/.git" ]; then
     echo "📥 Repo clone..."
-    git clone $REPO_URL "$PROJECT_DIR"
+    git clone https://github.com/mevlut0334/aytunfilmai "$WEB_DIR"
 else
     echo "📥 Repo update..."
-    cd "$PROJECT_DIR"
-    git fetch origin main
+    cd "$WEB_DIR"
+    git fetch --all
     git reset --hard origin/main
 fi
 
-cd "$PROJECT_DIR"
-
-########################################
-# ENV & APP_KEY
-########################################
+# --- 6️⃣ ENV Dosyası ---
+ENV_FILE="$WEB_DIR/.env.production"
 if [ ! -f "$ENV_FILE" ]; then
     echo "⚙ ENV oluşturuluyor ve APP_KEY üretiliyor..."
-    MYSQL_ROOT_PASS=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 16)
-    MYSQL_DB_PASS=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9' | head -c 16)
-    APP_KEY=$(openssl rand -base64 32)
-
-    cat > "$ENV_FILE" <<EOL
-APP_NAME=AytunFilmAI
-APP_ENV=production
-APP_KEY=base64:$APP_KEY
-APP_DEBUG=false
-APP_URL=https://$DOMAIN
-
-DB_CONNECTION=mysql
-DB_HOST=mysql
-DB_PORT=3306
-DB_DATABASE=aytunfilmai_db
-DB_USERNAME=aytunfilmai_user
-DB_PASSWORD=$MYSQL_DB_PASS
-
-MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASS
-MYSQL_DATABASE=aytunfilmai_db
-MYSQL_USER=aytunfilmai_user
-MYSQL_PASSWORD=$MYSQL_DB_PASS
-EOL
-else
-    echo "✔ ENV dosyası zaten mevcut, APP_KEY korunuyor"
+    cp "$WEB_DIR/.env.example" "$ENV_FILE"
+    APP_KEY=$(cd "$WEB_DIR" && php artisan key:generate --show)
+    sed -i "s|APP_KEY=.*|APP_KEY=${APP_KEY}|" "$ENV_FILE"
 fi
 
-########################################
-# SSL INSTALL
-########################################
-sudo apt install certbot python3-certbot-nginx nginx -y || true
+export APP_KEY=$(grep APP_KEY "$ENV_FILE" | cut -d '=' -f2)
 
-########################################
-# CONTAINERS START
-########################################
+# --- 7️⃣ Gerekli Paketler ---
+sudo apt update
+sudo apt install -y nginx python3-certbot-nginx git curl
+
+# --- 8️⃣ Docker ve Container Başlatma ---
+cd "$WEB_DIR"
+
+# DEV veya PROD docker-compose dosyasına göre seç
+COMPOSE_FILE="docker-compose.prod.yml"
+if [ ! -f "$COMPOSE_FILE" ]; then
+    echo "❌ $COMPOSE_FILE bulunamadı, script sonlandırılıyor"
+    exit 1
+fi
+
 echo "🐳 Docker containerlar başlatılıyor..."
-$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" down || true
-$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" up -d --build
+docker-compose -f "$COMPOSE_FILE" up -d --build
 
-########################################
-# WAIT DB
-########################################
-echo "⏳ MySQL hazır olana kadar bekleniyor..."
-until $COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T mysql mysqladmin ping -h "mysql" --silent; do
-    sleep 5
-done
-echo "✔ MySQL hazır"
+# --- 9️⃣ Dosya izinleri ve storage ayarları ---
+sudo chown -R www-data:www-data "$WEB_DIR"
+sudo chmod -R 775 "$WEB_DIR/storage" "$WEB_DIR/bootstrap/cache"
 
-########################################
-# LARAVEL SETUP
-########################################
-echo "⚙ Laravel setup..."
-$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan migrate --force
-$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan db:seed --force
-$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan config:cache
-$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan route:cache
+# --- 10️⃣ SSL (Let's Encrypt) ---
+echo "🔒 SSL kurulumu..."
+sudo certbot --nginx -d "$DOMAIN" --email "$SSL_EMAIL" --agree-tos --non-interactive
 
-# 👇 Görsel upload ve storage izinleri
-$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app chown -R www-data:www-data storage bootstrap/cache
-$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app chmod -R 775 storage bootstrap/cache
-
-########################################
-# SSL CERT
-########################################
-if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
-    echo "🔒 SSL sertifikası kuruluyor..."
-    sudo certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m "$SSL_EMAIL" || true
-else
-    echo "✔ SSL zaten kurulmuş"
-fi
-
-########################################
-# DONE
-########################################
-echo ""
 echo "===================================="
-echo "🎉 DEPLOY TAMAMLANDI"
-echo "===================================="
-echo "🌐 Site: https://$DOMAIN"
-echo "👤 Admin: admin@$DOMAIN"
+echo "✅ Deploy tamamlandı!"
 echo "===================================="
