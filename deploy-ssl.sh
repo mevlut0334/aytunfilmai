@@ -149,6 +149,10 @@ $COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan db:se
 $COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan config:cache
 $COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app php artisan route:cache
 
+# 👇 Görsel upload ve storage izinleri
+$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app chown -R www-data:www-data storage bootstrap/cache
+$COMPOSE -f "$COMPOSE_FILE" --env-file "$ENV_FILE" exec -T app chmod -R 775 storage bootstrap/cache
+
 ########################################
 # SSL CERT
 ########################################
