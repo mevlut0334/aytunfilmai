@@ -61,11 +61,26 @@ APP_KEY="base64:$(openssl rand -base64 32)"
 
 # .env dosyasını doldur
 cat > .env << EOF
-APP_NAME=AytunFilmAI
+APP_NAME="Aytun Film AI"
 APP_ENV=production
 APP_KEY=${APP_KEY}
 APP_DEBUG=false
+APP_TIMEZONE=UTC
 APP_URL=https://${DOMAIN}
+
+APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=en_US
+
+APP_MAINTENANCE_DRIVER=file
+APP_MAINTENANCE_STORE=database
+
+BCRYPT_ROUNDS=12
+
+LOG_CHANNEL=stack
+LOG_STACK=single
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=error
 
 DB_CONNECTION=mysql
 DB_HOST=mysql
@@ -74,8 +89,46 @@ DB_DATABASE=${DB_DATABASE}
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 
-LOG_CHANNEL=stack
-LOG_LEVEL=error
+SESSION_DRIVER=database
+SESSION_LIFETIME=1440
+SESSION_ENCRYPT=false
+SESSION_PATH=/
+SESSION_DOMAIN=null
+
+BROADCAST_CONNECTION=log
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION=database
+
+CACHE_STORE=database
+CACHE_PREFIX=
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_CLIENT=phpredis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=log
+MAIL_HOST=127.0.0.1
+MAIL_PORT=2525
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="\${APP_NAME}"
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
+VITE_APP_NAME="\${APP_NAME}"
+
+IYZICO_API_KEY=
+IYZICO_SECRET_KEY=
+IYZICO_BASE_URL=https://api.iyzipay.com
 EOF
 
 # docker-compose.prod.yml için .env.docker oluştur
@@ -94,11 +147,38 @@ echo "✅ .env dosyaları hazır"
 
 # Storage ve cache klasörlerini hazırla
 echo "📁 Storage ve cache klasörleri hazırlanıyor..."
-sudo mkdir -p storage/framework/{sessions,views,cache}
-sudo mkdir -p storage/logs
-sudo mkdir -p bootstrap/cache
-sudo chmod -R 775 storage bootstrap/cache
-sudo chown -R www-data:www-data storage bootstrap/cache
+mkdir -p storage/framework/{sessions,views,cache}
+mkdir -p storage/logs
+mkdir -p bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+
+# Nginx konfigürasyonu - önce HTTP için
+echo "🌐 Nginx konfigürasyonu oluşturuluyor..."
+sudo tee /etc/nginx/sites-available/${DOMAIN} > /dev/null << 'NGINXCONF'
+server {
+    listen 80;
+    server_name DOMAIN_PLACEHOLDER;
+
+    location / {
+        proxy_pass http://localhost:HTTP_PORT_PLACEHOLDER;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+NGINXCONF
+
+# Domain ve port'u değiştir
+sudo sed -i "s/DOMAIN_PLACEHOLDER/${DOMAIN}/g" /etc/nginx/sites-available/${DOMAIN}
+sudo sed -i "s/HTTP_PORT_PLACEHOLDER/${HTTP_PORT}/g" /etc/nginx/sites-available/${DOMAIN}
+
+# Nginx site'ı aktifleştir
+sudo ln -sf /etc/nginx/sites-available/${DOMAIN} /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
+
+echo "✅ Nginx yapılandırıldı"
 
 # Docker Compose ile başlat
 echo "🐳 Docker container'ları başlatılıyor..."
@@ -106,8 +186,22 @@ docker compose -f docker-compose.prod.yml --env-file .env.docker down -v 2>/dev/
 docker compose -f docker-compose.prod.yml --env-file .env.docker up -d --build
 
 # Container'ların hazır olmasını bekle
-echo "⏳ MySQL hazır olana kadar bekleniyor..."
-sleep 10
+echo "⏳ Container'lar hazırlanıyor..."
+sleep 30
+
+# Container'lar ayakta mı kontrol et
+if ! docker ps | grep -q aytunfilmai_app; then
+    echo "❌ Container'lar başlatılamadı!"
+    docker logs aytunfilmai_mysql
+    exit 1
+fi
+
+echo "✅ Container'lar çalışıyor"
+
+# Storage izinlerini Docker içinde ayarla
+echo "📁 Storage izinleri ayarlanıyor..."
+docker exec aytunfilmai_app chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+docker exec aytunfilmai_app chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Migration ve seed
 echo "🗄 Database migration çalıştırılıyor..."
@@ -120,7 +214,27 @@ docker exec aytunfilmai_app php artisan config:cache
 docker exec aytunfilmai_app php artisan route:cache
 docker exec aytunfilmai_app php artisan view:cache
 
+# SSL sertifikası al
+echo "🔒 SSL sertifikası alınıyor..."
+sudo certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos --email ${SSL_EMAIL} --redirect
+
+# SSL otomatik yenileme için cron job ekle
+echo "🔄 SSL otomatik yenileme ayarlanıyor..."
+(crontab -l 2>/dev/null | grep -v certbot; echo "0 3 * * * certbot renew --quiet --post-hook 'systemctl reload nginx'") | crontab -
+
 echo ""
-echo "✅ Deploy tamamlandı!"
-echo "🌐 Domain: $DOMAIN | HTTP Port: $HTTP_PORT"
-echo "📝 SSL sertifikası için: sudo certbot --nginx -d $DOMAIN"
+echo "============================================"
+echo "✅ DEPLOYMENT BAŞARIYLA TAMAMLANDI!"
+echo "============================================"
+echo "🌐 Web Sitesi: https://${DOMAIN}"
+echo "🔒 SSL: Aktif (otomatik yenileme ayarlı)"
+echo "🐳 Docker: Container'lar çalışıyor"
+echo "💾 Database: Hazır"
+echo "============================================"
+echo ""
+echo "📋 Faydalı Komutlar:"
+echo "  - Container durumu: docker ps"
+echo "  - Logları görüntüle: docker logs aytunfilmai_app"
+echo "  - Container'ları durdur: cd /var/www/aytunfilmai && docker compose -f docker-compose.prod.yml down"
+echo "  - Container'ları başlat: cd /var/www/aytunfilmai && docker compose -f docker-compose.prod.yml up -d"
+echo "============================================"
