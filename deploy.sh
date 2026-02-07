@@ -5,16 +5,36 @@ echo "===================================="
 echo "🚀 SECURE & VPS-FRIENDLY AUTO DEPLOY"
 echo "===================================="
 
-# DOMAIN, SSL Email ve PORT sor
+# Sadece 2 soru sor
 read -p "Domain (örn: example.com): " DOMAIN
 read -p "SSL Email: " SSL_EMAIL
-read -p "HTTP Port (default: 80): " HTTP_PORT
-HTTP_PORT=${HTTP_PORT:-80}
 
-read -p "DB Root Password: " DB_ROOT_PASSWORD
-read -p "DB Name: " DB_DATABASE
-read -p "DB Username: " DB_USERNAME
-read -p "DB Password: " DB_PASSWORD
+# Domain'den DB name ve username oluştur (nokta ve tire olmadan)
+DB_NAME=$(echo "$DOMAIN" | sed 's/\..*//g' | sed 's/-//g')
+DB_USERNAME="${DB_NAME}"
+
+# Güvenli random password üret
+DB_ROOT_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-20)
+DB_PASSWORD=$(openssl rand -base64 24 | tr -d "=+/" | cut -c1-20)
+
+# Port default
+HTTP_PORT=80
+
+echo ""
+echo "📋 Deployment Bilgileri:"
+echo "  Domain: $DOMAIN"
+echo "  SSL Email: $SSL_EMAIL"
+echo "  HTTP Port: $HTTP_PORT"
+echo "  DB Name: $DB_NAME"
+echo "  DB Username: $DB_USERNAME"
+echo "  DB Root Password: $DB_ROOT_PASSWORD"
+echo "  DB Password: $DB_PASSWORD"
+echo ""
+read -p "Devam edilsin mi? (y/n): " CONFIRM
+if [ "$CONFIRM" != "y" ]; then
+    echo "❌ Deployment iptal edildi."
+    exit 1
+fi
 
 # RAM ve swap kontrolü
 TOTAL_RAM=$(free -m | awk '/^Mem:/{print $2}')
@@ -85,7 +105,7 @@ LOG_LEVEL=error
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_PORT=3306
-DB_DATABASE=${DB_DATABASE}
+DB_DATABASE=${DB_NAME}
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 
@@ -137,7 +157,7 @@ DOMAIN=${DOMAIN}
 HTTP_PORT=${HTTP_PORT}
 DB_PORT=3306
 DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-DB_DATABASE=${DB_DATABASE}
+DB_DATABASE=${DB_NAME}
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 APP_KEY=${APP_KEY}
@@ -218,7 +238,7 @@ docker exec aytunfilmai_app php artisan optimize
 
 # OPcache'i temizle (kod güncellemelerinin yansıması için)
 echo "🔄 OPcache temizleniyor..."
-docker exec aytunfilmai_app php -r "opcache_reset();"
+docker exec aytunfilmai_app php -r "opcache_reset();" || echo "⚠ OPcache reset edilemedi (normal olabilir)"
 
 # SSL sertifikası al
 echo "🔒 SSL sertifikası alınıyor..."
@@ -228,6 +248,34 @@ sudo certbot --nginx -d ${DOMAIN} --non-interactive --agree-tos --email ${SSL_EM
 echo "🔄 SSL otomatik yenileme ayarlanıyor..."
 (crontab -l 2>/dev/null | grep -v certbot; echo "0 3 * * * certbot renew --quiet --post-hook 'systemctl reload nginx'") | crontab -
 
+# DB bilgilerini dosyaya kaydet
+echo "💾 DB bilgileri kaydediliyor..."
+cat > ~/deployment-info-${DOMAIN}.txt << EOF
+============================================
+DEPLOYMENT BİLGİLERİ - ${DOMAIN}
+============================================
+Domain: ${DOMAIN}
+SSL Email: ${SSL_EMAIL}
+Deployment Date: $(date)
+
+DATABASE BİLGİLERİ:
+-------------------
+DB Name: ${DB_NAME}
+DB Username: ${DB_USERNAME}
+DB Password: ${DB_PASSWORD}
+DB Root Password: ${DB_ROOT_PASSWORD}
+
+APP KEY:
+--------
+${APP_KEY}
+
+============================================
+⚠ BU BİLGİLERİ GÜVENLİ BİR YERDE SAKLAYIN!
+============================================
+EOF
+
+chmod 600 ~/deployment-info-${DOMAIN}.txt
+
 echo ""
 echo "============================================"
 echo "✅ DEPLOYMENT BAŞARIYLA TAMAMLANDI!"
@@ -236,6 +284,9 @@ echo "🌐 Web Sitesi: https://${DOMAIN}"
 echo "🔒 SSL: Aktif (otomatik yenileme ayarlı)"
 echo "🐳 Docker: Container'lar çalışıyor"
 echo "💾 Database: Hazır"
+echo ""
+echo "📋 DB Bilgileri ~/deployment-info-${DOMAIN}.txt dosyasına kaydedildi"
+echo "   Görüntülemek için: cat ~/deployment-info-${DOMAIN}.txt"
 echo "============================================"
 echo ""
 echo "📋 Faydalı Komutlar:"
