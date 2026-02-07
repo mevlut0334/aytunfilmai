@@ -47,7 +47,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    # Laravel için healthcheck ekleyelim
+    # Laravel için healthcheck
     healthcheck:
       test: ["CMD", "php", "-r", "echo 'OK';"]
       interval: 10s
@@ -75,13 +75,6 @@ services:
     depends_on:
       app:
         condition: service_healthy
-    # Nginx için healthcheck
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
 
 volumes:
   mysql_data:
