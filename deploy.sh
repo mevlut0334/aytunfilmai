@@ -153,9 +153,7 @@ AWS_USE_PATH_STYLE_ENDPOINT=false
 
 VITE_APP_NAME="\${APP_NAME}"
 
-IYZICO_API_KEY=
-IYZICO_SECRET_KEY=
-IYZICO_BASE_URL=https://api.iyzipay.com
+
 EOF
 
 # docker-compose.prod.yml için .env.docker oluştur
