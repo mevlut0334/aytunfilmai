@@ -56,8 +56,11 @@ curl -fsSL https://raw.githubusercontent.com/mevlut0334/aytunfilmai/main/deploy.
 ```
 
 veya
-
+manuel kurulum daha stabil çalışır
 ```bash
+sudo mkdir -p /var/www
+sudo chown -R $USER:$USER /var/www
+
 cd /var/www
 git clone https://github.com/mevlut0334/aytunfilmai.git aytunfilmai
 cd aytunfilmai
