@@ -38,6 +38,7 @@ class RequestService implements RequestServiceInterface
                 'user_id' => $userId,
                 'title' => $data['title'],
                 'description' => $data['description'],
+                'video_format' => $data['video_format'] ?? 'horizontal', // Formdan gelen veri
                 'status' => 'pending',
             ]);
 

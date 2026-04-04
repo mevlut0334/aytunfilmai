@@ -6,10 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Film Talebi Oluştur - Aytun Film AI</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
@@ -184,7 +182,7 @@
             margin-bottom: 0.5rem;
         }
 
-        .form-control {
+        .form-control, .form-select {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(0, 217, 255, 0.3);
             color: white;
@@ -193,7 +191,20 @@
             transition: all 0.3s;
         }
 
-        .form-control:focus {
+        /* Select için özel renk düzenlemesi */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+}
+
+        .form-select option {
+            background-color: var(--bg-medium);
+            color: white;
+        }
+
+        .form-control:focus, .form-select:focus {
             background: rgba(255, 255, 255, 0.15);
             border-color: var(--primary);
             box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
@@ -338,7 +349,6 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
@@ -360,7 +370,6 @@
                         </a>
                     </li>
 
-                    <!-- Token Badge -->
                     <li class="nav-item">
                         <a href="{{ route('cart.index') }}" class="token-badge">
                             <i class="bi bi-coin"></i>
@@ -369,7 +378,6 @@
                         </a>
                     </li>
 
-                    <!-- User Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
@@ -401,10 +409,8 @@
         </div>
     </nav>
 
-    <!-- Request Content -->
     <div class="request-container">
         <div class="container">
-            <!-- Page Header -->
             <div class="page-header">
                 <h2><i class="bi bi-film"></i> Film Talebi Oluştur</h2>
                 <p>Film talebinizi oluşturun ve yapay zeka ile film üretin.</p>
@@ -414,9 +420,7 @@
                 @csrf
 
                 <div class="row">
-                    <!-- Left: Form Fields -->
                     <div class="col-lg-8">
-                        <!-- Characters Card -->
                         <div class="card-custom">
                             <div class="card-header-custom">
                                 <h5><i class="bi bi-people"></i> Karakterler (Opsiyonel)</h5>
@@ -430,18 +434,33 @@
                                     İsterseniz karakterler ekleyebilirsiniz. Her karakter için <strong>farklı açılardan çekilmiş en az 5 görsel</strong> yüklemeniz gerekir.
                                 </div>
 
-                                <!-- Characters List -->
                                 <div id="charactersList"></div>
                             </div>
                         </div>
 
-                        <!-- Film Info Card -->
                         <div class="card-custom">
                             <div class="card-header-custom card-header-primary">
                                 <h5><i class="bi bi-info-circle"></i> Film Bilgileri</h5>
                             </div>
                             <div class="card-body-custom">
-                                <!-- Title -->
+                                <div class="mb-3">
+                                    <label for="video_format" class="form-label">Video Formatı <span class="text-danger">*</span></label>
+                                    <select class="form-select @error('video_format') is-invalid @enderror"
+                                            id="video_format"
+                                            name="video_format"
+                                            required>
+                                        <option value="horizontal" {{ old('video_format') == 'horizontal' ? 'selected' : '' }}>
+                                            📺 Yatay (16:9 - YouTube / Sinema)
+                                        </option>
+                                        <option value="vertical" {{ old('video_format') == 'vertical' ? 'selected' : '' }}>
+                                            📱 Dikey (9:16 - TikTok / Reels / Shorts)
+                                        </option>
+                                    </select>
+                                    @error('video_format')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                 <div class="mb-3">
                                     <label for="title" class="form-label">Film Başlığı <span class="text-danger">*</span></label>
                                     <input type="text"
@@ -456,7 +475,6 @@
                                     @enderror
                                 </div>
 
-                                <!-- Description -->
                                 <div class="mb-0">
                                     <label for="description" class="form-label">Film Açıklaması / Senaryo <span class="text-danger">*</span></label>
                                     <textarea class="form-control @error('description') is-invalid @enderror"
@@ -473,11 +491,11 @@
                         </div>
                     </div>
 
-                    <!-- Right: Info Cards -->
                     <div class="col-lg-4">
                         <div class="info-card">
                             <h6><i class="bi bi-lightbulb-fill"></i> İpuçları</h6>
                             <ul class="small">
+                                <li><strong>Format Seçimi:</strong> Yayınlayacağınız platforma göre (YouTube vs TikTok) formatı belirleyin.</li>
                                 <li>Film başlığını kısa ve açıklayıcı tutun</li>
                                 <li>Açıklamada filminizin hikayesini detaylı anlatın</li>
                                 <li>Karakter eklemek opsiyoneldir</li>
@@ -499,7 +517,6 @@
                     </div>
                 </div>
 
-                <!-- Buttons -->
                 <div class="row mt-4">
                     <div class="col-12">
                         <button type="submit" class="btn btn-submit">
@@ -514,7 +531,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
@@ -543,7 +559,6 @@
                     </button>
                 </div>
 
-                <!-- Character Name -->
                 <div class="mb-3">
                     <label for="character_name_${index}" class="form-label">Karakter Adı <span class="text-danger">*</span></label>
                     <input type="text"
@@ -554,7 +569,6 @@
                            required>
                 </div>
 
-                <!-- Images -->
                 <div class="mb-0">
                     <label for="character_images_${index}" class="form-label">
                         Karakter Görselleri <span class="text-danger">*</span>

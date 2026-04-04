@@ -22,6 +22,7 @@ class Request extends Model
         'description',
         'status',
         'video_url',
+        'video_format',
         'error_message',
         'processed_by',
         'processed_at',

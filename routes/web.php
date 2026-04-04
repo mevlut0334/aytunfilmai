@@ -170,12 +170,15 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     // Talepler Yönetimi
     Route::get('/requests', [\App\Http\Controllers\Admin\AdminRequestController::class, 'index'])->name('requests.index');
     Route::get('/requests/{requestId}', [\App\Http\Controllers\Admin\AdminRequestController::class, 'show'])->name('requests.show');
+    Route::delete('/requests/{requestId}', [\App\Http\Controllers\Admin\AdminRequestController::class, 'destroy'])->name('requests.destroy');
     Route::post('/requests/{requestId}/update-status', [\App\Http\Controllers\Admin\AdminRequestController::class, 'updateStatus'])->name('requests.update-status');
 
     // Kullanıcı Yönetimi
     Route::get('/users', [\App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('users.index');
     Route::get('/users/{userId}', [\App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('users.show');
     Route::post('/users/{userId}/update-password', [\App\Http\Controllers\Admin\AdminUserController::class, 'updatePassword'])->name('users.update-password');
+    Route::post('/users/{userId}/add-tokens', [\App\Http\Controllers\Admin\AdminUserController::class, 'addTokens'])->name('users.add-tokens');
+    Route::delete('/users/{userId}', [\App\Http\Controllers\Admin\AdminUserController::class, 'destroy'])->name('users.destroy');
 
     // Admin Kullanıcı Yönetimi
     Route::get('/admins', [\App\Http\Controllers\Admin\AdminAdminController::class, 'index'])->name('admins.index');

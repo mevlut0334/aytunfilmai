@@ -7,6 +7,7 @@ use App\Services\Interfaces\RequestServiceInterface;
 use App\Services\Interfaces\UserServiceInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class AdminRequestController extends Controller
@@ -31,33 +32,26 @@ class AdminRequestController extends Controller
      */
     public function index(HttpRequest $request): View
     {
-        // Base query
         $query = \App\Models\Request::with(['user', 'processedBy', 'characters']);
 
-        // Filtreleme: Başlık (3+ karakter)
         if ($request->filled('title') && strlen($request->title) >= 3) {
             $query->where('title', 'like', '%' . $request->title . '%');
         }
 
-        // Filtreleme: Kullanıcı
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
         }
 
-        // Filtreleme: Durum
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filtreleme: İşleyen Admin
         if ($request->filled('processed_by')) {
             $query->where('processed_by', $request->processed_by);
         }
 
-        // Sıralama
         $requests = $query->latest()->paginate(20)->withQueryString();
 
-        // Filtreleme için kullanıcı ve admin listesi
         $users = \App\Models\User::where('is_admin', false)->orderBy('name')->get();
         $admins = \App\Models\User::where('is_admin', true)->orderBy('name')->get();
 
@@ -66,7 +60,6 @@ class AdminRequestController extends Controller
 
     /**
      * Talep detayı
-     * Performans: Eager loading
      */
     public function show(int $requestId): View
     {
@@ -82,10 +75,27 @@ class AdminRequestController extends Controller
     }
 
     /**
+     * Talep sil (Admin - Her durumda silebilir)
+     */
+    public function destroy(int $requestId): RedirectResponse
+    {
+        try {
+            $request = \App\Models\Request::findOrFail($requestId);
+
+            // Storage'dan görselleri sil
+            Storage::disk('public')->deleteDirectory("requests/{$requestId}");
+
+            $request->delete();
+
+            return redirect()->route('admin.requests.index')
+                ->with('success', 'Talep başarıyla silindi.');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
      * Talep durumunu güncelle
-     * - processing: admin_id kaydet
-     * - completed: video_url + token düş
-     * - failed: error_message kaydet
      */
     public function updateStatus(HttpRequest $request, int $requestId): RedirectResponse
     {
@@ -96,7 +106,6 @@ class AdminRequestController extends Controller
             $adminId = auth()->id();
             $additionalData = [];
 
-            // Completed: Video URL + Token Düşme
             if ($status === 'completed') {
                 $request->validate([
                     'video_url' => 'required|url|max:500',
@@ -106,7 +115,6 @@ class AdminRequestController extends Controller
                 $additionalData['video_url'] = $request->input('video_url');
                 $tokenAmount = (int) $request->input('token_amount');
 
-                // Kullanıcıdan token düş
                 if (!$filmRequest->user->hasEnoughTokens($tokenAmount)) {
                     return back()->with('error', 'Kullanıcının yeterli token bakiyesi yok!');
                 }
@@ -118,7 +126,6 @@ class AdminRequestController extends Controller
                 );
             }
 
-            // Failed: Hata Mesajı
             if ($status === 'failed') {
                 $request->validate([
                     'error_message' => 'required|string|max:1000',
@@ -127,7 +134,6 @@ class AdminRequestController extends Controller
                 $additionalData['error_message'] = $request->input('error_message');
             }
 
-            // Durumu güncelle (admin ID ile)
             $this->requestService->updateRequestStatus($requestId, $status, $adminId, $additionalData);
 
             return back()->with('success', 'Talep durumu başarıyla güncellendi.');

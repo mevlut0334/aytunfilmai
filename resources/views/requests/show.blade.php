@@ -6,13 +6,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Talep Detayı - Aytun Film AI</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
-    <!-- Lightbox CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 
     <style>
@@ -402,7 +399,6 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
@@ -424,7 +420,6 @@
                         </a>
                     </li>
 
-                    <!-- Token Badge -->
                     <li class="nav-item">
                         <a href="{{ route('cart.index') }}" class="token-badge">
                             <i class="bi bi-coin"></i>
@@ -433,7 +428,6 @@
                         </a>
                     </li>
 
-                    <!-- User Dropdown -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
@@ -465,10 +459,8 @@
         </div>
     </nav>
 
-    <!-- Detail Content -->
     <div class="detail-container">
         <div class="container">
-            <!-- Page Header -->
             <div class="page-header">
                 <a href="{{ route('requests.index') }}" class="btn btn-back">
                     <i class="bi bi-arrow-left"></i> Taleplerime Dön
@@ -477,16 +469,14 @@
             </div>
 
             <div class="row">
-                <!-- Left: Request Info -->
                 <div class="col-lg-8">
-                    <!-- Status Card -->
                     <div class="card-custom">
                         <div class="card-header-{{ $request->status === 'completed' ? 'success' : ($request->status === 'processing' ? 'info' : ($request->status === 'pending' ? 'warning' : 'danger')) }} card-header-custom">
                             <h5><i class="bi bi-info-circle"></i> Talep Durumu</h5>
                         </div>
                         <div class="card-body-custom">
                             <div class="row">
-                                <div class="col-md-6 mb-3 status-info">
+                                <div class="col-md-4 mb-3 status-info">
                                     <small>Durum</small>
                                     <h5>
                                         @if($request->status === 'pending')
@@ -500,7 +490,17 @@
                                         @endif
                                     </h5>
                                 </div>
-                                <div class="col-md-6 mb-3 status-info">
+                                <div class="col-md-4 mb-3 status-info">
+                                    <small>Video Yönü</small>
+                                    <h5>
+                                        @if($request->video_format == 'horizontal')
+                                            <i class="bi bi-display"></i> Yatay (16:9)
+                                        @else
+                                            <i class="bi bi-phone"></i> Dikey (9:16)
+                                        @endif
+                                    </h5>
+                                </div>
+                                <div class="col-md-4 mb-3 status-info">
                                     <small>Oluşturma Tarihi</small>
                                     <h5>{{ $request->created_at->format('d.m.Y H:i') }}</h5>
                                 </div>
@@ -515,7 +515,6 @@
                         </div>
                     </div>
 
-                    <!-- Video Ready -->
                     @if($request->status === 'completed' && $request->video_url)
                         <div class="card-custom">
                             <div class="card-header-success card-header-custom">
@@ -531,7 +530,6 @@
                         </div>
                     @endif
 
-                    <!-- Characters -->
                     @if($request->characters->count() > 0)
                         <div class="card-custom">
                             <div class="card-header-success card-header-custom">
@@ -542,7 +540,6 @@
                                     <div class="character-section">
                                         <h6><i class="bi bi-person-fill"></i> {{ $character->name }}</h6>
 
-                                        <!-- Character Images -->
                                         <div class="row g-3">
                                             @foreach($character->images as $image)
                                                 <div class="col-6 col-md-4 col-lg-3">
@@ -565,7 +562,6 @@
                         </div>
                     @endif
 
-                    <!-- Description -->
                     <div class="card-custom">
                         <div class="card-header-primary card-header-custom">
                             <h5><i class="bi bi-textarea-t"></i> Film Açıklaması</h5>
@@ -576,9 +572,7 @@
                     </div>
                 </div>
 
-                <!-- Right: Actions & Info -->
                 <div class="col-lg-4">
-                    <!-- Actions Card -->
                     <div class="card-custom">
                         <div class="card-header-dark card-header-custom">
                             <h6><i class="bi bi-gear"></i> İşlemler</h6>
@@ -604,7 +598,6 @@
                         </div>
                     </div>
 
-                    <!-- Info Card -->
                     <div class="info-card">
                         <h6><i class="bi bi-info-square-fill"></i> Talep Bilgileri</h6>
                         <ul>
@@ -612,10 +605,13 @@
                                 <strong>Talep ID:</strong> #{{ $request->id }}
                             </li>
                             <li>
+                                <strong>Video Formatı:</strong> {{ $request->video_format == 'horizontal' ? '📺 Yatay (16:9)' : '📱 Dikey (9:16)' }}
+                            </li>
+                            <li>
                                 <strong>Karakter Sayısı:</strong> {{ $request->characters->count() }}
                             </li>
                             <li>
-                                <strong>Toplam Görsel:</strong> {{ $request->totalImages }}
+                                <strong>Toplam Görsel:</strong> {{ $request->characters->flatMap->images->count() }}
                             </li>
                             <li>
                                 <strong>Son Güncelleme:</strong> {{ $request->updated_at->format('d.m.Y H:i') }}
@@ -627,10 +623,8 @@
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Lightbox JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 </body>
 </html>

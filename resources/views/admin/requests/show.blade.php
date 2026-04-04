@@ -20,7 +20,11 @@
                             <strong>Talep ID:</strong> #{{ $request->id }}
                         </div>
                         <div class="col-md-6">
-                            <strong>Kullanıcı:</strong> {{ $request->user->name }}
+                            <strong>Kullanıcı:</strong> {{ $request->user->name }}<br>
+                            <small class="text-muted">
+                                <i class="bi bi-coin text-warning"></i>
+                                Token Bakiyesi: <strong>{{ number_format($request->user->token_balance, 0) }}</strong>
+                            </small>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -29,6 +33,20 @@
                         </div>
                         <div class="col-md-6">
                             <strong>Karakter Sayısı:</strong> {{ $request->characters->count() }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Video Formatı:</strong>
+                            @if($request->video_format == 'horizontal')
+                                <span class="badge bg-primary">
+                                    <i class="bi bi-display"></i> Yatay (16:9)
+                                </span>
+                            @else
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-phone"></i> Dikey (9:16)
+                                </span>
+                            @endif
                         </div>
                     </div>
                     <div class="mb-0">
@@ -206,6 +224,24 @@
                 </div>
             @endif
 
+            <!-- Talebi Sil -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0"><i class="bi bi-trash"></i> Tehlikeli Bölge</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3">Bu işlem geri alınamaz. Talep ve tüm görseller kalıcı olarak silinir.</p>
+                    <form action="{{ route('admin.requests.destroy', $request->id) }}" method="POST"
+                          onsubmit="return confirm('Bu talebi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="bi bi-trash3"></i> Talebi Sil
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <!-- Geri Dön -->
             <div class="mt-3">
                 <a href="{{ route('admin.requests.index') }}" class="btn btn-outline-secondary w-100">
@@ -231,18 +267,15 @@
         // İlgili alanı göster
         if (status === 'completed') {
             completedFields.style.display = 'block';
-            // Required ekle
             document.querySelector('[name="video_url"]').required = true;
             document.querySelector('[name="token_amount"]').required = true;
             document.querySelector('[name="error_message"]').required = false;
         } else if (status === 'failed') {
             failedFields.style.display = 'block';
-            // Required ekle
             document.querySelector('[name="error_message"]').required = true;
             document.querySelector('[name="video_url"]').required = false;
             document.querySelector('[name="token_amount"]').required = false;
         } else {
-            // Processing - hiçbir alan gerekmez
             document.querySelector('[name="video_url"]').required = false;
             document.querySelector('[name="token_amount"]').required = false;
             document.querySelector('[name="error_message"]').required = false;

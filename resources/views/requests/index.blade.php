@@ -6,10 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Taleplerim - Aytun Film AI</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
@@ -20,12 +17,8 @@
             --accent: #8338EC;
             --bg-dark: #000000;
             --bg-medium: #0A0A0A;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --success: #10b981;
+            --warning: #fbbf24;
         }
 
         body {
@@ -35,7 +28,7 @@
             min-height: 100vh;
         }
 
-        /* Navbar */
+        /* Navbar & Utility */
         .navbar-custom {
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
@@ -50,17 +43,6 @@
             text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
         }
 
-        .navbar-custom .nav-link {
-            color: white;
-            margin: 0 1rem;
-            transition: all 0.3s;
-        }
-
-        .navbar-custom .nav-link:hover {
-            color: var(--primary);
-            text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
-        }
-
         .token-badge {
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             padding: 0.5rem 1.5rem;
@@ -71,318 +53,116 @@
             align-items: center;
             gap: 0.5rem;
             box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
-            margin-right: 1rem;
             text-decoration: none;
             transition: all 0.3s;
         }
 
         .token-badge:hover {
             transform: translateY(-2px);
+            color: white;
             box-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
-            color: white;
         }
 
-        .token-badge i {
-            font-size: 1.2rem;
-        }
-
-        .dropdown-menu {
-            background: rgba(0, 0, 0, 0.95);
-            border: 1px solid rgba(0, 217, 255, 0.3);
-            border-radius: 15px;
-            padding: 0.5rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .dropdown-item {
-            color: white;
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s;
-        }
-
-        .dropdown-item:hover {
-            background: rgba(0, 217, 255, 0.2);
-            color: var(--primary);
-        }
-
-        .dropdown-item i {
-            margin-right: 0.5rem;
-            width: 20px;
-        }
-
-        /* Content */
+        /* Requests Container */
         .requests-container {
-            padding: 6rem 0 4rem;
-            min-height: 100vh;
+            padding: 7rem 0 4rem;
         }
 
-        .page-header {
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .page-header h2 {
-            font-size: 2rem;
-            font-weight: bold;
-            color: white;
-            margin: 0;
-        }
-
-        .btn-new-request {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border: none;
-            color: white;
-            padding: 0.75rem 1.5rem;
+        /* Status Badges */
+        .status-badge {
+            padding: 0.5rem 1rem;
             border-radius: 50px;
             font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0, 217, 255, 0.3);
-            transition: all 0.3s;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .btn-new-request:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 217, 255, 0.5);
-            color: white;
-        }
-
-        /* Empty State */
-        .empty-state {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 217, 255, 0.2);
-            border-radius: 20px;
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-
-        .empty-state i {
-            font-size: 5rem;
-            color: var(--primary);
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            color: white;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .empty-state p {
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 2rem;
-        }
+        .bg-pending { background: linear-gradient(135deg, var(--warning) 0%, #f59e0b 100%); }
+        .bg-processing { background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); }
+        .bg-completed { background: linear-gradient(135deg, var(--success) 0%, #059669 100%); }
+        .bg-failed { background: linear-gradient(135deg, var(--secondary) 0%, #dc3545 100%); }
 
         /* Request Cards */
         .request-card {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 217, 255, 0.2);
+            border: 1px solid rgba(0, 217, 255, 0.15);
             border-radius: 20px;
             overflow: hidden;
             height: 100%;
-            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.1);
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             position: relative;
         }
 
         .request-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
             border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
+            box-shadow: 0 12px 30px rgba(0, 217, 255, 0.2);
         }
 
-        .status-badge {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            z-index: 10;
-        }
-
-        .badge-pending {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: white;
-            font-weight: bold;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-        }
-
-        .badge-processing {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: bold;
-        }
-
-        .badge-completed {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: bold;
-        }
-
-        .badge-failed {
-            background: linear-gradient(135deg, var(--secondary) 0%, #dc3545 100%);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: bold;
-        }
-
-        /* Card */
-        .request-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 217, 255, 0.2);
-            border-radius: 20px;
+        .card-img-container {
+            height: 220px;
             overflow: hidden;
-            height: 100%;
-            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.1);
-            transition: all 0.3s;
-        }
-
-        .request-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
+            position: relative;
+            background: #111;
         }
 
         .request-card img {
-            height: 200px;
-            object-fit: cover;
             width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
         }
 
-        .request-card .placeholder {
-            height: 200px;
-            background: rgba(255, 255, 255, 0.03);
+        .request-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .placeholder-icon {
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: linear-gradient(45deg, #0a0a0a, #1a1a1a);
         }
 
-        .request-card .placeholder i {
+        .placeholder-icon i {
             font-size: 4rem;
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.1);
         }
 
         .card-body-custom {
             padding: 1.5rem;
         }
 
-        .card-title-custom {
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .card-text-custom {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .card-info {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
-        }
-
-        .card-info i {
-            color: var(--primary);
-            margin-right: 0.25rem;
-        }
-
-        /* Buttons */
-        .btn-detail {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border: none;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            font-weight: 500;
-            transition: all 0.3s;
-            width: 100%;
-            margin-bottom: 0.5rem;
-        }
-
-        .btn-detail:hover {
-            opacity: 0.9;
-            color: white;
-        }
-
-        .btn-delete {
-            background: rgba(255, 0, 110, 0.1);
-            border: 1px solid rgba(255, 0, 110, 0.3);
-            color: var(--secondary);
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            font-weight: 500;
-            transition: all 0.3s;
-            width: 100%;
-        }
-
-        .btn-delete:hover {
-            background: rgba(255, 0, 110, 0.2);
-            color: var(--secondary);
-        }
-
-        /* Empty State */
-        .empty-state {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 217, 255, 0.2);
-            border-radius: 20px;
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-
-        .empty-state i {
-            font-size: 6rem;
-            color: rgba(255, 255, 255, 0.2);
-            margin-bottom: 2rem;
-        }
-
-        .empty-state h3 {
-            color: white;
-            margin-bottom: 1rem;
-        }
-
-        .empty-state p {
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 2rem;
+        .btn-action {
+            border-radius: 12px;
+            padding: 0.6rem;
+            font-weight: 600;
+            transition: all 0.2s;
         }
 
         .btn-create-request {
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             border: none;
             color: white;
-            padding: 0.75rem 2rem;
+            padding: 0.8rem 2rem;
             border-radius: 50px;
             font-weight: bold;
-            font-size: 1.1rem;
-            box-shadow: 0 5px 20px rgba(255, 0, 110, 0.3);
-            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 217, 255, 0.3);
         }
 
-        .btn-create-request:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(255, 0, 110, 0.5);
-            color: white;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .requests-container {
-                padding: 5rem 1rem 2rem;
-            }
-
-            .page-header h2 {
-                font-size: 1.5rem;
-            }
+        .empty-state {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(0, 217, 255, 0.2);
+            border-radius: 30px;
+            padding: 5rem 2rem;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
+
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
@@ -393,49 +173,26 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{{ route('packages.index') }}">Paketler</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{ route('requests.index') }}">Taleplerim</a></li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('packages.index') }}">
-                            <i class="bi bi-box-seam"></i> Paketler
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('requests.index') }}">
-                            <i class="bi bi-film"></i> Taleplerim
-                        </a>
-                    </li>
-
-                    <!-- Token Badge -->
-                    <li class="nav-item">
-                        <a href="{{ route('cart.index') }}" class="token-badge">
+                        <a href="{{ route('cart.index') }}" class="token-badge mx-lg-3">
                             <i class="bi bi-coin"></i>
                             <span>{{ number_format(auth()->user()->token_balance ?? 0, 0) }}</span>
-                            <i class="bi bi-cart3"></i>
                         </a>
                     </li>
-
-                    <!-- User Dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="{{ route('user.profile') }}">
-                                    <i class="bi bi-person"></i> Profilim
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                    <i class="bi bi-bag"></i> Siparişlerim
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.1);"></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><a class="dropdown-item" href="{{ route('user.profile') }}"><i class="bi bi-person"></i> Profilim</a></li>
+                            <li><a class="dropdown-item" href="{{ route('orders.index') }}"><i class="bi bi-bag"></i> Siparişlerim</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="dropdown-item">
-                                        <i class="bi bi-box-arrow-right"></i> Çıkış Yap
-                                    </button>
+                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Çıkış Yap</button>
                                 </form>
                             </li>
                         </ul>
@@ -445,114 +202,102 @@
         </div>
     </nav>
 
-    <!-- Requests Content -->
-    <div class="requests-container">
+    <main class="requests-container">
         <div class="container">
-            <!-- Page Header -->
-            <div class="page-header mb-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h2><i class="bi bi-film"></i> Film Taleplerim</h2>
-                    <a href="{{ route('requests.create') }}" class="btn btn-create-request">
-                        <i class="bi bi-plus-circle"></i> Yeni Talep
-                    </a>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+                <div>
+                    <h2 class="fw-bold mb-0 text-white"><i class="bi bi-collection-play me-2 text-info"></i> Film Taleplerim</h2>
+                    <p class="text-white-50 mt-2 mb-0">Üretilen ve bekleyen tüm projelerinizi buradan yönetebilirsiniz.</p>
                 </div>
+                <a href="{{ route('requests.create') }}" class="btn btn-create-request">
+                    <i class="bi bi-plus-lg me-2"></i> Yeni Film Oluştur
+                </a>
             </div>
 
-            @if($requests->isEmpty())
-                <!-- Empty State -->
-                <div class="empty-state">
-                    <i class="bi bi-film"></i>
-                    <h3>Henüz Talebiniz Yok</h3>
-                    <p>Film talebi oluşturarak yapay zeka ile film üretmeye başlayabilirsiniz.</p>
-                    <a href="{{ route('requests.create') }}" class="btn btn-create-request">
-                        <i class="bi bi-plus-circle"></i> İlk Talebinizi Oluşturun
-                    </a>
-                </div>
-            @else
-                <!-- Request Cards -->
-                <div class="row g-4">
-                    @foreach($requests as $request)
-                        <div class="col-md-6 col-lg-4">
-                            <div class="request-card">
-                                <!-- Status Badge -->
-                                <div class="position-absolute top-0 end-0 m-3" style="z-index: 10;">
-                                    @if($request->status === 'pending')
-                                        <span class="badge" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 0.5rem 1rem; border-radius: 50px; font-weight: bold;">
-                                            Beklemede
-                                        </span>
-                                    @elseif($request->status === 'processing')
-                                        <span class="badge" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 0.5rem 1rem; border-radius: 50px; font-weight: bold;">
-                                            İşleniyor
-                                        </span>
-                                    @elseif($request->status === 'completed')
-                                        <span class="badge badge-completed">
-                                            Tamamlandı
-                                        </span>
-                                    @else
-                                        <span class="badge badge-failed">
-                                            Başarısız
-                                        </span>
-                                    @endif
-                                </div>
+            @forelse($requests as $request)
+                @if($loop->first) <div class="row g-4"> @endif
 
-                                <!-- Thumbnail -->
-                                @if($request->characters->count() > 0 && $request->characters->first()->images->count() > 0)
-                                    <img src="{{ asset('storage/' . $request->characters->first()->images->first()->image_path) }}"
-                                         alt="{{ $request->title }}">
-                                @else
-                                    <div class="placeholder">
-                                        <i class="bi bi-film"></i>
-                                    </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="request-card">
+                        <div class="position-absolute top-0 end-0 m-3" style="z-index: 5;">
+                            @php
+                                $statusClasses = [
+                                    'pending' => 'bg-pending',
+                                    'processing' => 'bg-processing',
+                                    'completed' => 'bg-completed',
+                                    'failed' => 'bg-failed'
+                                ];
+                                $statusLabels = [
+                                    'pending' => 'Beklemede',
+                                    'processing' => 'İşleniyor',
+                                    'completed' => 'Tamamlandı',
+                                    'failed' => 'Başarısız'
+                                ];
+                            @endphp
+                            <span class="status-badge {{ $statusClasses[$request->status] ?? 'bg-secondary' }}">
+                                {{ $statusLabels[$request->status] ?? $request->status }}
+                            </span>
+                        </div>
+
+                        <div class="card-img-container">
+                            @if($request->characters->isNotEmpty() && ($char = $request->characters->first()) && $char->images->isNotEmpty())
+                                <img src="{{ asset('storage/' . $char->images->first()->image_path) }}" alt="{{ $request->title }}" loading="lazy">
+                            @else
+                                <div class="placeholder-icon">
+                                    <i class="bi bi-film"></i>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="card-body-custom">
+                            <h5 class="fw-bold text-white mb-2 text-truncate">{{ $request->title }}</h5>
+                            <p class="text-white-50 small mb-3" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                {{ $request->description }}
+                            </p>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4 text-white-50 small">
+                                <span><i class="bi bi-calendar3 me-1 text-info"></i> {{ $request->created_at->translatedFormat('d M Y') }}</span>
+                                <span><i class="bi bi-people me-1 text-info"></i> {{ $request->characters->count() }} Karakter</span>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <a href="{{ route('requests.show', $request->id) }}" class="btn btn-primary btn-action btn-detail">
+                                    <i class="bi bi-play-circle me-1"></i> Detayları Gör
+                                </a>
+
+                                @if(in_array($request->status, ['pending', 'failed']))
+                                    <form action="{{ route('requests.destroy', $request->id) }}" method="POST" class="d-grid">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="btn btn-outline-danger btn-action btn-delete"
+                                                onclick="return confirm('Bu talebi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')">
+                                            <i class="bi bi-trash3 me-1"></i> Talebi Sil
+                                        </button>
+                                    </form>
                                 @endif
-
-                                <div class="card-body-custom">
-                                    <!-- Title -->
-                                    <h5 class="card-title-custom">{{ Str::limit($request->title, 50) }}</h5>
-
-                                    <!-- Description -->
-                                    <p class="card-text-custom">
-                                        {{ Str::limit($request->description, 100) }}
-                                    </p>
-
-                                    <!-- Info -->
-                                    <div class="card-info">
-                                        <div>
-                                            <i class="bi bi-calendar"></i> {{ $request->created_at->format('d.m.Y H:i') }}
-                                        </div>
-                                        @if($request->characters->count() > 0)
-                                            <div class="mt-1">
-                                                <i class="bi bi-people"></i> {{ $request->characters->count() }} Karakter
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <!-- Buttons -->
-                                    <div>
-                                        <a href="{{ route('requests.show', $request->id) }}" class="btn btn-detail">
-                                            <i class="bi bi-eye"></i> Detay
-                                        </a>
-
-                                        @if($request->status === 'pending' || $request->status === 'failed')
-                                            <form action="{{ route('requests.destroy', $request->id) }}" method="POST"
-                                                  onsubmit="return confirm('Bu talebi silmek istediğinize emin misiniz?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-delete">
-                                                    <i class="bi bi-trash"></i> Sil
-                                                </button>
-                                            </form>
-                                        @endif
-                                    </div>
-                                </div>
                             </div>
                         </div>
-                    @endforeach
+                    </div>
                 </div>
-            @endif
-        </div>
-    </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
+                @if($loop->last) </div> @endif
+            @empty
+                <div class="empty-state">
+                    <div class="mb-4">
+                        <i class="bi bi-camera-reels display-1 text-white-50"></i>
+                    </div>
+                    <h3 class="fw-bold">Henüz Bir Film Talebiniz Yok</h3>
+                    <p class="text-white-50 mx-auto mb-4" style="max-width: 400px;">
+                        Hayalinizdeki sahneleri gerçeğe dönüştürmek için ilk adımı atın.
+                        Yapay zeka ile film üretmek sadece birkaç tık uzağınızda.
+                    </p>
+                    <a href="{{ route('requests.create') }}" class="btn btn-create-request px-5">
+                        <i class="bi bi-plus-lg me-2"></i> İlk Talebini Oluştur
+                    </a>
+                </div>
+            @endforelse
+        </div>
+    </main>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

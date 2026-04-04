@@ -5,7 +5,6 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Başarı/Hata Mesajları -->
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
@@ -21,7 +20,7 @@
     @endif
 
     <div class="row">
-        <!-- Sol: Kullanıcı Bilgileri ve İstatistikler -->
+        <!-- Sol: Kullanıcı Bilgileri ve İşlemler -->
         <div class="col-lg-4 mb-4">
             <!-- Kullanıcı Bilgileri -->
             <div class="card shadow-sm mb-3">
@@ -117,6 +116,48 @@
                 </div>
             </div>
 
+            <!-- Token Ekle -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-coin"></i> Token Ekle</h6>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('admin.users.add-tokens', $user->id) }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="form-label">Token Miktarı <span class="text-danger">*</span></label>
+                            <input type="number"
+                                   name="token_amount"
+                                   class="form-control @error('token_amount') is-invalid @enderror"
+                                   min="1"
+                                   placeholder="Örn: 100"
+                                   required>
+                            @error('token_amount')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">
+                                Mevcut bakiye: <strong>{{ number_format($user->token_balance, 0) }}</strong> token
+                            </small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Açıklama <span class="text-danger">*</span></label>
+                            <input type="text"
+                                   name="token_description"
+                                   class="form-control @error('token_description') is-invalid @enderror"
+                                   placeholder="Örn: Manuel token tanımlaması"
+                                   maxlength="255"
+                                   required>
+                            @error('token_description')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-plus-circle"></i> Token Ekle
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <!-- Şifre Güncelleme -->
             <div class="card shadow-sm mb-3">
                 <div class="card-header bg-warning text-dark">
@@ -126,32 +167,24 @@
                     <form action="{{ route('admin.users.update-password', $user->id) }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="new_password" class="form-label">Yeni Şifre</label>
-                            <input
-                                type="password"
-                                class="form-control @error('new_password') is-invalid @enderror"
-                                id="new_password"
-                                name="new_password"
-                                placeholder="En az 8 karakter"
-                                required
-                            >
+                            <label class="form-label">Yeni Şifre</label>
+                            <input type="password"
+                                   class="form-control @error('new_password') is-invalid @enderror"
+                                   name="new_password"
+                                   placeholder="En az 8 karakter"
+                                   required>
                             @error('new_password')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-
                         <div class="mb-3">
-                            <label for="new_password_confirmation" class="form-label">Şifre Onayı</label>
-                            <input
-                                type="password"
-                                class="form-control"
-                                id="new_password_confirmation"
-                                name="new_password_confirmation"
-                                placeholder="Şifreyi tekrar girin"
-                                required
-                            >
+                            <label class="form-label">Şifre Onayı</label>
+                            <input type="password"
+                                   class="form-control"
+                                   name="new_password_confirmation"
+                                   placeholder="Şifreyi tekrar girin"
+                                   required>
                         </div>
-
                         <button type="submit" class="btn btn-warning w-100">
                             <i class="bi bi-shield-lock"></i> Şifreyi Güncelle
                         </button>
@@ -159,8 +192,28 @@
                 </div>
             </div>
 
+            <!-- Kullanıcı Sil -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0"><i class="bi bi-trash"></i> Tehlikeli Bölge</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-3">
+                        Bu işlem geri alınamaz. Kullanıcı, tüm talepleri ve görselleri kalıcı olarak silinir.
+                    </p>
+                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"
+                          onsubmit="return confirm('{{ $user->name }} kullanıcısını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="bi bi-trash3"></i> Kullanıcıyı Sil
+                        </button>
+                    </form>
+                </div>
+            </div>
+
             <!-- Geri Dön -->
-            <div class="mt-3">
+            <div>
                 <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary w-100">
                     <i class="bi bi-arrow-left"></i> Kullanıcı Listesine Dön
                 </a>

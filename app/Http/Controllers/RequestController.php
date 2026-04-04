@@ -37,8 +37,13 @@ class RequestController extends Controller
     /**
      * Talep oluşturma formu
      */
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
+        if (Auth::user()->token_balance <= 0) {
+            return redirect()->route('packages.index')
+                ->with('error', 'Film talebi oluşturmak için token satın almanız gerekmektedir.');
+        }
+
         return view('requests.create');
     }
 
@@ -47,20 +52,25 @@ class RequestController extends Controller
      * Form Request ile validation yapılacak
      */
     public function store(CreateRequestRequest $request): RedirectResponse
-{
-    try {
-        $userId = Auth::id();
+    {
+        if (Auth::user()->token_balance <= 0) {
+            return redirect()->route('packages.index')
+                ->with('error', 'Film talebi oluşturmak için token satın almanız gerekmektedir.');
+        }
 
-        $filmRequest = $this->requestService->createRequest($userId, $request->all());
+        try {
+            $userId = Auth::id();
 
-        return redirect()->route('requests.show', $filmRequest->id)
-            ->with('success', 'Talebiniz başarıyla oluşturuldu ve işleme alınacaktır.');
-    } catch (\Exception $e) {
-        return back()
-            ->withInput()
-            ->with('error', $e->getMessage());
+            $filmRequest = $this->requestService->createRequest($userId, $request->all());
+
+            return redirect()->route('requests.show', $filmRequest->id)
+                ->with('success', 'Talebiniz başarıyla oluşturuldu ve işleme alınacaktır.');
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', $e->getMessage());
+        }
     }
-}
 
     /**
      * Talep detayı
