@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'is_admin' => \App\Http\Middleware\IsAdmin::class,
         ]);
 
+        // Tarayıcı diline göre otomatik locale ayarlama
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
+
         // CSRF korumasından muaf tutulacak URL'ler
         $middleware->validateCsrfTokens(except: [
             'checkout/callback', // İyzico 3D Secure callback
