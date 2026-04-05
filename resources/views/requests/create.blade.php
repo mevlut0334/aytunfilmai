@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Film Talebi Oluştur - Aytun Film AI</title>
+    <title>{{ __('requests.create_title') }}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
@@ -33,7 +32,6 @@
             min-height: 100vh;
         }
 
-        /* Navbar */
         .navbar-custom {
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
@@ -80,9 +78,7 @@
             color: white;
         }
 
-        .token-badge i {
-            font-size: 1.2rem;
-        }
+        .token-badge i { font-size: 1.2rem; }
 
         .dropdown-menu {
             background: rgba(0, 0, 0, 0.95);
@@ -104,32 +100,17 @@
             color: var(--primary);
         }
 
-        .dropdown-item i {
-            margin-right: 0.5rem;
-            width: 20px;
-        }
+        .dropdown-item i { margin-right: 0.5rem; width: 20px; }
 
-        /* Content */
         .request-container {
             padding: 6rem 0 4rem;
             min-height: 100vh;
         }
 
-        .page-header {
-            margin-bottom: 2rem;
-        }
+        .page-header { margin-bottom: 2rem; }
+        .page-header h2 { font-size: 2rem; font-weight: bold; color: white; }
+        .page-header p { color: rgba(255, 255, 255, 0.7); }
 
-        .page-header h2 {
-            font-size: 2rem;
-            font-weight: bold;
-            color: white;
-        }
-
-        .page-header p {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        /* Cards */
         .card-custom {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(0, 217, 255, 0.2);
@@ -147,21 +128,14 @@
             align-items: center;
         }
 
-        .card-header-custom h5 {
-            margin: 0;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
+        .card-header-custom h5 { margin: 0; font-weight: bold; font-size: 1.2rem; }
 
         .card-header-primary {
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
         }
 
-        .card-body-custom {
-            padding: 1.5rem;
-        }
+        .card-body-custom { padding: 1.5rem; }
 
-        /* Alert */
         .alert-custom {
             background: rgba(0, 217, 255, 0.1);
             border: 1px solid rgba(0, 217, 255, 0.3);
@@ -171,16 +145,9 @@
             margin-bottom: 1.5rem;
         }
 
-        .alert-custom i {
-            color: var(--primary);
-        }
+        .alert-custom i { color: var(--primary); }
 
-        /* Form */
-        .form-label {
-            color: white;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
+        .form-label { color: white; font-weight: 500; margin-bottom: 0.5rem; }
 
         .form-control, .form-select {
             background: rgba(255, 255, 255, 0.1);
@@ -191,18 +158,14 @@
             transition: all 0.3s;
         }
 
-        /* Select için özel renk düzenlemesi */
-.form-select {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 16px 12px;
-}
-
-        .form-select option {
-            background-color: var(--bg-medium);
-            color: white;
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
         }
+
+        .form-select option { background-color: var(--bg-medium); color: white; }
 
         .form-control:focus, .form-select:focus {
             background: rgba(255, 255, 255, 0.15);
@@ -211,19 +174,10 @@
             color: white;
         }
 
-        .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
+        .form-control::placeholder { color: rgba(255, 255, 255, 0.5); }
+        textarea.form-control { min-height: 150px; }
+        .form-text { color: rgba(255, 255, 255, 0.6); }
 
-        textarea.form-control {
-            min-height: 150px;
-        }
-
-        .form-text {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* Character Item */
         .character-item {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(0, 217, 255, 0.2) !important;
@@ -232,12 +186,8 @@
             margin-bottom: 1.5rem;
         }
 
-        .character-item h6 {
-            color: white;
-            font-weight: bold;
-        }
+        .character-item h6 { color: white; font-weight: bold; }
 
-        /* Buttons */
         .btn-add-character {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -246,10 +196,7 @@
             transition: all 0.3s;
         }
 
-        .btn-add-character:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
+        .btn-add-character:hover { background: rgba(255, 255, 255, 0.2); color: white; }
 
         .btn-remove {
             background: linear-gradient(135deg, var(--secondary) 0%, #dc3545 100%);
@@ -258,10 +205,7 @@
             border-radius: 10px;
         }
 
-        .btn-remove:hover {
-            opacity: 0.8;
-            color: white;
-        }
+        .btn-remove:hover { opacity: 0.8; color: white; }
 
         .btn-submit {
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
@@ -292,12 +236,8 @@
             transition: all 0.3s;
         }
 
-        .btn-cancel:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
+        .btn-cancel:hover { background: rgba(255, 255, 255, 0.2); color: white; }
 
-        /* Info Cards */
         .info-card {
             background: rgba(0, 217, 255, 0.1);
             border: 1px solid rgba(0, 217, 255, 0.3);
@@ -306,45 +246,17 @@
             margin-bottom: 1.5rem;
         }
 
-        .info-card h6 {
-            color: var(--primary);
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
+        .info-card h6 { color: var(--primary); font-weight: bold; margin-bottom: 1rem; }
+        .info-card ul { color: rgba(255, 255, 255, 0.8); margin: 0; }
+        .info-card ul li { margin-bottom: 0.5rem; }
 
-        .info-card ul {
-            color: rgba(255, 255, 255, 0.8);
-            margin: 0;
-        }
+        .invalid-feedback { color: var(--secondary); font-weight: 500; }
+        .is-invalid { border-color: var(--secondary) !important; }
 
-        .info-card ul li {
-            margin-bottom: 0.5rem;
-        }
-
-        .invalid-feedback {
-            color: var(--secondary);
-            font-weight: 500;
-        }
-
-        .is-invalid {
-            border-color: var(--secondary) !important;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .request-container {
-                padding: 5rem 1rem 2rem;
-            }
-
-            .page-header h2 {
-                font-size: 1.5rem;
-            }
-
-            .btn-submit,
-            .btn-cancel {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
+            .request-container { padding: 5rem 1rem 2rem; }
+            .page-header h2 { font-size: 1.5rem; }
+            .btn-submit, .btn-cancel { width: 100%; margin-bottom: 0.5rem; }
         }
     </style>
 </head>
@@ -352,7 +264,7 @@
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
-                <i class="bi bi-film"></i> Aytun Film AI
+                <i class="bi bi-film"></i> {{ __('requests.brand') }}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -361,15 +273,14 @@
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('packages.index') }}">
-                            <i class="bi bi-box-seam"></i> Paketler
+                            <i class="bi bi-box-seam"></i> {{ __('requests.packages') }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('requests.index') }}">
-                            <i class="bi bi-film"></i> Taleplerim
+                            <i class="bi bi-film"></i> {{ __('requests.my_requests') }}
                         </a>
                     </li>
-
                     <li class="nav-item">
                         <a href="{{ route('cart.index') }}" class="token-badge">
                             <i class="bi bi-coin"></i>
@@ -377,7 +288,6 @@
                             <i class="bi bi-cart3"></i>
                         </a>
                     </li>
-
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
@@ -385,12 +295,12 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a class="dropdown-item" href="{{ route('user.profile') }}">
-                                    <i class="bi bi-person"></i> Profilim
+                                    <i class="bi bi-person"></i> {{ __('requests.my_profile') }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                    <i class="bi bi-bag"></i> Siparişlerim
+                                    <i class="bi bi-bag"></i> {{ __('requests.my_orders') }}
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.1);"></li>
@@ -398,7 +308,7 @@
                                 <form action="{{ route('logout') }}" method="POST">
                                     @csrf
                                     <button type="submit" class="dropdown-item">
-                                        <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+                                        <i class="bi bi-box-arrow-right"></i> {{ __('requests.logout') }}
                                     </button>
                                 </form>
                             </li>
@@ -412,8 +322,8 @@
     <div class="request-container">
         <div class="container">
             <div class="page-header">
-                <h2><i class="bi bi-film"></i> Film Talebi Oluştur</h2>
-                <p>Film talebinizi oluşturun ve yapay zeka ile film üretin.</p>
+                <h2><i class="bi bi-film"></i> {{ __('requests.create_heading') }}</h2>
+                <p>{{ __('requests.create_subtitle') }}</p>
             </div>
 
             <form action="{{ route('requests.store') }}" method="POST" enctype="multipart/form-data" id="requestForm">
@@ -423,37 +333,34 @@
                     <div class="col-lg-8">
                         <div class="card-custom">
                             <div class="card-header-custom">
-                                <h5><i class="bi bi-people"></i> Karakterler (Opsiyonel)</h5>
+                                <h5><i class="bi bi-people"></i> {{ __('requests.characters_heading') }}</h5>
                                 <button type="button" class="btn btn-sm btn-add-character" id="addCharacterBtn">
-                                    <i class="bi bi-plus-circle"></i> Karakter Ekle
+                                    <i class="bi bi-plus-circle"></i> {{ __('requests.add_character') }}
                                 </button>
                             </div>
                             <div class="card-body-custom">
                                 <div class="alert-custom">
                                     <i class="bi bi-info-circle-fill"></i>
-                                    İsterseniz karakterler ekleyebilirsiniz. Her karakter için <strong>farklı açılardan çekilmiş en az 5 görsel</strong> yüklemeniz gerekir.
+                                    {!! __('requests.character_alert') !!}
                                 </div>
-
                                 <div id="charactersList"></div>
                             </div>
                         </div>
 
                         <div class="card-custom">
                             <div class="card-header-custom card-header-primary">
-                                <h5><i class="bi bi-info-circle"></i> Film Bilgileri</h5>
+                                <h5><i class="bi bi-info-circle"></i> {{ __('requests.film_info') }}</h5>
                             </div>
                             <div class="card-body-custom">
                                 <div class="mb-3">
-                                    <label for="video_format" class="form-label">Video Formatı <span class="text-danger">*</span></label>
+                                    <label for="video_format" class="form-label">{{ __('requests.video_format') }} <span class="text-danger">*</span></label>
                                     <select class="form-select @error('video_format') is-invalid @enderror"
-                                            id="video_format"
-                                            name="video_format"
-                                            required>
+                                            id="video_format" name="video_format" required>
                                         <option value="horizontal" {{ old('video_format') == 'horizontal' ? 'selected' : '' }}>
-                                            📺 Yatay (16:9 - YouTube / Sinema)
+                                            {{ __('requests.format_horizontal') }}
                                         </option>
                                         <option value="vertical" {{ old('video_format') == 'vertical' ? 'selected' : '' }}>
-                                            📱 Dikey (9:16 - TikTok / Reels / Shorts)
+                                            {{ __('requests.format_vertical') }}
                                         </option>
                                     </select>
                                     @error('video_format')
@@ -462,27 +369,23 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="title" class="form-label">Film Başlığı <span class="text-danger">*</span></label>
+                                    <label for="title" class="form-label">{{ __('requests.film_title') }} <span class="text-danger">*</span></label>
                                     <input type="text"
                                            class="form-control @error('title') is-invalid @enderror"
-                                           id="title"
-                                           name="title"
+                                           id="title" name="title"
                                            value="{{ old('title') }}"
-                                           maxlength="200"
-                                           required>
+                                           maxlength="200" required>
                                     @error('title')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
                                 <div class="mb-0">
-                                    <label for="description" class="form-label">Film Açıklaması / Senaryo <span class="text-danger">*</span></label>
+                                    <label for="description" class="form-label">{{ __('requests.film_description') }} <span class="text-danger">*</span></label>
                                     <textarea class="form-control @error('description') is-invalid @enderror"
-                                              id="description"
-                                              name="description"
-                                              rows="6"
-                                              required>{{ old('description') }}</textarea>
-                                    <small class="form-text">En az 50 karakter olmalıdır. Filminizin hikayesini detaylı anlatın.</small>
+                                              id="description" name="description"
+                                              rows="6" required>{{ old('description') }}</textarea>
+                                    <small class="form-text">{{ __('requests.description_hint') }}</small>
                                     @error('description')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -493,25 +396,25 @@
 
                     <div class="col-lg-4">
                         <div class="info-card">
-                            <h6><i class="bi bi-lightbulb-fill"></i> İpuçları</h6>
+                            <h6><i class="bi bi-lightbulb-fill"></i> {{ __('requests.tips_title') }}</h6>
                             <ul class="small">
-                                <li><strong>Format Seçimi:</strong> Yayınlayacağınız platforma göre (YouTube vs TikTok) formatı belirleyin.</li>
-                                <li>Film başlığını kısa ve açıklayıcı tutun</li>
-                                <li>Açıklamada filminizin hikayesini detaylı anlatın</li>
-                                <li>Karakter eklemek opsiyoneldir</li>
-                                <li>Her karakter için en az 5 farklı açıdan çekilmiş görsel yükleyin</li>
-                                <li>Görseller: JPG, JPEG, PNG (Max 5MB)</li>
+                                <li>{!! __('requests.tip_format') !!}</li>
+                                <li>{{ __('requests.tip_title') }}</li>
+                                <li>{{ __('requests.tip_desc') }}</li>
+                                <li>{{ __('requests.tip_char') }}</li>
+                                <li>{{ __('requests.tip_img') }}</li>
+                                <li>{{ __('requests.tip_format_img') }}</li>
                             </ul>
                         </div>
 
                         <div class="info-card">
-                            <h6><i class="bi bi-camera-fill"></i> Görsel Önerileri</h6>
+                            <h6><i class="bi bi-camera-fill"></i> {{ __('requests.photo_tips_title') }}</h6>
                             <ul class="small">
-                                <li>Ön açıdan (yüz net görünsün)</li>
-                                <li>Sol yan açıdan</li>
-                                <li>Sağ yan açıdan</li>
-                                <li>Hafif aşağıdan</li>
-                                <li>Yakın plan (detay)</li>
+                                <li>{{ __('requests.photo_tip_1') }}</li>
+                                <li>{{ __('requests.photo_tip_2') }}</li>
+                                <li>{{ __('requests.photo_tip_3') }}</li>
+                                <li>{{ __('requests.photo_tip_4') }}</li>
+                                <li>{{ __('requests.photo_tip_5') }}</li>
                             </ul>
                         </div>
                     </div>
@@ -520,10 +423,10 @@
                 <div class="row mt-4">
                     <div class="col-12">
                         <button type="submit" class="btn btn-submit">
-                            <i class="bi bi-send"></i> Talebi Gönder
+                            <i class="bi bi-send"></i> {{ __('requests.submit') }}
                         </button>
                         <a href="{{ route('requests.index') }}" class="btn btn-cancel">
-                            <i class="bi bi-x"></i> İptal
+                            <i class="bi bi-x"></i> {{ __('requests.cancel') }}
                         </a>
                     </div>
                 </div>
@@ -537,30 +440,41 @@
     let characterCount = 0;
     const maxCharacters = 5;
 
-    // Add Character Button
-    document.getElementById('addCharacterBtn').addEventListener('click', function() {
+    const lang = {
+        character_label  : '{{ __('requests.character_label') }}',
+        character_name   : '{{ __('requests.character_name') }}',
+        character_images : '{{ __('requests.character_images') }}',
+        character_img_hint: '{{ __('requests.character_img_hint') }}',
+        character_img_text: '{{ __('requests.character_img_text') }}',
+        delete_character : '{{ __('requests.delete_character') }}',
+        max_char_alert   : '{{ __('requests.max_char_alert') }}',
+        min_img_alert    : '{{ __('requests.min_img_alert') }}',
+        max_img_alert    : '{{ __('requests.max_img_alert') }}',
+    };
+
+    document.getElementById('addCharacterBtn').addEventListener('click', function () {
         if (characterCount >= maxCharacters) {
-            alert('En fazla 5 karakter ekleyebilirsiniz.');
+            alert(lang.max_char_alert);
             return;
         }
-
         characterCount++;
         addCharacter(characterCount);
     });
 
-    // Create Character HTML
     function addCharacter(index) {
         const characterHtml = `
             <div class="character-item" data-character="${index}">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0"><i class="bi bi-person-fill"></i> Karakter ${index}</h6>
+                    <h6 class="mb-0"><i class="bi bi-person-fill"></i> ${lang.character_label} ${index}</h6>
                     <button type="button" class="btn btn-sm btn-remove" onclick="removeCharacter(${index})">
-                        <i class="bi bi-trash"></i> Sil
+                        <i class="bi bi-trash"></i> ${lang.delete_character}
                     </button>
                 </div>
 
                 <div class="mb-3">
-                    <label for="character_name_${index}" class="form-label">Karakter Adı <span class="text-danger">*</span></label>
+                    <label for="character_name_${index}" class="form-label">
+                        ${lang.character_name} <span class="text-danger">*</span>
+                    </label>
                     <input type="text"
                            class="form-control"
                            id="character_name_${index}"
@@ -571,8 +485,8 @@
 
                 <div class="mb-0">
                     <label for="character_images_${index}" class="form-label">
-                        Karakter Görselleri <span class="text-danger">*</span>
-                        <small class="text-muted">(En az 5, en fazla 10 görsel)</small>
+                        ${lang.character_images} <span class="text-danger">*</span>
+                        <small class="text-muted">${lang.character_img_hint}</small>
                     </label>
                     <input type="file"
                            class="form-control"
@@ -581,37 +495,29 @@
                            accept="image/jpeg,image/jpg,image/png"
                            multiple
                            required>
-                    <small class="form-text">Farklı açılardan çekilmiş en az 5 görsel yükleyin.</small>
+                    <small class="form-text">${lang.character_img_text}</small>
                 </div>
             </div>
         `;
-
         document.getElementById('charactersList').insertAdjacentHTML('beforeend', characterHtml);
     }
 
-    // Remove Character
     function removeCharacter(index) {
-        const characterItem = document.querySelector(`[data-character="${index}"]`);
-        if (characterItem) {
-            characterItem.remove();
-            characterCount--;
-        }
+        const item = document.querySelector(`[data-character="${index}"]`);
+        if (item) { item.remove(); characterCount--; }
     }
 
-    // Form Submit Validation
-    document.getElementById('requestForm').addEventListener('submit', function(e) {
+    document.getElementById('requestForm').addEventListener('submit', function (e) {
         const fileInputs = document.querySelectorAll('input[type="file"]');
-
         for (let input of fileInputs) {
             if (input.files.length > 0 && input.files.length < 5) {
                 e.preventDefault();
-                alert('Her karakter için en az 5 görsel yüklemelisiniz.');
+                alert(lang.min_img_alert);
                 return false;
             }
-
             if (input.files.length > 10) {
                 e.preventDefault();
-                alert('Her karakter için en fazla 10 görsel yükleyebilirsiniz.');
+                alert(lang.max_img_alert);
                 return false;
             }
         }

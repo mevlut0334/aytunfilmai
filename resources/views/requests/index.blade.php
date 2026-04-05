@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Taleplerim - Aytun Film AI</title>
+    <title>{{ __('requests.index_title') }}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -166,15 +166,15 @@
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
-                <i class="bi bi-film"></i> Aytun Film AI
+                <i class="bi bi-film"></i> {{ __('requests.brand') }}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item"><a class="nav-link" href="{{ route('packages.index') }}">Paketler</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="{{ route('requests.index') }}">Taleplerim</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('packages.index') }}">{{ __('requests.packages') }}</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="{{ route('requests.index') }}">{{ __('requests.my_requests') }}</a></li>
                     <li class="nav-item">
                         <a href="{{ route('cart.index') }}" class="token-badge mx-lg-3">
                             <i class="bi bi-coin"></i>
@@ -186,13 +186,13 @@
                             <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li><a class="dropdown-item" href="{{ route('user.profile') }}"><i class="bi bi-person"></i> Profilim</a></li>
-                            <li><a class="dropdown-item" href="{{ route('orders.index') }}"><i class="bi bi-bag"></i> Siparişlerim</a></li>
+                            <li><a class="dropdown-item" href="{{ route('user.profile') }}"><i class="bi bi-person"></i> {{ __('requests.my_profile') }}</a></li>
+                            <li><a class="dropdown-item" href="{{ route('orders.index') }}"><i class="bi bi-bag"></i> {{ __('requests.my_orders') }}</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Çıkış Yap</button>
+                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> {{ __('requests.logout') }}</button>
                                 </form>
                             </li>
                         </ul>
@@ -206,11 +206,11 @@
         <div class="container">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
                 <div>
-                    <h2 class="fw-bold mb-0 text-white"><i class="bi bi-collection-play me-2 text-info"></i> Film Taleplerim</h2>
-                    <p class="text-white-50 mt-2 mb-0">Üretilen ve bekleyen tüm projelerinizi buradan yönetebilirsiniz.</p>
+                    <h2 class="fw-bold mb-0 text-white"><i class="bi bi-collection-play me-2 text-info"></i> {{ __('requests.index_heading') }}</h2>
+                    <p class="text-white-50 mt-2 mb-0">{{ __('requests.index_subtitle') }}</p>
                 </div>
                 <a href="{{ route('requests.create') }}" class="btn btn-create-request">
-                    <i class="bi bi-plus-lg me-2"></i> Yeni Film Oluştur
+                    <i class="bi bi-plus-lg me-2"></i> {{ __('requests.new_film') }}
                 </a>
             </div>
 
@@ -222,20 +222,14 @@
                         <div class="position-absolute top-0 end-0 m-3" style="z-index: 5;">
                             @php
                                 $statusClasses = [
-                                    'pending' => 'bg-pending',
+                                    'pending'    => 'bg-pending',
                                     'processing' => 'bg-processing',
-                                    'completed' => 'bg-completed',
-                                    'failed' => 'bg-failed'
-                                ];
-                                $statusLabels = [
-                                    'pending' => 'Beklemede',
-                                    'processing' => 'İşleniyor',
-                                    'completed' => 'Tamamlandı',
-                                    'failed' => 'Başarısız'
+                                    'completed'  => 'bg-completed',
+                                    'failed'     => 'bg-failed'
                                 ];
                             @endphp
                             <span class="status-badge {{ $statusClasses[$request->status] ?? 'bg-secondary' }}">
-                                {{ $statusLabels[$request->status] ?? $request->status }}
+                                {{ __('requests.status_' . $request->status) }}
                             </span>
                         </div>
 
@@ -257,20 +251,20 @@
 
                             <div class="d-flex justify-content-between align-items-center mb-4 text-white-50 small">
                                 <span><i class="bi bi-calendar3 me-1 text-info"></i> {{ $request->created_at->translatedFormat('d M Y') }}</span>
-                                <span><i class="bi bi-people me-1 text-info"></i> {{ $request->characters->count() }} Karakter</span>
+                                <span><i class="bi bi-people me-1 text-info"></i> {{ $request->characters->count() }} {{ __('requests.character_count') }}</span>
                             </div>
 
                             <div class="d-grid gap-2">
-                                <a href="{{ route('requests.show', $request->id) }}" class="btn btn-primary btn-action btn-detail">
-                                    <i class="bi bi-play-circle me-1"></i> Detayları Gör
+                                <a href="{{ route('requests.show', $request->id) }}" class="btn btn-primary btn-action">
+                                    <i class="bi bi-play-circle me-1"></i> {{ __('requests.view_details') }}
                                 </a>
 
                                 @if(in_array($request->status, ['pending', 'failed']))
                                     <form action="{{ route('requests.destroy', $request->id) }}" method="POST" class="d-grid">
                                         @csrf @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-action btn-delete"
-                                                onclick="return confirm('Bu talebi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')">
-                                            <i class="bi bi-trash3 me-1"></i> Talebi Sil
+                                        <button type="submit" class="btn btn-outline-danger btn-action"
+                                                onclick="return confirm('{{ __('requests.delete_confirm') }}')">
+                                            <i class="bi bi-trash3 me-1"></i> {{ __('requests.delete_request') }}
                                         </button>
                                     </form>
                                 @endif
@@ -285,13 +279,12 @@
                     <div class="mb-4">
                         <i class="bi bi-camera-reels display-1 text-white-50"></i>
                     </div>
-                    <h3 class="fw-bold">Henüz Bir Film Talebiniz Yok</h3>
+                    <h3 class="fw-bold">{{ __('requests.empty_title') }}</h3>
                     <p class="text-white-50 mx-auto mb-4" style="max-width: 400px;">
-                        Hayalinizdeki sahneleri gerçeğe dönüştürmek için ilk adımı atın.
-                        Yapay zeka ile film üretmek sadece birkaç tık uzağınızda.
+                        {{ __('requests.empty_text') }}
                     </p>
                     <a href="{{ route('requests.create') }}" class="btn btn-create-request px-5">
-                        <i class="bi bi-plus-lg me-2"></i> İlk Talebini Oluştur
+                        <i class="bi bi-plus-lg me-2"></i> {{ __('requests.first_request') }}
                     </a>
                 </div>
             @endforelse

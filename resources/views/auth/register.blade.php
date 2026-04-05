@@ -1,15 +1,12 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ App::getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Kayıt Ol - Aytun Film AI</title>
+    <title>{{ __('auth.register_title') }}</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
@@ -35,7 +32,6 @@
             min-height: 100vh;
         }
 
-        /* Navbar - Welcome ile aynı */
         .navbar-custom {
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
@@ -78,7 +74,6 @@
             color: white;
         }
 
-        /* Content */
         .register-container {
             padding: 6rem 0 4rem;
             min-height: 100vh;
@@ -221,7 +216,6 @@
             border-color: var(--secondary) !important;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .register-container {
                 padding: 5rem 1rem 2rem;
@@ -238,11 +232,10 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
-                <i class="bi bi-film"></i> Aytun Film AI
+                <i class="bi bi-film"></i> {{ __('auth.brand') }}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -251,12 +244,12 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('packages.index') }}">
-                            <i class="bi bi-box-seam"></i> Paketler
+                            <i class="bi bi-box-seam"></i> {{ __('auth.packages') }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('login') }}">
-                            <i class="bi bi-box-arrow-in-right"></i> Giriş
+                            <i class="bi bi-box-arrow-in-right"></i> {{ __('auth.login_nav') }}
                         </a>
                     </li>
                 </ul>
@@ -264,22 +257,20 @@
         </div>
     </nav>
 
-    <!-- Register Content -->
     <div class="register-container">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-8 col-lg-7">
                     <div class="register-card">
                         <div class="register-header">
-                            <h4><i class="bi bi-person-plus"></i> Kayıt Ol</h4>
+                            <h4><i class="bi bi-person-plus"></i> {{ __('auth.register_heading') }}</h4>
                         </div>
                         <div class="register-body">
                             <form action="{{ route('register.store') }}" method="POST">
                                 @csrf
 
-                                <!-- Ad Soyad -->
                                 <div class="mb-3">
-                                    <label for="name" class="form-label">Ad Soyad <span class="text-danger">*</span></label>
+                                    <label for="name" class="form-label">{{ __('auth.name') }} <span class="text-danger">*</span></label>
                                     <input type="text"
                                            class="form-control @error('name') is-invalid @enderror"
                                            id="name"
@@ -291,9 +282,8 @@
                                     @enderror
                                 </div>
 
-                                <!-- E-posta -->
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">E-posta <span class="text-danger">*</span></label>
+                                    <label for="email" class="form-label">{{ __('auth.email') }} <span class="text-danger">*</span></label>
                                     <input type="email"
                                            class="form-control @error('email') is-invalid @enderror"
                                            id="email"
@@ -305,39 +295,36 @@
                                     @enderror
                                 </div>
 
-                                <!-- Telefon -->
                                 <div class="mb-3">
-                                    <label for="phone" class="form-label">Telefon <span class="text-danger">*</span></label>
+                                    <label for="phone" class="form-label">{{ __('auth.phone') }} <span class="text-danger">*</span></label>
                                     <input type="text"
                                            class="form-control @error('phone') is-invalid @enderror"
                                            id="phone"
                                            name="phone"
                                            value="{{ old('phone') }}"
-                                           placeholder="+90 555 123 4567"
+                                           placeholder="{{ __('auth.phone_placeholder') }}"
                                            required>
-                                    <small class="form-text">Sadece rakam ve + işareti kullanabilirsiniz.</small>
+                                    <small class="form-text">{{ __('auth.phone_hint') }}</small>
                                     @error('phone')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <!-- Şifre -->
                                 <div class="mb-3">
-                                    <label for="password" class="form-label">Şifre <span class="text-danger">*</span></label>
+                                    <label for="password" class="form-label">{{ __('auth.password') }} <span class="text-danger">*</span></label>
                                     <input type="password"
                                            class="form-control @error('password') is-invalid @enderror"
                                            id="password"
                                            name="password"
                                            required>
-                                    <small class="form-text">En az 8 karakter olmalıdır.</small>
+                                    <small class="form-text">{{ __('auth.password_hint') }}</small>
                                     @error('password')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <!-- Şifre Onay -->
                                 <div class="mb-4">
-                                    <label for="password_confirmation" class="form-label">Şifre Onay <span class="text-danger">*</span></label>
+                                    <label for="password_confirmation" class="form-label">{{ __('auth.password_confirmation') }} <span class="text-danger">*</span></label>
                                     <input type="password"
                                            class="form-control"
                                            id="password_confirmation"
@@ -347,10 +334,8 @@
 
                                 <hr>
 
-                                <!-- Onaylar Başlık -->
-                                <h5 class="section-title">Onaylar <span class="text-danger">*</span></h5>
+                                <h5 class="section-title">{{ __('auth.approvals_title') }} <span class="text-danger">*</span></h5>
 
-                                <!-- Kullanım Koşulları -->
                                 <div class="form-check mb-2">
                                     <input class="form-check-input @error('terms_accepted') is-invalid @enderror"
                                            type="checkbox"
@@ -360,14 +345,13 @@
                                            {{ old('terms_accepted') ? 'checked' : '' }}
                                            required>
                                     <label class="form-check-label" for="terms_accepted">
-                                        <a href="{{ route('legal.terms') }}" target="_blank">Gizlilik Politikası</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
+                                        <a href="{{ route('legal.terms') }}" target="_blank">{{ __('auth.terms_link') }}</a>{{ __('auth.terms_label') }} <span class="text-danger">*</span>
                                     </label>
                                     @error('terms_accepted')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <!-- Telif Hakları -->
                                 <div class="form-check mb-2">
                                     <input class="form-check-input @error('copyright_accepted') is-invalid @enderror"
                                            type="checkbox"
@@ -377,14 +361,13 @@
                                            {{ old('copyright_accepted') ? 'checked' : '' }}
                                            required>
                                     <label class="form-check-label" for="copyright_accepted">
-                                        <a href="{{ route('legal.copyright') }}" target="_blank">Telif Hakları Beyanı</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
+                                        <a href="{{ route('legal.copyright') }}" target="_blank">{{ __('auth.copyright_link') }}</a>{{ __('auth.terms_label') }} <span class="text-danger">*</span>
                                     </label>
                                     @error('copyright_accepted')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <!-- KVKK -->
                                 <div class="form-check mb-2">
                                     <input class="form-check-input @error('kvkk_accepted') is-invalid @enderror"
                                            type="checkbox"
@@ -394,14 +377,13 @@
                                            {{ old('kvkk_accepted') ? 'checked' : '' }}
                                            required>
                                     <label class="form-check-label" for="kvkk_accepted">
-                                        <a href="{{ route('legal.kvkk') }}" target="_blank">KVKK Aydınlatma Metni</a>'ni okudum ve kabul ediyorum. <span class="text-danger">*</span>
+                                        <a href="{{ route('legal.kvkk') }}" target="_blank">{{ __('auth.kvkk_link') }}</a>{{ __('auth.terms_label') }} <span class="text-danger">*</span>
                                     </label>
                                     @error('kvkk_accepted')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <!-- Kişisel Verilerin İşlenmesi -->
                                 <div class="form-check mb-4">
                                     <input class="form-check-input @error('personal_data_accepted') is-invalid @enderror"
                                            type="checkbox"
@@ -411,22 +393,21 @@
                                            {{ old('personal_data_accepted') ? 'checked' : '' }}
                                            required>
                                     <label class="form-check-label" for="personal_data_accepted">
-                                        <a href="{{ route('legal.personal-data') }}" target="_blank">Kişisel Verilerin İşlenmesi Onayı</a>'nı okudum ve kabul ediyorum. <span class="text-danger">*</span>
+                                        <a href="{{ route('legal.personal-data') }}" target="_blank">{{ __('auth.personal_data_link') }}</a>{{ __('auth.terms_label') }} <span class="text-danger">*</span>
                                     </label>
                                     @error('personal_data_accepted')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
 
-                                <!-- Submit Button -->
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-register">
-                                        <i class="bi bi-person-plus"></i> Kayıt Ol
+                                        <i class="bi bi-person-plus"></i> {{ __('auth.register_button') }}
                                     </button>
                                 </div>
 
                                 <div class="text-center mt-3 login-link">
-                                    <p class="mb-0">Zaten hesabınız var mı? <a href="{{ route('login') }}">Giriş Yapın</a></p>
+                                    <p class="mb-0">{{ __('auth.already_account') }} <a href="{{ route('login') }}">{{ __('auth.login_link') }}</a></p>
                                 </div>
                             </form>
                         </div>
@@ -436,7 +417,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Talep Detayı - Aytun Film AI</title>
+    <title>{{ __('requests.show_title') }}</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 
     <style>
@@ -82,9 +80,7 @@
             color: white;
         }
 
-        .token-badge i {
-            font-size: 1.2rem;
-        }
+        .token-badge i { font-size: 1.2rem; }
 
         .dropdown-menu {
             background: rgba(0, 0, 0, 0.95);
@@ -106,10 +102,7 @@
             color: var(--primary);
         }
 
-        .dropdown-item i {
-            margin-right: 0.5rem;
-            width: 20px;
-        }
+        .dropdown-item i { margin-right: 0.5rem; width: 20px; }
 
         /* Content */
         .detail-container {
@@ -117,9 +110,7 @@
             min-height: 100vh;
         }
 
-        .page-header {
-            margin-bottom: 2rem;
-        }
+        .page-header { margin-bottom: 2rem; }
 
         .page-header h2 {
             font-size: 2rem;
@@ -153,92 +144,28 @@
             margin-bottom: 1.5rem;
         }
 
-        .card-header-success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            padding: 1.25rem 1.5rem;
-        }
-
-        .card-header-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            padding: 1.25rem 1.5rem;
-        }
-
-        .card-header-warning {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            padding: 1.25rem 1.5rem;
-        }
-
-        .card-header-info {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            padding: 1.25rem 1.5rem;
-        }
-
-        .card-header-danger {
-            background: linear-gradient(135deg, var(--secondary) 0%, #dc3545 100%);
-            padding: 1.25rem 1.5rem;
-        }
-
-        .card-header-dark {
-            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-            padding: 1.25rem 1.5rem;
-        }
+        .card-header-success  { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 1.25rem 1.5rem; }
+        .card-header-primary  { background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); padding: 1.25rem 1.5rem; }
+        .card-header-warning  { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); padding: 1.25rem 1.5rem; }
+        .card-header-info     { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 1.25rem 1.5rem; }
+        .card-header-danger   { background: linear-gradient(135deg, var(--secondary) 0%, #dc3545 100%); padding: 1.25rem 1.5rem; }
+        .card-header-dark     { background: linear-gradient(135deg, #1f2937 0%, #111827 100%); padding: 1.25rem 1.5rem; }
 
         .card-header-custom h5,
-        .card-header-custom h6 {
-            margin: 0;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
+        .card-header-custom h6 { margin: 0; font-weight: bold; font-size: 1.2rem; }
 
-        .card-body-custom {
-            padding: 1.5rem;
-        }
+        .card-body-custom { padding: 1.5rem; }
 
         /* Status Badges */
-        .badge-pending {
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: bold;
-        }
+        .badge-pending    { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; padding: 0.5rem 1rem; border-radius: 50px; font-weight: bold; }
+        .badge-processing { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 0.5rem 1rem; border-radius: 50px; font-weight: bold; }
+        .badge-completed  { background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 0.5rem 1rem; border-radius: 50px; font-weight: bold; }
+        .badge-failed     { background: linear-gradient(135deg, var(--secondary) 0%, #dc3545 100%); padding: 0.5rem 1rem; border-radius: 50px; font-weight: bold; }
 
-        .badge-processing {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: bold;
-        }
-
-        .badge-completed {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: bold;
-        }
-
-        .badge-failed {
-            background: linear-gradient(135deg, var(--secondary) 0%, #dc3545 100%);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: bold;
-        }
-
-        /* Video Ready Card */
-        .video-ready-card {
-            text-align: center;
-            padding: 3rem 2rem;
-        }
-
-        .video-ready-card i {
-            font-size: 5rem;
-            color: #10b981;
-        }
-
-        .video-ready-card h4 {
-            color: white;
-            margin-bottom: 2rem;
-        }
+        /* Video Ready */
+        .video-ready-card { text-align: center; padding: 3rem 2rem; }
+        .video-ready-card i { font-size: 5rem; color: #10b981; }
+        .video-ready-card h4 { color: white; margin-bottom: 2rem; }
 
         .btn-download {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -271,11 +198,7 @@
             padding-bottom: 0;
         }
 
-        .character-section h6 {
-            color: white;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
+        .character-section h6 { color: white; font-weight: bold; margin-bottom: 1rem; }
 
         .character-image {
             cursor: pointer;
@@ -293,7 +216,7 @@
             transform: scale(1.05);
         }
 
-        /* Alert */
+        /* Alerts */
         .alert-custom {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.3);
@@ -302,9 +225,7 @@
             padding: 1rem;
         }
 
-        .alert-custom strong {
-            color: #ef4444;
-        }
+        .alert-custom strong { color: #ef4444; }
 
         .alert-info-custom {
             background: rgba(0, 217, 255, 0.1);
@@ -314,9 +235,7 @@
             padding: 1rem;
         }
 
-        .alert-info-custom i {
-            color: var(--primary);
-        }
+        .alert-info-custom i { color: var(--primary); }
 
         /* Buttons */
         .btn-delete-request {
@@ -331,10 +250,7 @@
             width: 100%;
         }
 
-        .btn-delete-request:hover {
-            opacity: 0.9;
-            color: white;
-        }
+        .btn-delete-request:hover { opacity: 0.9; color: white; }
 
         /* Info Card */
         .info-card {
@@ -344,17 +260,9 @@
             padding: 1.5rem;
         }
 
-        .info-card h6 {
-            color: var(--primary);
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
+        .info-card h6 { color: var(--primary); font-weight: bold; margin-bottom: 1rem; }
 
-        .info-card ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+        .info-card ul { list-style: none; padding: 0; margin: 0; }
 
         .info-card ul li {
             color: rgba(255, 255, 255, 0.8);
@@ -362,39 +270,17 @@
             font-size: 0.9rem;
         }
 
-        .info-card ul li:last-child {
-            margin-bottom: 0;
-        }
-
-        .info-card ul li strong {
-            color: white;
-        }
+        .info-card ul li:last-child { margin-bottom: 0; }
+        .info-card ul li strong { color: white; }
 
         /* Status Info */
-        .status-info small {
-            color: rgba(255, 255, 255, 0.6);
-            display: block;
-            margin-bottom: 0.25rem;
-        }
+        .status-info small { color: rgba(255, 255, 255, 0.6); display: block; margin-bottom: 0.25rem; }
+        .status-info h5 { color: white; margin: 0; }
 
-        .status-info h5 {
-            color: white;
-            margin: 0;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .detail-container {
-                padding: 5rem 1rem 2rem;
-            }
-
-            .page-header h2 {
-                font-size: 1.5rem;
-            }
-
-            .character-image {
-                height: 120px;
-            }
+            .detail-container { padding: 5rem 1rem 2rem; }
+            .page-header h2 { font-size: 1.5rem; }
+            .character-image { height: 120px; }
         }
     </style>
 </head>
@@ -402,7 +288,7 @@
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
-                <i class="bi bi-film"></i> Aytun Film AI
+                <i class="bi bi-film"></i> {{ __('requests.brand') }}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -411,15 +297,14 @@
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('packages.index') }}">
-                            <i class="bi bi-box-seam"></i> Paketler
+                            <i class="bi bi-box-seam"></i> {{ __('requests.packages') }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('requests.index') }}">
-                            <i class="bi bi-film"></i> Taleplerim
+                            <i class="bi bi-film"></i> {{ __('requests.my_requests') }}
                         </a>
                     </li>
-
                     <li class="nav-item">
                         <a href="{{ route('cart.index') }}" class="token-badge">
                             <i class="bi bi-coin"></i>
@@ -427,7 +312,6 @@
                             <i class="bi bi-cart3"></i>
                         </a>
                     </li>
-
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
@@ -435,12 +319,12 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <a class="dropdown-item" href="{{ route('user.profile') }}">
-                                    <i class="bi bi-person"></i> Profilim
+                                    <i class="bi bi-person"></i> {{ __('requests.my_profile') }}
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                    <i class="bi bi-bag"></i> Siparişlerim
+                                    <i class="bi bi-bag"></i> {{ __('requests.my_orders') }}
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.1);"></li>
@@ -448,7 +332,7 @@
                                 <form action="{{ route('logout') }}" method="POST">
                                     @csrf
                                     <button type="submit" class="dropdown-item">
-                                        <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+                                        <i class="bi bi-box-arrow-right"></i> {{ __('requests.logout') }}
                                     </button>
                                 </form>
                             </li>
@@ -463,89 +347,86 @@
         <div class="container">
             <div class="page-header">
                 <a href="{{ route('requests.index') }}" class="btn btn-back">
-                    <i class="bi bi-arrow-left"></i> Taleplerime Dön
+                    <i class="bi bi-arrow-left"></i> {{ __('requests.back') }}
                 </a>
                 <h2><i class="bi bi-film"></i> {{ $request->title }}</h2>
             </div>
 
             <div class="row">
                 <div class="col-lg-8">
+
+                    {{-- Status Card --}}
                     <div class="card-custom">
                         <div class="card-header-{{ $request->status === 'completed' ? 'success' : ($request->status === 'processing' ? 'info' : ($request->status === 'pending' ? 'warning' : 'danger')) }} card-header-custom">
-                            <h5><i class="bi bi-info-circle"></i> Talep Durumu</h5>
+                            <h5><i class="bi bi-info-circle"></i> {{ __('requests.request_status') }}</h5>
                         </div>
                         <div class="card-body-custom">
                             <div class="row">
                                 <div class="col-md-4 mb-3 status-info">
-                                    <small>Durum</small>
+                                    <small>{{ __('requests.status_label') }}</small>
                                     <h5>
-                                        @if($request->status === 'pending')
-                                            <span class="badge-pending">Beklemede</span>
-                                        @elseif($request->status === 'processing')
-                                            <span class="badge-processing">İşleniyor</span>
-                                        @elseif($request->status === 'completed')
-                                            <span class="badge-completed">Tamamlandı</span>
-                                        @else
-                                            <span class="badge-failed">Başarısız</span>
-                                        @endif
+                                        <span class="badge-{{ $request->status }}">
+                                            {{ __('requests.status_' . $request->status) }}
+                                        </span>
                                     </h5>
                                 </div>
                                 <div class="col-md-4 mb-3 status-info">
-                                    <small>Video Yönü</small>
+                                    <small>{{ __('requests.video_direction') }}</small>
                                     <h5>
                                         @if($request->video_format == 'horizontal')
-                                            <i class="bi bi-display"></i> Yatay (16:9)
+                                            <i class="bi bi-display"></i> {{ __('requests.horizontal') }}
                                         @else
-                                            <i class="bi bi-phone"></i> Dikey (9:16)
+                                            <i class="bi bi-phone"></i> {{ __('requests.vertical') }}
                                         @endif
                                     </h5>
                                 </div>
                                 <div class="col-md-4 mb-3 status-info">
-                                    <small>Oluşturma Tarihi</small>
+                                    <small>{{ __('requests.created_at') }}</small>
                                     <h5>{{ $request->created_at->format('d.m.Y H:i') }}</h5>
                                 </div>
                             </div>
 
                             @if($request->status === 'failed' && $request->error_message)
                                 <div class="alert-custom mt-3">
-                                    <strong><i class="bi bi-exclamation-triangle-fill"></i> Hata:</strong>
+                                    <strong><i class="bi bi-exclamation-triangle-fill"></i> {{ __('requests.error_label') }}</strong>
                                     <p class="mb-0 mt-2">{{ $request->error_message }}</p>
                                 </div>
                             @endif
                         </div>
                     </div>
 
+                    {{-- Film Ready Card --}}
                     @if($request->status === 'completed' && $request->video_url)
                         <div class="card-custom">
                             <div class="card-header-success card-header-custom">
-                                <h5><i class="bi bi-check-circle"></i> Film Hazır!</h5>
+                                <h5><i class="bi bi-check-circle"></i> {{ __('requests.film_ready') }}</h5>
                             </div>
                             <div class="card-body-custom video-ready-card">
                                 <i class="bi bi-film mb-4"></i>
-                                <h4>Filminiz başarıyla oluşturuldu!</h4>
+                                <h4>{{ __('requests.film_created') }}</h4>
                                 <a href="{{ $request->video_url }}" class="btn btn-download" download>
-                                    <i class="bi bi-download"></i> Filmi İndir
+                                    <i class="bi bi-download"></i> {{ __('requests.download') }}
                                 </a>
                             </div>
                         </div>
                     @endif
 
+                    {{-- Characters Card --}}
                     @if($request->characters->count() > 0)
                         <div class="card-custom">
                             <div class="card-header-success card-header-custom">
-                                <h5><i class="bi bi-people"></i> Karakterler ({{ $request->characters->count() }})</h5>
+                                <h5><i class="bi bi-people"></i> {{ __('requests.characters') }} ({{ $request->characters->count() }})</h5>
                             </div>
                             <div class="card-body-custom">
                                 @foreach($request->characters as $character)
                                     <div class="character-section">
                                         <h6><i class="bi bi-person-fill"></i> {{ $character->name }}</h6>
-
                                         <div class="row g-3">
                                             @foreach($character->images as $image)
                                                 <div class="col-6 col-md-4 col-lg-3">
                                                     <a href="{{ asset('storage/' . $image->image_path) }}"
                                                        data-lightbox="character-{{ $character->id }}"
-                                                       data-title="{{ $character->name }} - Görsel {{ $image->order }}">
+                                                       data-title="{{ $character->name }} - {{ __('requests.image_count') }} {{ $image->order }}">
                                                         <img src="{{ asset('storage/' . $image->image_path) }}"
                                                              class="character-image"
                                                              alt="{{ $character->name }} - {{ $image->order }}">
@@ -554,7 +435,7 @@
                                             @endforeach
                                         </div>
                                         <small style="color: rgba(255, 255, 255, 0.6); display: block; margin-top: 1rem;">
-                                            {{ $character->images->count() }} görsel
+                                            {{ $character->images->count() }} {{ __('requests.image_count') }}
                                         </small>
                                     </div>
                                 @endforeach
@@ -562,69 +443,77 @@
                         </div>
                     @endif
 
+                    {{-- Description Card --}}
                     <div class="card-custom">
                         <div class="card-header-primary card-header-custom">
-                            <h5><i class="bi bi-textarea-t"></i> Film Açıklaması</h5>
+                            <h5><i class="bi bi-textarea-t"></i> {{ __('requests.film_description_heading') }}</h5>
                         </div>
                         <div class="card-body-custom">
                             <p style="white-space: pre-wrap; color: rgba(255, 255, 255, 0.9); margin: 0;">{{ $request->description }}</p>
                         </div>
                     </div>
+
                 </div>
 
                 <div class="col-lg-4">
+
+                    {{-- Operations Card --}}
                     <div class="card-custom">
                         <div class="card-header-dark card-header-custom">
-                            <h6><i class="bi bi-gear"></i> İşlemler</h6>
+                            <h6><i class="bi bi-gear"></i> {{ __('requests.operations') }}</h6>
                         </div>
                         <div class="card-body-custom">
                             @if($request->status === 'pending' || $request->status === 'failed')
                                 <form action="{{ route('requests.destroy', $request->id) }}" method="POST"
-                                      onsubmit="return confirm('Bu talebi silmek istediğinize emin misiniz?')">
+                                      onsubmit="return confirm('{{ __('requests.delete_confirm_show') }}')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-delete-request">
-                                        <i class="bi bi-trash"></i> Talebi Sil
+                                        <i class="bi bi-trash"></i> {{ __('requests.delete_btn') }}
                                     </button>
                                 </form>
                             @else
                                 <div class="alert-info-custom">
                                     <small>
                                         <i class="bi bi-info-circle-fill"></i>
-                                        {{ $request->status === 'processing' ? 'İşlem devam ederken' : 'Tamamlanmış' }} talepler silinemez.
+                                        {{ $request->status === 'processing'
+                                            ? __('requests.cannot_delete_processing')
+                                            : __('requests.cannot_delete_completed') }}
                                     </small>
                                 </div>
                             @endif
                         </div>
                     </div>
 
+                    {{-- Request Info Card --}}
                     <div class="info-card">
-                        <h6><i class="bi bi-info-square-fill"></i> Talep Bilgileri</h6>
+                        <h6><i class="bi bi-info-square-fill"></i> {{ __('requests.request_info') }}</h6>
                         <ul>
                             <li>
-                                <strong>Talep ID:</strong> #{{ $request->id }}
+                                <strong>{{ __('requests.request_id') }}:</strong> #{{ $request->id }}
                             </li>
                             <li>
-                                <strong>Video Formatı:</strong> {{ $request->video_format == 'horizontal' ? '📺 Yatay (16:9)' : '📱 Dikey (9:16)' }}
+                                <strong>{{ __('requests.video_format_label') }}:</strong>
+                                {{ $request->video_format == 'horizontal' ? '📺 ' . __('requests.horizontal') : '📱 ' . __('requests.vertical') }}
                             </li>
                             <li>
-                                <strong>Karakter Sayısı:</strong> {{ $request->characters->count() }}
+                                <strong>{{ __('requests.char_count') }}:</strong> {{ $request->characters->count() }}
                             </li>
                             <li>
-                                <strong>Toplam Görsel:</strong> {{ $request->characters->flatMap->images->count() }}
+                                <strong>{{ __('requests.total_images') }}:</strong> {{ $request->characters->flatMap->images->count() }}
                             </li>
                             <li>
-                                <strong>Son Güncelleme:</strong> {{ $request->updated_at->format('d.m.Y H:i') }}
+                                <strong>{{ __('requests.last_updated') }}:</strong> {{ $request->updated_at->format('d.m.Y H:i') }}
                             </li>
                         </ul>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 </body>
 </html>

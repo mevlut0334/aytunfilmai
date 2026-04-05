@@ -1,15 +1,12 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ App::getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Giriş Yap - Aytun Film AI</title>
+    <title>{{ __('auth.login_title') }}</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <style>
@@ -35,7 +32,6 @@
             min-height: 100vh;
         }
 
-        /* Navbar - Welcome ile aynı */
         .navbar-custom {
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
@@ -78,7 +74,6 @@
             color: white;
         }
 
-        /* Content */
         .login-container {
             padding: 8rem 0 4rem;
             min-height: 100vh;
@@ -196,7 +191,6 @@
             border-color: var(--secondary) !important;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .login-container {
                 padding: 5rem 1rem 2rem;
@@ -213,11 +207,10 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
-                <i class="bi bi-film"></i> Aytun Film AI
+                <i class="bi bi-film"></i> {{ __('auth.brand') }}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -226,12 +219,12 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('packages.index') }}">
-                            <i class="bi bi-box-seam"></i> Paketler
+                            <i class="bi bi-box-seam"></i> {{ __('auth.packages') }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="btn btn-neon" href="{{ route('register') }}">
-                            <i class="bi bi-person-plus"></i> Kayıt Ol
+                            <i class="bi bi-person-plus"></i> {{ __('auth.register_nav') }}
                         </a>
                     </li>
                 </ul>
@@ -239,22 +232,20 @@
         </div>
     </nav>
 
-    <!-- Login Content -->
     <div class="login-container">
         <div class="container">
             <div class="row justify-content-center">
                 <div class="col-md-6 col-lg-5">
                     <div class="login-card">
                         <div class="login-header">
-                            <h4><i class="bi bi-box-arrow-in-right"></i> Giriş Yap</h4>
+                            <h4><i class="bi bi-box-arrow-in-right"></i> {{ __('auth.login_heading') }}</h4>
                         </div>
                         <div class="login-body">
                             <form action="{{ route('login.store') }}" method="POST">
                                 @csrf
 
-                                <!-- E-posta -->
                                 <div class="mb-3">
-                                    <label for="email" class="form-label">E-posta <span class="text-danger">*</span></label>
+                                    <label for="email" class="form-label">{{ __('auth.email') }} <span class="text-danger">*</span></label>
                                     <input type="email"
                                            class="form-control @error('email') is-invalid @enderror"
                                            id="email"
@@ -267,9 +258,8 @@
                                     @enderror
                                 </div>
 
-                                <!-- Şifre -->
                                 <div class="mb-4">
-                                    <label for="password" class="form-label">Şifre <span class="text-danger">*</span></label>
+                                    <label for="password" class="form-label">{{ __('auth.password') }} <span class="text-danger">*</span></label>
                                     <input type="password"
                                            class="form-control @error('password') is-invalid @enderror"
                                            id="password"
@@ -280,16 +270,15 @@
                                     @enderror
                                 </div>
 
-                                <!-- Submit Button -->
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-login">
-                                        <i class="bi bi-box-arrow-in-right"></i> Giriş Yap
+                                        <i class="bi bi-box-arrow-in-right"></i> {{ __('auth.login_button') }}
                                     </button>
                                 </div>
 
                                 <div class="text-center mt-3 register-link">
                                     <p class="mb-0">
-                                        Hesabınız yok mu? <a href="{{ route('register') }}">Kayıt Olun</a>
+                                        {{ __('auth.no_account') }} <a href="{{ route('register') }}">{{ __('auth.register_link') }}</a>
                                     </p>
                                 </div>
                             </form>
@@ -300,7 +289,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
