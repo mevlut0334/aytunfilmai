@@ -19,10 +19,7 @@ class SetLocale
         }
 
         // 2. Tarayıcının Accept-Language header'ını oku
-        $browserLocales = $request->getLanguages(); // ['tr_TR', 'tr', 'en_US', 'en', ...]
-
-        foreach ($browserLocales as $browserLocale) {
-            // Sadece ilk 2 karakteri al (tr_TR -> tr)
+        foreach ($request->getLanguages() as $browserLocale) {
             $short = strtolower(substr($browserLocale, 0, 2));
 
             if (in_array($short, $supportedLocales)) {
