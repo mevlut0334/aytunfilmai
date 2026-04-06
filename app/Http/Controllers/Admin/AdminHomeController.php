@@ -200,20 +200,21 @@ class AdminHomeController extends Controller
     }
 
     public function storeFaq(Request $request)
-    {
-        $validated = $request->validate([
-            'question' => 'required|string|max:255',
-            'answer' => 'required|string',
-            'order' => 'required|integer|min:0',
-        ]);
+{
+    $validated = $request->validate([
+        'question' => 'required|string|max:255',
+        'answer'   => 'required|string',
+        'order'    => 'required|integer|min:0',
+    ]);
 
-        $validated['is_active'] = $request->has('is_active');
+    $validated['is_active']    = $request->has('is_active');
+    $validated['translations'] = $request->input('translations', []);
 
-        Faq::create($validated);
+    Faq::create($validated);
 
-        return redirect()->route('admin.home.faqs')
-            ->with('success', 'SSS başarıyla eklendi!');
-    }
+    return redirect()->route('admin.home.faqs')
+        ->with('success', 'SSS başarıyla eklendi!');
+}
 
     public function editFaq($id)
     {
@@ -222,22 +223,23 @@ class AdminHomeController extends Controller
     }
 
     public function updateFaq(Request $request, $id)
-    {
-        $faq = Faq::findOrFail($id);
+{
+    $faq = Faq::findOrFail($id);
 
-        $validated = $request->validate([
-            'question' => 'required|string|max:255',
-            'answer' => 'required|string',
-            'order' => 'required|integer|min:0',
-        ]);
+    $validated = $request->validate([
+        'question' => 'required|string|max:255',
+        'answer'   => 'required|string',
+        'order'    => 'required|integer|min:0',
+    ]);
 
-        $validated['is_active'] = $request->has('is_active');
+    $validated['is_active']    = $request->has('is_active');
+    $validated['translations'] = $request->input('translations', []);
 
-        $faq->update($validated);
+    $faq->update($validated);
 
-        return redirect()->route('admin.home.faqs')
-            ->with('success', 'SSS başarıyla güncellendi!');
-    }
+    return redirect()->route('admin.home.faqs')
+        ->with('success', 'SSS başarıyla güncellendi!');
+}
 
     public function destroyFaq($id)
     {

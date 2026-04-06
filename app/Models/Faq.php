@@ -9,27 +9,35 @@ class Faq extends Model
     protected $fillable = [
         'question',
         'answer',
+        'translations',
         'order',
         'is_active',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'is_active'    => 'boolean',
+        'translations' => 'array',
     ];
 
-    /**
-     * Scope: Sadece aktif SSS'ler
-     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
-    /**
-     * Scope: Sıralı SSS'ler
-     */
     public function scopeOrdered($query)
     {
         return $query->orderBy('order');
+    }
+
+    public function getLocalizedQuestionAttribute(): string
+    {
+        $locale = app()->getLocale();
+        return $this->translations[$locale]['question'] ?? $this->question;
+    }
+
+    public function getLocalizedAnswerAttribute(): string
+    {
+        $locale = app()->getLocale();
+        return $this->translations[$locale]['answer'] ?? $this->answer;
     }
 }

@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="container-fluid px-4">
-    <!-- Başlık -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mt-4">
             <i class="bi bi-plus-circle"></i> Yeni SSS Ekle
@@ -15,18 +14,17 @@
     </div>
 
     <div class="row">
-        <!-- Sol: Form -->
         <div class="col-lg-8 mb-4">
             <div class="card shadow-sm">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">SSS Bilgileri</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.home.faqs.store') }}"
-                          method="POST">
+                    <form action="{{ route('admin.home.faqs.store') }}" method="POST">
                         @csrf
 
-                        <!-- Soru -->
+                        <h6 class="text-muted mb-3"><i class="bi bi-flag"></i> Türkçe (Zorunlu)</h6>
+
                         <div class="mb-3">
                             <label for="question" class="form-label">
                                 Soru <span class="text-danger">*</span>
@@ -43,7 +41,6 @@
                             @enderror
                         </div>
 
-                        <!-- Cevap -->
                         <div class="mb-3">
                             <label for="answer" class="form-label">
                                 Cevap <span class="text-danger">*</span>
@@ -51,7 +48,7 @@
                             <textarea class="form-control @error('answer') is-invalid @enderror"
                                       id="answer"
                                       name="answer"
-                                      rows="6"
+                                      rows="4"
                                       placeholder="Sorunun detaylı cevabı"
                                       required>{{ old('answer') }}</textarea>
                             @error('answer')
@@ -59,7 +56,28 @@
                             @enderror
                         </div>
 
-                        <!-- Sıra -->
+                        <hr>
+                        <h6 class="text-muted mb-3"><i class="bi bi-translate"></i> İngilizce Çeviri (İsteğe Bağlı)</h6>
+
+                        <div class="mb-3">
+                            <label class="form-label">Soru (EN)</label>
+                            <input type="text"
+                                   class="form-control"
+                                   name="translations[en][question]"
+                                   value="{{ old('translations.en.question') }}"
+                                   placeholder="English question">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Cevap (EN)</label>
+                            <textarea class="form-control"
+                                      name="translations[en][answer]"
+                                      rows="4"
+                                      placeholder="English answer">{{ old('translations.en.answer') }}</textarea>
+                        </div>
+
+                        <hr>
+
                         <div class="mb-3">
                             <label for="order" class="form-label">
                                 Sıra <span class="text-danger">*</span>
@@ -77,7 +95,6 @@
                             @enderror
                         </div>
 
-                        <!-- Aktif/Pasif -->
                         <div class="mb-4">
                             <div class="form-check form-switch">
                                 <input class="form-check-input"
@@ -91,7 +108,6 @@
                             </div>
                         </div>
 
-                        <!-- Butonlar -->
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-success">
                                 <i class="bi bi-check-circle"></i> Kaydet
@@ -105,7 +121,6 @@
             </div>
         </div>
 
-        <!-- Sağ: Bilgi Kartı -->
         <div class="col-lg-4">
             <div class="card bg-light">
                 <div class="card-body">
@@ -113,20 +128,13 @@
                         <i class="bi bi-info-circle-fill text-info"></i> İpuçları
                     </h6>
                     <ul class="small mb-0">
-                        <li class="mb-2">
-                            <strong>Soru:</strong> Kısa ve net sorular yazın
-                        </li>
-                        <li class="mb-2">
-                            <strong>Cevap:</strong> Detaylı ve anlaşılır açıklama
-                        </li>
-                        <li class="mb-0">
-                            <strong>Sıra:</strong> Önemli soruları üste koyun
-                        </li>
+                        <li class="mb-2"><strong>Türkçe:</strong> Zorunlu alan</li>
+                        <li class="mb-2"><strong>İngilizce:</strong> Girilmezse Türkçe gösterilir</li>
+                        <li class="mb-0"><strong>Sıra:</strong> Önemli soruları üste koyun</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Örnek Sorular -->
             <div class="card bg-light mt-3">
                 <div class="card-body">
                     <h6 class="card-title">
@@ -145,4 +153,3 @@
     </div>
 </div>
 @endsection
-
