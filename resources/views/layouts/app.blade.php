@@ -1,18 +1,14 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ App::getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Aytun Film AI')</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
-    <!-- Custom CSS -->
     <style>
         body {
             min-height: 100vh;
@@ -44,11 +40,10 @@
     @stack('styles')
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
-                <i class="bi bi-film"></i> Aytun Film AI
+                <i class="bi bi-film"></i> {{ __('layout.brand') }}
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -58,34 +53,31 @@
                     @guest
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('login') }}">
-                                <i class="bi bi-box-arrow-in-right"></i> Giriş Yap
+                                <i class="bi bi-box-arrow-in-right"></i> {{ __('layout.login') }}
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('register') }}">
-                                <i class="bi bi-person-plus"></i> Kayıt Ol
+                                <i class="bi bi-person-plus"></i> {{ __('layout.register') }}
                             </a>
                         </li>
                     @endguest
 
                     @auth
-    <!-- Token Bakiyesi -->
-    <li class="nav-item d-flex align-items-center me-3">
-        <span class="token-badge">
-            {{ number_format((float) auth()->user()->token_balance, 0) }}
-        </span>
-    </li>
+                        <li class="nav-item d-flex align-items-center me-3">
+                            <span class="token-badge">
+                                {{ number_format((float) auth()->user()->token_balance, 0) }}
+                            </span>
+                        </li>
 
                         @if(auth()->user()->isAdmin())
-                            <!-- Admin Menü -->
                             <li class="nav-item">
                                 <a class="nav-link" href="#">
-                                    <i class="bi bi-speedometer2"></i> Admin Panel
+                                    <i class="bi bi-speedometer2"></i> {{ __('layout.admin_panel') }}
                                 </a>
                             </li>
                         @endif
 
-                        <!-- Kullanıcı Menü -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
@@ -93,31 +85,25 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
                                     <a class="dropdown-item" href="{{ route('user.profile') }}">
-                                        <i class="bi bi-person"></i> Profilim
+                                        <i class="bi bi-person"></i> {{ __('layout.my_profile') }}
                                     </a>
                                 </li>
-                               <li>
-    <a class="dropdown-item" href="{{ route('requests.index') }}">
-        <i class="bi bi-list-task"></i> Taleplerim
-    </a>
-</li>
-                               {{-- Şimdilik gizlendi
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('user.token-history') }}">
-                                        <i class="bi bi-clock-history"></i> Token Geçmişi
+                                    <a class="dropdown-item" href="{{ route('requests.index') }}">
+                                        <i class="bi bi-list-task"></i> {{ __('layout.my_requests') }}
                                     </a>
                                 </li>
-                                --}}
-                              <a class="dropdown-item" href="{{ route('orders.index') }}">
-    <i class="bi bi-bag"></i> Siparişlerim
-</a>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('orders.index') }}">
+                                        <i class="bi bi-bag"></i> {{ __('layout.my_orders') }}
+                                    </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
                                         <button type="submit" class="dropdown-item text-danger">
-                                            <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+                                            <i class="bi bi-box-arrow-right"></i> {{ __('layout.logout') }}
                                         </button>
                                     </form>
                                 </li>
@@ -129,7 +115,6 @@
         </div>
     </nav>
 
-    <!-- Flash Mesajlar -->
     @if(session('success'))
         <div class="container mt-3">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -148,21 +133,18 @@
         </div>
     @endif
 
-    <!-- Main Content -->
     <main class="main-content">
         @yield('content')
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container text-center">
             <p class="mb-0 text-muted">
-                &copy; {{ date('Y') }} Aytun Film AI. Tüm hakları saklıdır.
+                &copy; {{ date('Y') }} {{ __('layout.brand') }}. {{ __('layout.footer') }}
             </p>
         </div>
     </footer>
 
-    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     @stack('scripts')
