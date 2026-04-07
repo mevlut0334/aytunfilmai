@@ -7,7 +7,6 @@
 <div class="container-fluid">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <!-- Form Kartı -->
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Paket Düzenle</h5>
@@ -24,7 +23,7 @@
                                    name="name"
                                    class="form-control @error('name') is-invalid @enderror"
                                    value="{{ old('name', $package->name) }}"
-                                   placeholder="Örn: Standart Paket"
+                                   placeholder="Örn: Standard Plan"
                                    required>
                             @error('name')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -52,28 +51,50 @@
                                        class="form-control @error('token_amount') is-invalid @enderror"
                                        value="{{ old('token_amount', $package->token_amount) }}"
                                        min="1"
-                                       placeholder="Örn: 500"
+                                       placeholder="Örn: 660"
                                        required>
                                 @error('token_amount')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            <!-- Fiyat -->
+                            <!-- Fiyat (referans) -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Fiyat (₺) <span class="text-danger">*</span></label>
+                                <label class="form-label">Fiyat (Referans) <span class="text-danger">*</span></label>
                                 <input type="number"
                                        name="price"
                                        class="form-control @error('price') is-invalid @enderror"
                                        value="{{ old('price', $package->price) }}"
                                        min="0.01"
                                        step="0.01"
-                                       placeholder="Örn: 149.90"
+                                       placeholder="Örn: 9.99"
                                        required>
+                                <small class="text-muted">Gerçek fiyat Paddle dashboard'dan yönetilir.</small>
                                 @error('price')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                        </div>
+
+                        <!-- Paddle Price ID -->
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Paddle Price ID
+                                <span class="badge bg-warning text-dark ms-1">Önemli</span>
+                            </label>
+                            <input type="text"
+                                   name="paddle_price_id"
+                                   class="form-control @error('paddle_price_id') is-invalid @enderror"
+                                   value="{{ old('paddle_price_id', $package->paddle_price_id) }}"
+                                   placeholder="Örn: pri_01knkfaaydzefp75c9c3akhbhq">
+                            <small class="text-muted">
+                                <i class="bi bi-info-circle"></i>
+                                Paddle dashboard → Catalog → Prices bölümünden alınır.
+                                Girilmezse bu paket için Paddle ödemesi çalışmaz.
+                            </small>
+                            @error('paddle_price_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <!-- Aktif/Pasif -->
@@ -89,12 +110,6 @@
                                 </label>
                             </div>
                             <small class="text-muted">Pasif paketler kullanıcılara gösterilmez.</small>
-                        </div>
-
-                        <!-- Bilgilendirme -->
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i>
-                            Paketler fiyata göre otomatik sıralanır (ucuzdan pahalıya).
                         </div>
 
                         <!-- Butonlar -->

@@ -20,6 +20,7 @@ class Package extends Model
         'price',
         'description',
         'is_active',
+        'paddle_price_id',
     ];
 
     /**

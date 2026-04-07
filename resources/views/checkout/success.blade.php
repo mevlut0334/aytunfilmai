@@ -1,123 +1,116 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ __('packages.success_title') }} - Aytun Film AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #00D9FF;
+            --accent:  #8338EC;
+            --bg-dark: #000000;
+        }
+        body {
+            background: var(--bg-dark);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .result-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(16,185,129,0.4);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 0 60px rgba(16,185,129,0.15);
+        }
+        .icon-success {
+            font-size: 5rem;
+            color: #10b981;
+            text-shadow: 0 0 30px rgba(16,185,129,0.5);
+        }
+        h1 { color: #10b981; font-weight: bold; margin: 1rem 0 0.5rem; }
+        .lead { color: rgba(255,255,255,0.65); }
+        .info-row {
+            background: rgba(255,255,255,0.06);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        .info-row small { color: rgba(255,255,255,0.45); display: block; margin-bottom: 0.2rem; }
+        .info-row strong { color: white; font-size: 1.1rem; }
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border: none;
+            color: white;
+            padding: 0.85rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            margin: 0.4rem;
+        }
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0,217,255,0.4);
+            color: white;
+        }
+        .btn-outline-custom {
+            background: transparent;
+            border: 1px solid rgba(0,217,255,0.4);
+            color: var(--primary);
+            padding: 0.85rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            margin: 0.4rem;
+        }
+        .btn-outline-custom:hover {
+            background: rgba(0,217,255,0.1);
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="result-card">
+        <div class="icon-success">
+            <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <h1>{{ __('packages.success_title') }}</h1>
+        <p class="lead">{{ __('packages.success_sub') }}</p>
 
-@section('title', 'Sipariş Oluşturuldu - Aytun Film AI')
-
-@section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <!-- Başarı Kartı -->
-            <div class="card shadow-lg border-0">
-                <div class="card-body text-center p-5">
-                    <!-- Başarı İkonu -->
-                    <div class="mb-4">
-                        <i class="bi bi-check-circle-fill text-success" style="font-size: 6rem;"></i>
-                    </div>
-
-                    <!-- Başlık -->
-                    <h1 class="text-success mb-3">Siparişiniz Oluşturuldu!</h1>
-                    <p class="lead text-muted mb-4">
-                        Siparişiniz başarıyla oluşturuldu. Havale/EFT işlemini tamamladıktan sonra tokenlarınız hesabınıza yüklenecektir.
-                    </p>
-
-                    <!-- Sipariş Bilgileri -->
-                    <div class="card bg-light mb-4">
-                        <div class="card-body">
-                            <div class="row text-start">
-                                <div class="col-md-6 mb-3">
-                                    <small class="text-muted">Sipariş Numarası</small>
-                                    <h5 class="mb-0 text-danger">#{{ $order->id }}</h5>
-                                    <small class="text-danger">⚠️ Bu numarayı havale açıklamasına yazınız</small>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <small class="text-muted">Tarih</small>
-                                    <h5 class="mb-0">{{ $order->created_at->format('d.m.Y H:i') }}</h5>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <small class="text-muted">Ödenecek Tutar</small>
-                                    <h5 class="mb-0 text-success">{{ number_format($order->final_amount, 2) }} ₺</h5>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <small class="text-muted">Yüklenecek Token</small>
-                                    <h5 class="mb-0 text-warning">
-                                        <i class="bi bi-coin"></i> {{ number_format($order->totalTokens, 0) }}
-                                    </h5>
-                                </div>
-                            </div>
-
-                            <!-- Sipariş Kalemleri -->
-                            <hr>
-                            <small class="text-muted">Satın Alınan Paketler</small>
-                            <div class="mt-2">
-                                @foreach($order->orderItems as $item)
-                                    <div class="d-flex justify-content-between mb-1">
-                                        <span>{{ $item->package->name }} x {{ $item->quantity }}</span>
-                                        <strong>{{ number_format($item->subtotal, 2) }} ₺</strong>
-                                    </div>
-                                @endforeach
-                            </div>
-
-                            @if($order->discount_amount > 0)
-                                <div class="d-flex justify-content-between text-success mt-2">
-                                    <span>İndirim</span>
-                                    <strong>- {{ number_format($order->discount_amount, 2) }} ₺</strong>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Ödeme Talimatları -->
-                    <div class="card border-primary mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Ödeme Nasıl Yapılır?</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="alert alert-warning text-start">
-                                <h6><i class="bi bi-exclamation-triangle"></i> Önemli Uyarılar:</h6>
-                                <ul class="mb-0">
-                                    <li><strong>Ana sayfamızdan banka hesap bilgilerimize ulaşabilir veya WhatsApp destek hattımızdan banka bilgilerimizi talep edip ödemenizi yapabilirsiniz.</strong></li>
-                                    <li><strong>Havale/EFT açıklamasına mutlaka sipariş numaranızı (#{{ $order->id }}) yazınız.</strong></li>
-                                    <li>Ödeme yaptıktan sonra dekontunuzu WhatsApp üzerinden bize gönderin.</li>
-                                    <li>Ödemeniz onaylandıktan sonra tokenlarınız otomatik olarak hesabınıza yüklenecektir.</li>
-                                </ul>
-                            </div>
-
-                            <div class="text-center mt-4">
-                                <a href="{{ route('home') }}" class="btn btn-success btn-lg">
-                                    <i class="bi bi-house-door"></i> Ana Sayfaya Git - Banka Bilgilerini Gör
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Durum Bilgisi -->
-                    <div class="alert alert-info mb-4">
-                        <h6><i class="bi bi-info-circle"></i> Sipariş Durumu</h6>
-                        <p class="mb-0">
-                            Siparişiniz şu anda <span class="badge bg-warning text-dark">Ödeme Bekleniyor</span> durumundadır.
-                            Ödemeniz onaylandığında durumu <span class="badge bg-success">Tamamlandı</span> olarak güncellenecektir.
-                        </p>
-                    </div>
-
-                    <!-- Aksiyon Butonları -->
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                        <a href="{{ route('orders.show', $order->id) }}" class="btn btn-primary btn-lg">
-                            <i class="bi bi-receipt"></i> Sipariş Detayı
-                        </a>
-                        <a href="{{ route('user.profile') }}" class="btn btn-outline-secondary btn-lg">
-                            <i class="bi bi-person-circle"></i> Profilime Git
-                        </a>
-                    </div>
-
-                    <!-- Teşekkür Mesajı -->
-                    <div class="mt-4 pt-4 border-top">
-                        <p class="text-muted mb-0">
-                            <i class="bi bi-heart-fill text-danger"></i> Aytun Film AI'ı tercih ettiğiniz için teşekkür ederiz!
-                        </p>
-                    </div>
-                </div>
+        @if(isset($order))
+            <div class="info-row">
+                <small>{{ __('packages.success_order') }}</small>
+                <strong>#{{ $order->id }}</strong>
             </div>
+            <div class="info-row">
+                <small>{{ __('packages.success_tokens') }}</small>
+                <strong><i class="bi bi-coin text-warning"></i> {{ number_format($order->totalTokens, 0) }}</strong>
+            </div>
+        @endif
+
+        <div class="mt-3">
+            <a href="{{ route('home') }}" class="btn-primary-custom">
+                <i class="bi bi-house-door me-1"></i> {{ __('packages.success_go_home') }}
+            </a>
+            <a href="{{ route('user.profile') }}" class="btn-outline-custom">
+                <i class="bi bi-person-circle me-1"></i> {{ __('packages.success_profile') }}
+            </a>
         </div>
     </div>
-</div>
-@endsection
+</body>
+</html>

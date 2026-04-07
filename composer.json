@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "iyzico/iyzipay-php": "^2.0",
+        "laravel/cashier-paddle": "^2.8",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1"
     },

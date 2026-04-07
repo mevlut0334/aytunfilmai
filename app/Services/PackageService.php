@@ -10,13 +10,17 @@ use Illuminate\Database\Eloquent\Collection;
 class PackageService implements PackageServiceInterface
 {
     protected PackageRepositoryInterface $packageRepository;
+    protected PaddleService $paddleService;
 
     /**
      * Dependency Injection
      */
-    public function __construct(PackageRepositoryInterface $packageRepository)
-    {
+    public function __construct(
+        PackageRepositoryInterface $packageRepository,
+        PaddleService $paddleService
+    ) {
         $this->packageRepository = $packageRepository;
+        $this->paddleService     = $paddleService;
     }
 
     /**
@@ -31,13 +35,27 @@ class PackageService implements PackageServiceInterface
 
     /**
      * Sadece aktif paketleri getir (müşterilere gösterilecek)
-     * Performans: Eager loading yok (basit liste)
+     * Paddle'dan canlı USD fiyatı çeker (5 dk cache'li)
      *
      * @return Collection
      */
     public function getActivePackages(): Collection
     {
-        return $this->packageRepository->getActivePackages();
+        $packages = $this->packageRepository->getActivePackages();
+
+        foreach ($packages as $package) {
+            if ($package->paddle_price_id) {
+                $paddlePrice = $this->paddleService->getPrice($package->paddle_price_id);
+
+                $package->paddle_price    = $paddlePrice['amount']   ?? null;
+                $package->paddle_currency = $paddlePrice['currency'] ?? 'USD';
+            } else {
+                $package->paddle_price    = null;
+                $package->paddle_currency = 'USD';
+            }
+        }
+
+        return $packages;
     }
 
     /**
@@ -59,8 +77,7 @@ class PackageService implements PackageServiceInterface
      */
     public function createPackage(array $data): Package
     {
-        // Varsayılan değerler
-        $data['is_active'] = $data['is_active'] ?? true;
+        $data['is_active']  = $data['is_active']  ?? true;
         $data['sort_order'] = $data['sort_order'] ?? 0;
 
         return $this->packageRepository->create($data);
@@ -86,16 +103,13 @@ class PackageService implements PackageServiceInterface
      */
     public function deletePackage(int $id): bool
     {
-        // İş kuralı: Sepette veya siparişlerde kullanılıyorsa silinemez
         $package = $this->packageRepository->findById($id, ['cartItems', 'orderItems']);
 
         if (!$package) {
             return false;
         }
 
-        // Sepette veya siparişlerde varsa sil
         if ($package->cartItems->count() > 0 || $package->orderItems->count() > 0) {
-            // Silmek yerine pasif yap
             return $this->packageRepository->toggleActive($id, false);
         }
 
@@ -116,7 +130,6 @@ class PackageService implements PackageServiceInterface
 
     /**
      * Paket satış istatistikleri
-     * Performans: withCount kullanılabilir
      *
      * @param int $packageId
      * @return array
@@ -129,15 +142,15 @@ class PackageService implements PackageServiceInterface
             return [];
         }
 
-        $totalSales = $package->orderItems->sum('quantity');
+        $totalSales   = $package->orderItems->sum('quantity');
         $totalRevenue = $package->orderItems->sum('subtotal');
 
         return [
-            'package_id' => $packageId,
+            'package_id'   => $packageId,
             'package_name' => $package->name,
-            'total_sales' => $totalSales,
-            'total_revenue' => $totalRevenue,
-            'is_active' => $package->is_active,
+            'total_sales'  => $totalSales,
+            'total_revenue'=> $totalRevenue,
+            'is_active'    => $package->is_active,
         ];
     }
 }

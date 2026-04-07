@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PackageController;
-use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RequestController;
@@ -26,11 +25,9 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware('guest')->group(function () {
-    // Kayıt
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.store');
 
-    // Giriş
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 });
@@ -40,40 +37,26 @@ Route::middleware('guest')->group(function () {
 | Public Routes (Herkes erişebilir)
 |--------------------------------------------------------------------------
 */
-// Paketler - Herkese açık
 Route::get('/packages', [PackageController::class, 'index'])->name('packages.index');
 
-// Makaleler - Herkese açık
 Route::get('/blog', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('/blog/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 
-// Yasal Sayfalar - Herkese açık
-Route::get('/terms', function () {
-    return view('legal.terms');
-})->name('legal.terms');
-
-Route::get('/copyright', function () {
-    return view('legal.copyright');
-})->name('legal.copyright');
-
-Route::get('/kvkk', function () {
-    return view('legal.kvkk');
-})->name('legal.kvkk');
-
-Route::get('/personal-data', function () {
-    return view('legal.personal-data');
-})->name('legal.personal-data');
+Route::get('/terms', fn() => view('legal.terms'))->name('legal.terms');
+Route::get('/copyright', fn() => view('legal.copyright'))->name('legal.copyright');
+Route::get('/kvkk', fn() => view('legal.kvkk'))->name('legal.kvkk');
+Route::get('/personal-data', fn() => view('legal.personal-data'))->name('legal.personal-data');
 
 /*
 |--------------------------------------------------------------------------
-| Auth Routes (Giriş yapmış kullanıcılar - Normal User)
+| Auth Routes (Giriş yapmış kullanıcılar)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
     // Çıkış
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Kullanıcı Profil
+    // Profil
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
     Route::get('/profile/edit', [UserController::class, 'edit'])->name('user.edit');
     Route::put('/profile', [UserController::class, 'update'])->name('user.update');
@@ -81,22 +64,9 @@ Route::middleware('auth')->group(function () {
     // Token Geçmişi
     Route::get('/token-history', [UserController::class, 'tokenHistory'])->name('user.token-history');
 
-    // Sepet
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-    Route::put('/cart/{cartItem}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/{cartItem}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
-
-    // Kupon
-    Route::post('/cart/coupon/apply', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
-    Route::delete('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
-
-    // Ödeme (Havale/EFT)
-    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout/process', [CheckoutController::class, 'process'])->name('checkout.process');
-    Route::get('/checkout/success/{orderId}', [CheckoutController::class, 'success'])->name('checkout.success');
-    Route::get('/checkout/fail', [CheckoutController::class, 'fail'])->name('checkout.fail');
+    // Paddle Ödeme Sonuç Sayfaları
+    Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::get('/checkout/fail',    [CheckoutController::class, 'fail'])->name('checkout.fail');
 
     // Siparişler
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -150,7 +120,7 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('/home/settings', [\App\Http\Controllers\Admin\AdminHomeController::class, 'settings'])->name('home.settings');
     Route::put('/home/settings', [\App\Http\Controllers\Admin\AdminHomeController::class, 'updateSettings'])->name('home.settings.update');
 
-    // Makale Kategorileri Yönetimi
+    // Makale Kategorileri
     Route::get('/article-categories', [\App\Http\Controllers\Admin\AdminArticleCategoryController::class, 'index'])->name('article-categories.index');
     Route::get('/article-categories/create', [\App\Http\Controllers\Admin\AdminArticleCategoryController::class, 'create'])->name('article-categories.create');
     Route::post('/article-categories', [\App\Http\Controllers\Admin\AdminArticleCategoryController::class, 'store'])->name('article-categories.store');
@@ -205,7 +175,6 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     // Sipariş Yönetimi
     Route::get('/orders', [\App\Http\Controllers\Admin\AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{orderId}', [\App\Http\Controllers\Admin\AdminOrderController::class, 'show'])->name('orders.show');
-    // Sipariş onaylama (yeni)
     Route::post('/orders/{orderId}/approve', [\App\Http\Controllers\Admin\AdminOrderController::class, 'approve'])->name('orders.approve');
 
     // İstatistikler

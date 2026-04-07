@@ -21,9 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SetLocale::class,
         ]);
 
-        // CSRF korumasından muaf tutulacak URL'ler
+        // Paddle webhook CSRF muafiyeti (webhook route'u api.php'de olacaksa buraya gerek yok)
         $middleware->validateCsrfTokens(except: [
-            'checkout/callback', // İyzico 3D Secure callback
+            'paddle/webhook',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

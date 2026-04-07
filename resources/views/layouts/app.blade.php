@@ -147,6 +147,22 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+    {{-- Paddle.js --}}
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+    <script>
+        @if(config('cashier.sandbox'))
+            Paddle.Environment.set('sandbox');
+        @endif
+        Paddle.Initialize({
+            token: '{{ config('cashier.client_side_token') }}',
+            @auth
+            pwCustomer: {
+                email: '{{ auth()->user()->email }}',
+            },
+            @endauth
+        });
+    </script>
+
     @stack('scripts')
 </body>
 </html>

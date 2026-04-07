@@ -5,14 +5,12 @@
 
 @section('content')
 <div class="container-fluid">
-    <!-- Yeni Paket Ekle Butonu -->
     <div class="mb-4">
         <a href="{{ route('admin.packages.create') }}" class="btn btn-success">
             <i class="bi bi-plus-circle"></i> Yeni Paket Ekle
         </a>
     </div>
 
-    <!-- Paket Listesi -->
     <div class="card shadow-sm">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0"><i class="bi bi-box-seam"></i> Paketler ({{ $packages->count() }})</h5>
@@ -28,13 +26,13 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th style="width: 80px;">ID</th>
+                                <th style="width: 60px;">ID</th>
                                 <th>Paket Adı</th>
-                                <th>Açıklama</th>
-                                <th style="width: 120px;">Token</th>
-                                <th style="width: 120px;">Fiyat</th>
-                                <th style="width: 120px;">Durum</th>
-                                <th style="width: 150px;" class="text-center">İşlem</th>
+                                <th style="width: 100px;">Token</th>
+                                <th style="width: 100px;">Fiyat</th>
+                                <th>Paddle Price ID</th>
+                                <th style="width: 100px;">Durum</th>
+                                <th style="width: 130px;" class="text-center">İşlem</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -43,19 +41,26 @@
                                     <td><strong>#{{ $package->id }}</strong></td>
                                     <td>
                                         <strong>{{ $package->name }}</strong>
-                                    </td>
-                                    <td>
-                                        <small class="text-muted">
-                                            {{ $package->description ? Str::limit($package->description, 50) : '-' }}
-                                        </small>
+                                        @if($package->description)
+                                            <br><small class="text-muted">{{ Str::limit($package->description, 40) }}</small>
+                                        @endif
                                     </td>
                                     <td>
                                         <span class="badge bg-primary">
-                                            {{ number_format($package->token_amount, 0) }} Token
+                                            {{ number_format($package->token_amount, 0) }}
                                         </span>
                                     </td>
                                     <td>
-                                        <strong>{{ number_format($package->price, 2) }} ₺</strong>
+                                        <strong>${{ number_format($package->price, 2) }}</strong>
+                                    </td>
+                                    <td>
+                                        @if($package->paddle_price_id)
+                                            <code class="small">{{ $package->paddle_price_id }}</code>
+                                        @else
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-exclamation-triangle"></i> Girilmemiş
+                                            </span>
+                                        @endif
                                     </td>
                                     <td>
                                         @if($package->is_active)
