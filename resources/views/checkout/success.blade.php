@@ -20,6 +20,7 @@
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem 1rem;
         }
         .result-card {
             background: rgba(255,255,255,0.05);
@@ -37,16 +38,16 @@
             text-shadow: 0 0 30px rgba(16,185,129,0.5);
         }
         h1 { color: #10b981; font-weight: bold; margin: 1rem 0 0.5rem; }
-        .lead { color: rgba(255,255,255,0.65); }
-        .info-row {
-            background: rgba(255,255,255,0.06);
+        .lead { color: rgba(255,255,255,0.65); margin-bottom: 0; }
+        .info-box {
+            background: rgba(16,185,129,0.1);
+            border: 1px solid rgba(16,185,129,0.25);
             border-radius: 12px;
             padding: 1rem 1.5rem;
             margin: 1.5rem 0;
-            text-align: left;
+            color: rgba(255,255,255,0.75);
+            font-size: 0.95rem;
         }
-        .info-row small { color: rgba(255,255,255,0.45); display: block; margin-bottom: 0.2rem; }
-        .info-row strong { color: white; font-size: 1.1rem; }
         .btn-primary-custom {
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             border: none;
@@ -92,23 +93,17 @@
         <h1>{{ __('packages.success_title') }}</h1>
         <p class="lead">{{ __('packages.success_sub') }}</p>
 
-        @if(isset($order))
-            <div class="info-row">
-                <small>{{ __('packages.success_order') }}</small>
-                <strong>#{{ $order->id }}</strong>
-            </div>
-            <div class="info-row">
-                <small>{{ __('packages.success_tokens') }}</small>
-                <strong><i class="bi bi-coin text-warning"></i> {{ number_format($order->totalTokens, 0) }}</strong>
-            </div>
-        @endif
+        <div class="info-box">
+            <i class="bi bi-coin text-warning me-1"></i>
+            {{ __('packages.success_processing') }}
+        </div>
 
         <div class="mt-3">
-            <a href="{{ route('home') }}" class="btn-primary-custom">
-                <i class="bi bi-house-door me-1"></i> {{ __('packages.success_go_home') }}
-            </a>
-            <a href="{{ route('user.profile') }}" class="btn-outline-custom">
+            <a href="{{ route('user.profile') }}" class="btn-primary-custom">
                 <i class="bi bi-person-circle me-1"></i> {{ __('packages.success_profile') }}
+            </a>
+            <a href="{{ route('home') }}" class="btn-outline-custom">
+                <i class="bi bi-house-door me-1"></i> {{ __('packages.success_go_home') }}
             </a>
         </div>
     </div>

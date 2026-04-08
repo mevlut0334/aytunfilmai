@@ -46,6 +46,9 @@ Route::get('/terms', fn() => view('legal.terms'))->name('legal.terms');
 Route::get('/copyright', fn() => view('legal.copyright'))->name('legal.copyright');
 Route::get('/kvkk', fn() => view('legal.kvkk'))->name('legal.kvkk');
 Route::get('/personal-data', fn() => view('legal.personal-data'))->name('legal.personal-data');
+// Paddle Webhook (CSRF muaf, auth gerektirmez)
+Route::post('/paddle/webhook', [\App\Http\Controllers\PaddleWebhookController::class, 'handle'])
+    ->name('paddle.webhook');
 
 /*
 |--------------------------------------------------------------------------

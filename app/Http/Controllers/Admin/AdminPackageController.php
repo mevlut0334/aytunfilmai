@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Package;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request as HttpRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class AdminPackageController extends Controller
 {
     public function index(): View
     {
-        $packages = Package::orderBy('price')->get();
+        $packages = Package::orderBy('sort_order')->orderBy('id')->get();
         return view('admin.packages.index', compact('packages'));
     }
 
@@ -27,19 +28,24 @@ class AdminPackageController extends Controller
             'name'            => 'required|string|max:100',
             'description'     => 'nullable|string|max:500',
             'token_amount'    => 'required|integer|min:1',
-            'price'           => 'required|numeric|min:0.01',
-            'paddle_price_id' => 'nullable|string|max:100',
+            'paddle_price_id' => 'required|string|max:100',
+            'sort_order'      => 'nullable|integer|min:0',
+        ], [
+            'paddle_price_id.required' => 'Paddle Price ID zorunludur.',
         ]);
 
         try {
             Package::create([
                 'name'            => $validated['name'],
-                'description'     => $validated['description'],
+                'description'     => $validated['description'] ?? null,
                 'token_amount'    => $validated['token_amount'],
-                'price'           => $validated['price'],
-                'paddle_price_id' => $validated['paddle_price_id'] ?? null,
+                'paddle_price_id' => $validated['paddle_price_id'],
+                'sort_order'      => $validated['sort_order'] ?? 0,
                 'is_active'       => $request->has('is_active'),
             ]);
+
+            // Fiyat cache'ini temizle
+            Cache::flush();
 
             return redirect()->route('admin.packages.index')
                 ->with('success', 'Paket başarıyla oluşturuldu.');
@@ -61,8 +67,10 @@ class AdminPackageController extends Controller
             'name'            => 'required|string|max:100',
             'description'     => 'nullable|string|max:500',
             'token_amount'    => 'required|integer|min:1',
-            'price'           => 'required|numeric|min:0.01',
-            'paddle_price_id' => 'nullable|string|max:100',
+            'paddle_price_id' => 'required|string|max:100',
+            'sort_order'      => 'nullable|integer|min:0',
+        ], [
+            'paddle_price_id.required' => 'Paddle Price ID zorunludur.',
         ]);
 
         try {
@@ -70,12 +78,15 @@ class AdminPackageController extends Controller
 
             $package->update([
                 'name'            => $validated['name'],
-                'description'     => $validated['description'],
+                'description'     => $validated['description'] ?? null,
                 'token_amount'    => $validated['token_amount'],
-                'price'           => $validated['price'],
-                'paddle_price_id' => $validated['paddle_price_id'] ?? null,
+                'paddle_price_id' => $validated['paddle_price_id'],
+                'sort_order'      => $validated['sort_order'] ?? 0,
                 'is_active'       => $request->has('is_active'),
             ]);
+
+            // Fiyat cache'ini temizle
+            Cache::flush();
 
             return redirect()->route('admin.packages.index')
                 ->with('success', 'Paket başarıyla güncellendi.');
@@ -95,6 +106,9 @@ class AdminPackageController extends Controller
             }
 
             $package->delete();
+
+            Cache::flush();
+
             return back()->with('success', 'Paket başarıyla silindi.');
         } catch (\Exception $e) {
             return back()->with('error', 'Paket silinirken hata oluştu: ' . $e->getMessage());

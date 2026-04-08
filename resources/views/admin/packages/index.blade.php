@@ -26,10 +26,9 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
-                                <th style="width: 60px;">ID</th>
+                                <th style="width: 50px;">Sıra</th>
                                 <th>Paket Adı</th>
-                                <th style="width: 100px;">Token</th>
-                                <th style="width: 100px;">Fiyat</th>
+                                <th style="width: 110px;">Token</th>
                                 <th>Paddle Price ID</th>
                                 <th style="width: 100px;">Durum</th>
                                 <th style="width: 130px;" class="text-center">İşlem</th>
@@ -38,20 +37,17 @@
                         <tbody>
                             @foreach($packages as $package)
                                 <tr>
-                                    <td><strong>#{{ $package->id }}</strong></td>
+                                    <td class="text-center text-muted">{{ $package->sort_order }}</td>
                                     <td>
                                         <strong>{{ $package->name }}</strong>
                                         @if($package->description)
-                                            <br><small class="text-muted">{{ Str::limit($package->description, 40) }}</small>
+                                            <br><small class="text-muted">{{ Str::limit($package->description, 50) }}</small>
                                         @endif
                                     </td>
                                     <td>
-                                        <span class="badge bg-primary">
+                                        <span class="badge bg-primary fs-6">
                                             {{ number_format($package->token_amount, 0) }}
                                         </span>
-                                    </td>
-                                    <td>
-                                        <strong>${{ number_format($package->price, 2) }}</strong>
                                     </td>
                                     <td>
                                         @if($package->paddle_price_id)

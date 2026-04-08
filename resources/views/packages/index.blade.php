@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Token Paketleri - Aytun Film AI</title>
+    <title>{{ __('packages.title') }}</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    {{-- Paddle.js --}}
+    @if(config('cashier.sandbox'))
+        <script src="https://sandbox-cdn.paddle.com/paddle/v2/paddle.js"></script>
+    @else
+        <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+    @endif
 
     <style>
         :root {
@@ -19,14 +23,9 @@
             --secondary: #FF006E;
             --accent: #8338EC;
             --bg-dark: #000000;
-            --bg-medium: #0A0A0A;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -35,33 +34,30 @@
             min-height: 100vh;
         }
 
-        /* Navbar - Profile ile aynı */
+        /* Navbar */
         .navbar-custom {
             background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(0, 217, 255, 0.2);
             padding: 1rem 0;
         }
-
         .navbar-custom .navbar-brand {
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--primary);
             text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
         }
-
         .navbar-custom .nav-link {
             color: white;
             margin: 0 1rem;
             transition: all 0.3s;
         }
-
         .navbar-custom .nav-link:hover {
             color: var(--primary);
             text-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
         }
 
-        /* Token Badge */
+        /* Token badge */
         .token-badge {
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             padding: 0.5rem 1.5rem;
@@ -76,15 +72,10 @@
             text-decoration: none;
             transition: all 0.3s;
         }
-
         .token-badge:hover {
             transform: translateY(-2px);
             box-shadow: 0 0 30px rgba(0, 217, 255, 0.5);
             color: white;
-        }
-
-        .token-badge i {
-            font-size: 1.2rem;
         }
 
         /* Dropdown */
@@ -95,23 +86,17 @@
             padding: 0.5rem;
             backdrop-filter: blur(10px);
         }
-
         .dropdown-item {
             color: white;
             border-radius: 10px;
             padding: 0.75rem 1rem;
             transition: all 0.3s;
         }
-
         .dropdown-item:hover {
             background: rgba(0, 217, 255, 0.2);
             color: var(--primary);
         }
-
-        .dropdown-item i {
-            margin-right: 0.5rem;
-            width: 20px;
-        }
+        .dropdown-item i { margin-right: 0.5rem; width: 20px; }
 
         /* Content */
         .packages-container {
@@ -119,12 +104,11 @@
             min-height: 100vh;
         }
 
-        /* Page Header */
+        /* Page header */
         .page-header {
             text-align: center;
             margin-bottom: 3rem;
         }
-
         .page-header h1 {
             font-size: 3rem;
             font-weight: bold;
@@ -133,13 +117,12 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
         }
-
         .page-header .lead {
             color: rgba(255, 255, 255, 0.7);
             font-size: 1.2rem;
         }
 
-        /* Package Cards */
+        /* Package cards */
         .package-card {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(0, 217, 255, 0.2);
@@ -151,13 +134,11 @@
             box-shadow: 0 10px 30px rgba(0, 217, 255, 0.1);
             transition: all 0.3s;
         }
-
         .package-card:hover {
             transform: translateY(-10px);
             border-color: var(--primary);
             box-shadow: 0 15px 40px rgba(0, 217, 255, 0.3);
         }
-
         .package-card h3 {
             text-align: center;
             font-size: 1.8rem;
@@ -165,13 +146,11 @@
             color: white;
             margin-bottom: 1.5rem;
         }
-
         .token-icon {
             font-size: 4rem;
             color: #FFD700;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
         }
-
         .token-amount {
             font-size: 3rem;
             font-weight: bold;
@@ -179,55 +158,31 @@
             text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
             margin-bottom: 0;
         }
-
         .token-label {
             color: rgba(255, 255, 255, 0.6);
             font-size: 1rem;
         }
-
         .package-description {
             color: rgba(255, 255, 255, 0.7);
             text-align: center;
             margin-bottom: 1.5rem;
             min-height: 3rem;
         }
-
         .package-price {
             font-size: 2.5rem;
             font-weight: bold;
             color: #10b981;
             text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+            margin-bottom: 0.25rem;
+        }
+        .price-note {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.85rem;
             margin-bottom: 1.5rem;
         }
 
-        .form-label {
-            color: white;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-select {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(0, 217, 255, 0.3);
-            color: white;
-            border-radius: 10px;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s;
-        }
-
-        .form-select:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
-            color: white;
-        }
-
-        .form-select option {
-            background: #1a1a1a;
-            color: white;
-        }
-
-        .btn-add-cart {
+        /* Buttons */
+        .btn-buy {
             background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
             border: none;
             color: white;
@@ -238,15 +193,57 @@
             box-shadow: 0 5px 20px rgba(255, 0, 110, 0.3);
             transition: all 0.3s;
             margin-top: auto;
+            width: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
-
-        .btn-add-cart:hover {
+        .btn-buy:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(255, 0, 110, 0.5);
             color: white;
         }
+        .btn-buy:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-login-required {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 217, 255, 0.4);
+            color: var(--primary);
+            padding: 1rem;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.3s;
+            margin-top: auto;
+            width: 100%;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+        .btn-login-required:hover {
+            background: rgba(0, 217, 255, 0.15);
+            color: var(--primary);
+        }
 
-        /* Info Card */
+        /* Spinner inside button */
+        .btn-spinner {
+            display: none;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            flex-shrink: 0;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Info card */
         .info-card {
             background: rgba(0, 217, 255, 0.1);
             border: 1px solid rgba(0, 217, 255, 0.3);
@@ -254,25 +251,21 @@
             padding: 2rem;
             margin-top: 3rem;
         }
-
         .info-card h5 {
             color: var(--primary);
             font-weight: bold;
             margin-bottom: 1rem;
         }
-
         .info-card ul {
             color: rgba(255, 255, 255, 0.8);
             list-style: none;
             padding: 0;
+            margin: 0;
         }
-
         .info-card ul li {
-            padding: 0.5rem 0;
-            padding-left: 2rem;
+            padding: 0.5rem 0 0.5rem 2rem;
             position: relative;
         }
-
         .info-card ul li:before {
             content: "✓";
             position: absolute;
@@ -282,7 +275,7 @@
             font-size: 1.2rem;
         }
 
-        /* Empty State */
+        /* Empty state */
         .empty-state {
             background: rgba(0, 217, 255, 0.1);
             border: 1px solid rgba(0, 217, 255, 0.3);
@@ -290,141 +283,25 @@
             padding: 3rem;
             text-align: center;
         }
-
-        .empty-state i {
-            font-size: 5rem;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-        }
-
-        .empty-state h4 {
-            color: white;
-            margin-bottom: 1rem;
-        }
-
-        .empty-state p {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        /* Custom Toast Notification */
-        .custom-toast {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            z-index: 9999;
-            min-width: 350px;
-            background: rgba(0, 0, 0, 0.95);
-            border: 2px solid var(--primary);
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.5);
-            backdrop-filter: blur(10px);
-            animation: slideInRight 0.4s ease-out;
-        }
-
-        .custom-toast.hide {
-            animation: slideOutRight 0.4s ease-out;
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-
-        .toast-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border-bottom: none;
-            border-radius: 13px 13px 0 0;
-            padding: 1rem 1.5rem;
-        }
-
-        .toast-header strong {
-            color: white;
-            font-size: 1.1rem;
-        }
-
-        .toast-body {
-            padding: 1.5rem;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .toast-body .btn {
-            margin-top: 1rem;
-        }
-
-        .btn-view-cart {
-            background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
-            border: none;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 50px;
-            font-weight: bold;
-            box-shadow: 0 5px 20px rgba(255, 0, 110, 0.3);
-            transition: all 0.3s;
-        }
-
-        .btn-view-cart:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(255, 0, 110, 0.5);
-            color: white;
-        }
+        .empty-state i { font-size: 5rem; color: var(--primary); margin-bottom: 1.5rem; display: block; }
+        .empty-state h4 { color: white; margin-bottom: 1rem; }
+        .empty-state p { color: rgba(255, 255, 255, 0.7); }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .packages-container {
-                padding: 5rem 1rem 2rem;
-            }
-
-            .page-header h1 {
-                font-size: 2rem;
-            }
-
-            .page-header .lead {
-                font-size: 1rem;
-            }
-
-            .package-card {
-                padding: 1.5rem;
-            }
-
-            .token-icon {
-                font-size: 3rem;
-            }
-
-            .token-amount {
-                font-size: 2rem;
-            }
-
-            .package-price {
-                font-size: 2rem;
-            }
-
-            .custom-toast {
-                min-width: 300px;
-                right: 10px;
-                left: 10px;
-            }
+            .packages-container { padding: 5rem 1rem 2rem; }
+            .page-header h1 { font-size: 2rem; }
+            .page-header .lead { font-size: 1rem; }
+            .package-card { padding: 1.5rem; }
+            .token-icon { font-size: 3rem; }
+            .token-amount { font-size: 2rem; }
+            .package-price { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
+
+    {{-- Navbar --}}
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
@@ -437,26 +314,22 @@
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('packages.index') }}">
-                            <i class="bi bi-box-seam"></i> Paketler
+                            <i class="bi bi-box-seam"></i> {{ __('packages.nav_packages') }}
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('requests.index') }}">
-                            <i class="bi bi-film"></i> Taleplerim
+                            <i class="bi bi-film"></i> {{ __('packages.nav_requests') }}
                         </a>
                     </li>
 
                     @auth
-                        <!-- Token Badge with Cart Icon -->
                         <li class="nav-item">
-                            <a href="{{ route('cart.index') }}" class="token-badge">
+                            <span class="token-badge">
                                 <i class="bi bi-coin"></i>
                                 <span>{{ number_format(auth()->user()->token_balance ?? 0, 0) }}</span>
-                                <i class="bi bi-cart3"></i>
-                            </a>
+                            </span>
                         </li>
-
-                        <!-- User Dropdown -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-person-circle"></i> {{ auth()->user()->name }}
@@ -464,12 +337,12 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
                                     <a class="dropdown-item" href="{{ route('user.profile') }}">
-                                        <i class="bi bi-person"></i> Profilim
+                                        <i class="bi bi-person"></i> {{ __('packages.nav_profile') }}
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                        <i class="bi bi-bag"></i> Siparişlerim
+                                        <i class="bi bi-bag"></i> {{ __('packages.nav_orders') }}
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.1);"></li>
@@ -477,7 +350,7 @@
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
                                         <button type="submit" class="dropdown-item">
-                                            <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+                                            <i class="bi bi-box-arrow-right"></i> {{ __('packages.nav_logout') }}
                                         </button>
                                     </form>
                                 </li>
@@ -486,7 +359,7 @@
                     @else
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('login') }}">
-                                <i class="bi bi-box-arrow-in-right"></i> Giriş
+                                <i class="bi bi-box-arrow-in-right"></i> {{ __('packages.nav_login') }}
                             </a>
                         </li>
                     @endauth
@@ -495,36 +368,29 @@
         </div>
     </nav>
 
-    <!-- Packages Content -->
+    {{-- Packages Content --}}
     <div class="packages-container">
         <div class="container">
-            <!-- Page Header -->
+
             <div class="page-header">
-                <h1>
-                    <i class="bi bi-coin"></i> Token Paketleri
-                </h1>
-                <p class="lead">
-                    Film üretmek için ihtiyacınız olan token paketini seçin ve satın alın.
-                </p>
+                <h1><i class="bi bi-coin"></i> {{ __('packages.heading') }}</h1>
+                <p class="lead">{{ __('packages.subheading') }}</p>
             </div>
 
             @if($packages->isEmpty())
-                <!-- Empty State -->
                 <div class="empty-state">
                     <i class="bi bi-info-circle"></i>
-                    <h4>Şu anda aktif paket bulunmamaktadır.</h4>
-                    <p>Lütfen daha sonra tekrar kontrol edin.</p>
+                    <h4>{{ __('packages.no_packages') }}</h4>
+                    <p>{{ __('packages.no_packages_sub') }}</p>
                 </div>
             @else
-                <!-- Package Cards -->
                 <div class="row g-4">
                     @foreach($packages as $package)
-                        <div class="col-md-6 col-lg-4">
+                        <div class="col-md-6 col-lg-3">
                             <div class="package-card">
-                                <!-- Package Name -->
+
                                 <h3>{{ $package->name }}</h3>
 
-                                <!-- Token Icon & Amount -->
                                 <div class="text-center mb-3">
                                     <div class="token-icon">
                                         <i class="bi bi-coin"></i>
@@ -532,158 +398,130 @@
                                     <h2 class="token-amount">
                                         {{ number_format($package->token_amount, 0) }}
                                     </h2>
-                                    <p class="token-label">Token</p>
+                                    <p class="token-label">{{ __('packages.token_label') }}</p>
                                 </div>
 
-                                <!-- Description -->
                                 @if($package->description)
-                                    <p class="package-description">
-                                        {{ $package->description }}
-                                    </p>
+                                    <p class="package-description">{{ $package->description }}</p>
                                 @endif
 
-                                <!-- Price -->
                                 <div class="text-center mb-3">
-                                    <h3 class="package-price">
-                                        {{ number_format($package->price, 2) }} ₺
-                                    </h3>
+                                    @if($package->paddle_price)
+                                        <h3 class="package-price">
+                                            ${{ number_format($package->paddle_price, 2) }}
+                                        </h3>
+                                        <p class="price-note">
+                                            {{ $package->paddle_currency ?? 'USD' }}
+                                            &bull; {{ __('packages.info_5') }}
+                                        </p>
+                                    @else
+                                        <p class="text-warning small">
+                                            <i class="bi bi-hourglass-split"></i>
+                                            {{ __('packages.no_price') }}
+                                        </p>
+                                    @endif
                                 </div>
 
-                                <!-- Add to Cart Form -->
-                                <form action="{{ route('cart.add') }}" method="POST" class="mt-auto add-to-cart-form">
-                                    @csrf
-                                    <input type="hidden" name="package_id" value="{{ $package->id }}">
+                                @auth
+                                    @if($package->paddle_price_id && $package->paddle_price)
+                                        <button
+                                            class="btn-buy paddle-buy-btn"
+                                            data-price-id="{{ $package->paddle_price_id }}"
+                                            data-package-id="{{ $package->id }}"
+                                            data-user-email="{{ auth()->user()->email }}"
+                                        >
+                                            <span class="btn-spinner"></span>
+                                            <i class="bi bi-credit-card"></i>
+                                            {{ __('packages.buy_button') }}
+                                        </button>
+                                    @else
+                                        <button class="btn-buy" disabled>
+                                            <i class="bi bi-exclamation-circle"></i>
+                                            {{ __('packages.no_price') }}
+                                        </button>
+                                    @endif
+                                @else
+                                    <a href="{{ route('login') }}" class="btn-login-required">
+                                        <i class="bi bi-box-arrow-in-right me-1"></i>
+                                        {{ __('packages.login_required') }}
+                                    </a>
+                                @endauth
 
-                                    <!-- Quantity -->
-                                    <div class="mb-3">
-                                        <label for="quantity_{{ $package->id }}" class="form-label">Miktar</label>
-                                        <select name="quantity"
-                                                id="quantity_{{ $package->id }}"
-                                                class="form-select">
-                                            @for($i = 1; $i <= 10; $i++)
-                                                <option value="{{ $i }}">{{ $i }}</option>
-                                            @endfor
-                                        </select>
-                                    </div>
-
-                                    <!-- Add to Cart Button -->
-                                    <button type="submit" class="btn btn-add-cart w-100">
-                                        <i class="bi bi-cart-plus"></i> Sepete Ekle
-                                    </button>
-                                </form>
                             </div>
                         </div>
                     @endforeach
                 </div>
 
-                <!-- Info Card -->
                 <div class="info-card">
                     <h5>
-                        <i class="bi bi-info-circle-fill"></i> Token Nasıl Kullanılır?
+                        <i class="bi bi-info-circle-fill"></i> {{ __('packages.info_title') }}
                     </h5>
                     <ul>
-                        <li>Satın aldığınız tokenlar hesabınıza otomatik olarak yüklenir.</li>
-                        <li>Her film talebi için belirli miktarda token harcanır.</li>
-                        <li>Token bakiyenizi profil sayfanızdan kontrol edebilirsiniz.</li>
-                        <li>Tokenlar süresiz olarak hesabınızda kalır.</li>
+                        <li>{{ __('packages.info_1') }}</li>
+                        <li>{{ __('packages.info_2') }}</li>
+                        <li>{{ __('packages.info_3') }}</li>
+                        <li>{{ __('packages.info_4') }}</li>
+                        <li>{{ __('packages.info_5') }}</li>
                     </ul>
                 </div>
             @endif
+
         </div>
     </div>
 
-    <!-- Custom Toast Container -->
-    <div id="toastContainer"></div>
-
-    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Custom JavaScript for Cart Notification -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Kullanıcı giriş kontrolü
-            const isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
+        // ── Paddle başlat ─────────────────────────────────────────────────
+        @if(config('cashier.sandbox'))
+            Paddle.Environment.set('sandbox');
+        @endif
 
-            // Tüm sepete ekle formlarını dinle
-            const forms = document.querySelectorAll('.add-to-cart-form');
-
-            forms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-
-                    // Giriş yapmamış kullanıcıyı login sayfasına yönlendir
-                    if (!isAuthenticated) {
-                        window.location.href = "{{ route('login') }}";
-                        return;
-                    }
-
-                    const formData = new FormData(this);
-
-                    fetch(this.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showCartNotification(data.message || 'Ürün sepete eklendi!');
-                        } else {
-                            alert(data.message || 'Bir hata oluştu!');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Bir hata oluştu. Lütfen tekrar deneyin.');
+        Paddle.Initialize({
+            token: '{{ config('cashier.client_side_token') }}',
+            eventCallback: function(data) {
+                // Overlay kapandığında veya hata olduğunda tüm butonları sıfırla
+                if (data.name === 'checkout.closed' || data.name === 'checkout.error') {
+                    document.querySelectorAll('.paddle-buy-btn').forEach(function(btn) {
+                        btn.disabled = false;
+                        const spinner = btn.querySelector('.btn-spinner');
+                        if (spinner) spinner.style.display = 'none';
                     });
+                }
+            }
+        });
+
+        // ── Satın Al butonları ────────────────────────────────────────────
+        document.querySelectorAll('.paddle-buy-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const priceId   = this.dataset.priceId;
+                const packageId = this.dataset.packageId;
+                const userEmail = this.dataset.userEmail;
+
+                // Spinner göster, butonu kilitle
+                const spinner = this.querySelector('.btn-spinner');
+                if (spinner) spinner.style.display = 'inline-block';
+                this.disabled = true;
+
+                Paddle.Checkout.open({
+                    items: [{ priceId: priceId, quantity: 1 }],
+                    customer: {
+                        email: userEmail,
+                    },
+                    customData: {
+                        user_id:    '{{ auth()->id() ?? '' }}',
+                        package_id: packageId,
+                    },
+                    settings: {
+                        displayMode: 'overlay',
+                        theme:       'dark',
+                        locale:      '{{ app()->getLocale() }}',
+                        successUrl:  '{{ route('checkout.success') }}',
+                    },
                 });
             });
         });
-
-        function showCartNotification(message) {
-            const toastContainer = document.getElementById('toastContainer');
-
-            const toastHTML = `
-                <div class="custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <i class="bi bi-check-circle-fill me-2" style="font-size: 1.5rem;"></i>
-                        <strong class="me-auto">Başarılı!</strong>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                    <div class="toast-body">
-                        <p class="mb-0"><i class="bi bi-cart-check"></i> ${message}</p>
-                        <a href="{{ route('cart.index') }}" class="btn btn-view-cart w-100">
-                            <i class="bi bi-cart3"></i> Sepeti Görüntüle
-                        </a>
-                    </div>
-                </div>
-            `;
-
-            toastContainer.innerHTML = toastHTML;
-            const toastElement = toastContainer.querySelector('.custom-toast');
-
-            // Close button functionality
-            const closeBtn = toastElement.querySelector('.btn-close');
-            closeBtn.addEventListener('click', function() {
-                toastElement.classList.add('hide');
-                setTimeout(() => {
-                    toastElement.remove();
-                }, 400);
-            });
-
-            // Auto hide after 10 seconds
-            setTimeout(() => {
-                if (toastElement) {
-                    toastElement.classList.add('hide');
-                    setTimeout(() => {
-                        toastElement.remove();
-                    }, 400);
-                }
-            }, 10000);
-        }
     </script>
+
 </body>
 </html>

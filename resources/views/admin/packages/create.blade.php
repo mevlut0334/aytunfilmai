@@ -57,19 +57,17 @@
                                 @enderror
                             </div>
 
-                            <!-- Fiyat (referans) -->
+                            <!-- Sıralama -->
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Fiyat (Referans) <span class="text-danger">*</span></label>
+                                <label class="form-label">Sıralama</label>
                                 <input type="number"
-                                       name="price"
-                                       class="form-control @error('price') is-invalid @enderror"
-                                       value="{{ old('price') }}"
-                                       min="0.01"
-                                       step="0.01"
-                                       placeholder="Örn: 9.99"
-                                       required>
-                                <small class="text-muted">Gerçek fiyat Paddle dashboard'dan yönetilir.</small>
-                                @error('price')
+                                       name="sort_order"
+                                       class="form-control @error('sort_order') is-invalid @enderror"
+                                       value="{{ old('sort_order', 0) }}"
+                                       min="0"
+                                       placeholder="Örn: 1">
+                                <small class="text-muted">Küçük sayı önce gösterilir.</small>
+                                @error('sort_order')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -78,18 +76,19 @@
                         <!-- Paddle Price ID -->
                         <div class="mb-3">
                             <label class="form-label">
-                                Paddle Price ID
-                                <span class="badge bg-warning text-dark ms-1">Önemli</span>
+                                Paddle Price ID <span class="text-danger">*</span>
+                                <span class="badge bg-warning text-dark ms-1">Zorunlu</span>
                             </label>
                             <input type="text"
                                    name="paddle_price_id"
                                    class="form-control @error('paddle_price_id') is-invalid @enderror"
                                    value="{{ old('paddle_price_id') }}"
-                                   placeholder="Örn: pri_01knkfaaydzefp75c9c3akhbhq">
+                                   placeholder="Örn: pri_01knkfaaydzefp75c9c3akhbhq"
+                                   required>
                             <small class="text-muted">
                                 <i class="bi bi-info-circle"></i>
                                 Paddle dashboard → Catalog → Prices bölümünden alınır.
-                                Girilmezse bu paket için Paddle ödemesi çalışmaz.
+                                Fiyat bilgisi Paddle'dan otomatik çekilir.
                             </small>
                             @error('paddle_price_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
