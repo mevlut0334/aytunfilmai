@@ -264,10 +264,9 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('cart.index') }}" class="token-badge">
+                        <a href="{{ route('packages.index') }}" class="token-badge">
                             <i class="bi bi-coin"></i>
                             <span>{{ number_format($user->token_balance, 0) }}</span>
-                            <i class="bi bi-cart3"></i>
                         </a>
                     </li>
                     <li class="nav-item dropdown">
