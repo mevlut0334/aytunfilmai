@@ -76,24 +76,28 @@ class PackageService implements PackageServiceInterface
      * @return Package
      */
     public function createPackage(array $data): Package
-    {
-        $data['is_active']  = $data['is_active']  ?? true;
-        $data['sort_order'] = $data['sort_order'] ?? 0;
+{
+    $data['is_active']  = $data['is_active']  ?? true;
+    $data['sort_order'] = $data['sort_order'] ?? 0;
 
-        return $this->packageRepository->create($data);
+    if (!empty($data['paddle_price_id'])) {
+        $paddlePrice   = $this->paddleService->getPrice($data['paddle_price_id']);
+        $data['price'] = $paddlePrice['amount'] ?? null;
     }
 
-    /**
-     * Paket güncelle (Admin)
-     *
-     * @param int $id
-     * @param array $data
-     * @return bool
-     */
-    public function updatePackage(int $id, array $data): bool
-    {
-        return $this->packageRepository->update($id, $data);
+    return $this->packageRepository->create($data);
+}
+
+public function updatePackage(int $id, array $data): bool
+{
+    if (!empty($data['paddle_price_id'])) {
+        $this->paddleService->clearPriceCache($data['paddle_price_id']);
+        $paddlePrice   = $this->paddleService->getPrice($data['paddle_price_id']);
+        $data['price'] = $paddlePrice['amount'] ?? null;
     }
+
+    return $this->packageRepository->update($id, $data);
+}
 
     /**
      * Paket sil (Admin)
