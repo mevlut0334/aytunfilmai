@@ -41,8 +41,9 @@ class PaddleService
     private function fetchFromApi(string $priceId): ?array
     {
         try {
-            $response = Http::withToken($this->apiKey)
-                ->get("{$this->baseUrl}/prices/{$priceId}");
+            $response = Http::withHeaders([
+                     'Authorization' => 'Bearer ' . $this->apiKey,
+                          ])->get("{$this->baseUrl}/prices/{$priceId}");
 
             if ($response->successful()) {
                 $data = $response->json('data');
