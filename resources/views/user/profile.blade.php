@@ -279,11 +279,6 @@
                                     <i class="bi bi-person"></i> {{ __('user.my_profile') }}
                                 </a>
                             </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                    <i class="bi bi-bag"></i> {{ __('user.my_orders') }}
-                                </a>
-                            </li>
                             <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.1);"></li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST">

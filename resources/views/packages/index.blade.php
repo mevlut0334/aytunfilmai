@@ -340,11 +340,6 @@
                                         <i class="bi bi-person"></i> {{ __('packages.nav_profile') }}
                                     </a>
                                 </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                        <i class="bi bi-bag"></i> {{ __('packages.nav_orders') }}
-                                    </a>
-                                </li>
                                 <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.1);"></li>
                                 <li>
                                     <form action="{{ route('logout') }}" method="POST">
@@ -480,7 +475,6 @@
         Paddle.Initialize({
             token: '{{ config('cashier.client_side_token') }}',
             eventCallback: function(data) {
-                // Overlay kapandığında veya hata olduğunda tüm butonları sıfırla
                 if (data.name === 'checkout.closed' || data.name === 'checkout.error') {
                     document.querySelectorAll('.paddle-buy-btn').forEach(function(btn) {
                         btn.disabled = false;
@@ -498,7 +492,6 @@
                 const packageId = this.dataset.packageId;
                 const userEmail = this.dataset.userEmail;
 
-                // Spinner göster, butonu kilitle
                 const spinner = this.querySelector('.btn-spinner');
                 if (spinner) spinner.style.display = 'inline-block';
                 this.disabled = true;

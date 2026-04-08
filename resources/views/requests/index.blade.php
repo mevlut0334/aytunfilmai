@@ -176,10 +176,10 @@
                     <li class="nav-item"><a class="nav-link" href="{{ route('packages.index') }}">{{ __('requests.packages') }}</a></li>
                     <li class="nav-item"><a class="nav-link active" href="{{ route('requests.index') }}">{{ __('requests.my_requests') }}</a></li>
                     <li class="nav-item">
-                        <a href="{{ route('cart.index') }}" class="token-badge mx-lg-3">
-                            <i class="bi bi-coin"></i>
-                            <span>{{ number_format(auth()->user()->token_balance ?? 0, 0) }}</span>
-                        </a>
+                        <span class="token-badge mx-lg-3">
+                           <i class="bi bi-coin"></i>
+                               <span>{{ number_format(auth()->user()->token_balance ?? 0, 0) }}</span>
+                                   </span>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\TokenTransaction;
 use App\Models\User;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Services\Interfaces\UserServiceInterface;
@@ -14,94 +15,52 @@ class UserService implements UserServiceInterface
 {
     protected UserRepositoryInterface $userRepository;
 
-    /**
-     * Dependency Injection
-     */
     public function __construct(UserRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;
     }
 
-    /**
-     * Yeni kullanıcı kaydı oluştur (onaylar ile birlikte)
-     * Performans: Transaction kullanarak atomik işlem
-     *
-     * @param array $data
-     * @return User
-     * @throws \Exception
-     */
     public function register(array $data): User
     {
-        // Kullanıcı verilerini hazırla
         $userData = [
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'],
-            'password' => $data['password'],
-            'is_admin' => false, // Normal kullanıcı
-            'token_balance' => 0,
+            'name'                    => $data['name'],
+            'email'                   => $data['email'],
+            'phone'                   => $data['phone'],
+            'password'                => $data['password'],
+            'is_admin'                => false,
+            'token_balance'           => 0,
         ];
 
-        // Onay verilerini hazırla
         $consentData = [
-            'terms_accepted' => $data['terms_accepted'] ?? false,
-            'copyright_accepted' => $data['copyright_accepted'] ?? false,
-            'kvkk_accepted' => $data['kvkk_accepted'] ?? false,
-            'personal_data_accepted' => $data['personal_data_accepted'] ?? false,
-            'ip_address' => $data['ip_address'] ?? request()->ip(),
-            'user_agent' => $data['user_agent'] ?? request()->userAgent(),
+            'terms_accepted'          => $data['terms_accepted']          ?? false,
+            'copyright_accepted'      => $data['copyright_accepted']      ?? false,
+            'kvkk_accepted'           => $data['kvkk_accepted']           ?? false,
+            'personal_data_accepted'  => $data['personal_data_accepted']  ?? false,
+            'ip_address'              => $data['ip_address']              ?? request()->ip(),
+            'user_agent'              => $data['user_agent']              ?? request()->userAgent(),
         ];
 
-        // Repository ile kullanıcı + onay oluştur
         return $this->userRepository->createWithConsent($userData, $consentData);
     }
 
-    /**
-     * Kullanıcı girişi
-     *
-     * @param string $email
-     * @param string $password
-     * @return User|null
-     */
     public function login(string $email, string $password): ?User
     {
         $user = $this->userRepository->findByEmail($email);
 
-        if (!$user) {
+        if (!$user || !Hash::check($password, $user->password)) {
             return null;
         }
 
-        // Şifre kontrolü
-        if (!Hash::check($password, $user->password)) {
-            return null;
-        }
-
-        // Laravel Auth login
         Auth::login($user);
 
         return $user;
     }
 
-    /**
-     * Kullanıcı bilgilerini getir
-     * Performans: Eager loading desteği
-     *
-     * @param int $userId
-     * @param array $relations
-     * @return User|null
-     */
     public function getUserById(int $userId, array $relations = []): ?User
     {
         return $this->userRepository->findById($userId, $relations);
     }
 
-    /**
-     * Kullanıcı bilgilerini güncelle
-     *
-     * @param int $userId
-     * @param array $data
-     * @return bool
-     */
     public function updateUser(int $userId, array $data): bool
     {
         return $this->userRepository->update($userId, $data);
@@ -109,13 +68,7 @@ class UserService implements UserServiceInterface
 
     /**
      * Token ekle (satın alma veya admin tanımlama)
-     * Performans: Transaction kullanarak atomik işlem
-     *
-     * @param int $userId
-     * @param float $amount
-     * @param string $description
-     * @return bool
-     * @throws \Exception
+     * TokenTransaction kaydı oluşturur.
      */
     public function addTokens(int $userId, float $amount, string $description): bool
     {
@@ -126,21 +79,17 @@ class UserService implements UserServiceInterface
                 return false;
             }
 
-            // Yeni token bakiyesi
             $newBalance = $user->token_balance + $amount;
-
-            // Bakiyeyi güncelle
-            $updated = $this->userRepository->updateTokenBalance($userId, $newBalance);
+            $updated    = $this->userRepository->updateTokenBalance($userId, $newBalance);
 
             if ($updated) {
-                // TODO: TokenTransaction modeli oluşturulunca buraya transaction kaydı eklenecek
-                // TokenTransaction::create([
-                //     'user_id' => $userId,
-                //     'amount' => $amount,
-                //     'type' => 'credit',
-                //     'description' => $description,
-                //     'balance_after' => $newBalance,
-                // ]);
+                TokenTransaction::create([
+                    'user_id'       => $userId,
+                    'amount'        => $amount,
+                    'type'          => 'credit',
+                    'description'   => $description,
+                    'balance_after' => $newBalance,
+                ]);
             }
 
             return $updated;
@@ -149,13 +98,7 @@ class UserService implements UserServiceInterface
 
     /**
      * Token düş (talep tamamlama)
-     * Performans: Transaction kullanarak atomik işlem
-     *
-     * @param int $userId
-     * @param float $amount
-     * @param string $description
-     * @return bool
-     * @throws \Exception
+     * TokenTransaction kaydı oluşturur.
      */
     public function deductTokens(int $userId, float $amount, string $description): bool
     {
@@ -166,26 +109,21 @@ class UserService implements UserServiceInterface
                 return false;
             }
 
-            // Yeterli token kontrolü
             if ($user->token_balance < $amount) {
                 return false;
             }
 
-            // Yeni token bakiyesi
             $newBalance = $user->token_balance - $amount;
-
-            // Bakiyeyi güncelle
-            $updated = $this->userRepository->updateTokenBalance($userId, $newBalance);
+            $updated    = $this->userRepository->updateTokenBalance($userId, $newBalance);
 
             if ($updated) {
-                // TODO: TokenTransaction modeli oluşturulunca buraya transaction kaydı eklenecek
-                // TokenTransaction::create([
-                //     'user_id' => $userId,
-                //     'amount' => $amount,
-                //     'type' => 'debit',
-                //     'description' => $description,
-                //     'balance_after' => $newBalance,
-                // ]);
+                TokenTransaction::create([
+                    'user_id'       => $userId,
+                    'amount'        => $amount,
+                    'type'          => 'debit',
+                    'description'   => $description,
+                    'balance_after' => $newBalance,
+                ]);
             }
 
             return $updated;
@@ -193,98 +131,134 @@ class UserService implements UserServiceInterface
     }
 
     /**
-     * Tüm admin kullanıcıları getir
+     * Abonelik yenilemesi: mevcut bakiyeyi sıfırla, paketteki token'ı yükle.
+     * Spotify mantığı — eski bakiye silinir, yeni dönem başlar.
      *
-     * @return Collection
+     * @param int    $userId
+     * @param float  $amount       Paketteki token miktarı
+     * @param string $description  Yükleme açıklaması
+     * @param int|null $orderId    İlişkili sipariş ID
      */
+    public function resetAndAddTokens(int $userId, float $amount, string $description, ?int $orderId = null): bool
+    {
+        return DB::transaction(function () use ($userId, $amount, $description, $orderId) {
+            $user = $this->userRepository->findById($userId);
+
+            if (!$user) {
+                return false;
+            }
+
+            $oldBalance = (float) $user->token_balance;
+
+            // Bakiyeyi direkt paketteki miktar ile değiştir
+            $updated = $this->userRepository->updateTokenBalance($userId, $amount);
+
+            if ($updated) {
+                // Eski bakiye varsa sıfırlama kaydı
+                if ($oldBalance > 0) {
+                    TokenTransaction::create([
+                        'user_id'       => $userId,
+                        'amount'        => $oldBalance,
+                        'type'          => 'subscription_reset',
+                        'description'   => 'Abonelik yenilendi — önceki bakiye sıfırlandı',
+                        'order_id'      => $orderId,
+                        'balance_after' => 0,
+                    ]);
+                }
+
+                // Yeni token yükleme kaydı
+                TokenTransaction::create([
+                    'user_id'       => $userId,
+                    'amount'        => $amount,
+                    'type'          => 'credit',
+                    'description'   => $description,
+                    'order_id'      => $orderId,
+                    'balance_after' => $amount,
+                ]);
+            }
+
+            return $updated;
+        });
+    }
+
+    /**
+     * Abonelik sona erince token bakiyesini sıfırla.
+     *
+     * @param int $userId
+     */
+    public function clearTokens(int $userId): bool
+    {
+        return DB::transaction(function () use ($userId) {
+            $user = $this->userRepository->findById($userId);
+
+            if (!$user) {
+                return false;
+            }
+
+            $oldBalance = (float) $user->token_balance;
+
+            $updated = $this->userRepository->updateTokenBalance($userId, 0);
+
+            if ($updated && $oldBalance > 0) {
+                TokenTransaction::create([
+                    'user_id'       => $userId,
+                    'amount'        => $oldBalance,
+                    'type'          => 'subscription_reset',
+                    'description'   => 'Abonelik sona erdi — bakiye sıfırlandı',
+                    'order_id'      => null,
+                    'balance_after' => 0,
+                ]);
+            }
+
+            return $updated;
+        });
+    }
+
     public function getAllAdmins(): Collection
     {
         return $this->userRepository->getAllAdmins();
     }
 
-    /**
-     * Tüm normal kullanıcıları getir
-     *
-     * @return Collection
-     */
     public function getAllNormalUsers(): Collection
     {
         return $this->userRepository->getAllNormalUsers();
     }
 
-    /**
-     * Admin kullanıcı oluştur
-     *
-     * @param array $data
-     * @return User
-     */
     public function createAdmin(array $data): User
     {
         $userData = [
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'],
-            'password' => $data['password'],
-            'is_admin' => true, // Admin kullanıcı
+            'name'          => $data['name'],
+            'email'         => $data['email'],
+            'phone'         => $data['phone'],
+            'password'      => $data['password'],
+            'is_admin'      => true,
             'token_balance' => 0,
         ];
 
         return $this->userRepository->create($userData);
     }
 
-    /**
-     * Kullanıcı sil
-     *
-     * @param int $userId
-     * @return bool
-     */
     public function deleteUser(int $userId): bool
     {
         return $this->userRepository->delete($userId);
     }
 
-    /**
-     * Email benzersizlik kontrolü
-     *
-     * @param string $email
-     * @param int|null $exceptUserId
-     * @return bool
-     */
     public function isEmailUnique(string $email, ?int $exceptUserId = null): bool
     {
         $user = $this->userRepository->findByEmail($email);
 
-        if (!$user) {
-            return true;
-        }
-
-        // Güncelleme sırasında kendi emailini kontrol ediyor
-        if ($exceptUserId && $user->id === $exceptUserId) {
-            return true;
-        }
+        if (!$user) return true;
+        if ($exceptUserId && $user->id === $exceptUserId) return true;
 
         return false;
     }
 
-    /**
-     * Telefon benzersizlik kontrolü
-     *
-     * @param string $phone
-     * @param int|null $exceptUserId
-     * @return bool
-     */
     public function isPhoneUnique(string $phone, ?int $exceptUserId = null): bool
     {
         $user = $this->userRepository->findByPhone($phone);
 
-        if (!$user) {
-            return true;
-        }
-
-        // Güncelleme sırasında kendi telefonunu kontrol ediyor
-        if ($exceptUserId && $user->id === $exceptUserId) {
-            return true;
-        }
+        if (!$user) return true;
+        if ($exceptUserId && $user->id === $exceptUserId) return true;
 
         return false;
     }

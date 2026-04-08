@@ -21,9 +21,7 @@ class PaddleWebhookController extends Controller
     {
         // 1. İmza doğrula
         if (!$this->verifySignature($request)) {
-            Log::warning('Paddle webhook: geçersiz imza', [
-                'ip' => $request->ip(),
-            ]);
+            Log::warning('Paddle webhook: geçersiz imza', ['ip' => $request->ip()]);
             return response()->json(['error' => 'Invalid signature'], 401);
         }
 
@@ -32,18 +30,18 @@ class PaddleWebhookController extends Controller
 
         Log::info('Paddle webhook alındı', ['event_type' => $eventType]);
 
-        // 2. Sadece transaction.completed işle, diğerlerini yok say
-        if ($eventType === 'transaction.completed') {
-            return $this->handleTransactionCompleted($payload);
-        }
-
-        return response()->json(['status' => 'ignored']);
+        return match ($eventType) {
+            'transaction.completed'   => $this->handleTransactionCompleted($payload),
+            'subscription.canceled'   => $this->handleSubscriptionCanceled($payload),
+            'subscription.expired'    => $this->handleSubscriptionExpired($payload),
+            default                   => response()->json(['status' => 'ignored']),
+        };
     }
 
-    /**
-     * Paddle-Signature header'ını doğrula (HMAC-SHA256).
-     * Format: ts=<timestamp>;h1=<hex_signature>
-     */
+    // -------------------------------------------------------------------------
+    // İmza doğrulama
+    // -------------------------------------------------------------------------
+
     private function verifySignature(Request $request): bool
     {
         $secret = config('cashier.webhook_secret');
@@ -73,20 +71,22 @@ class PaddleWebhookController extends Controller
             return false;
         }
 
-        $signedPayload       = $parts['ts'] . ':' . $request->getContent();
-        $expectedSignature   = hash_hmac('sha256', $signedPayload, $secret);
+        $signedPayload     = $parts['ts'] . ':' . $request->getContent();
+        $expectedSignature = hash_hmac('sha256', $signedPayload, $secret);
 
         return hash_equals($expectedSignature, $parts['h1']);
     }
 
-    /**
-     * transaction.completed → sipariş oluştur, token yükle.
-     */
+    // -------------------------------------------------------------------------
+    // transaction.completed → bakiyeyi sıfırla, yeni token yükle
+    // -------------------------------------------------------------------------
+
     private function handleTransactionCompleted(array $payload): JsonResponse
     {
-        $data          = $payload['data']        ?? [];
-        $customData    = $data['custom_data']    ?? [];
-        $transactionId = $data['id']             ?? null;
+        $data           = $payload['data']         ?? [];
+        $customData     = $data['custom_data']     ?? [];
+        $transactionId  = $data['id']              ?? null;
+        $subscriptionId = $data['subscription_id'] ?? null;
 
         $userId    = isset($customData['user_id'])    ? (int) $customData['user_id']    : null;
         $packageId = isset($customData['package_id']) ? (int) $customData['package_id'] : null;
@@ -94,14 +94,15 @@ class PaddleWebhookController extends Controller
         // Zorunlu alanlar kontrolü
         if (!$userId || !$packageId || !$transactionId) {
             Log::error('Paddle webhook: customData eksik', [
-                'user_id'        => $userId,
-                'package_id'     => $packageId,
-                'transaction_id' => $transactionId,
+                'user_id'         => $userId,
+                'package_id'      => $packageId,
+                'transaction_id'  => $transactionId,
+                'subscription_id' => $subscriptionId,
             ]);
             return response()->json(['error' => 'Missing custom data'], 400);
         }
 
-        // Aynı transaction daha önce işlendi mi? (idempotency)
+        // Duplicate kontrolü — aynı transaction tekrar işlenmesin
         if (Order::where('transaction_id', $transactionId)->exists()) {
             Log::info('Paddle webhook: transaction zaten işlendi', [
                 'transaction_id' => $transactionId,
@@ -109,7 +110,6 @@ class PaddleWebhookController extends Controller
             return response()->json(['status' => 'already_processed']);
         }
 
-        // Kullanıcı ve paket mevcut mu?
         $user    = User::find($userId);
         $package = Package::where('id', $packageId)->where('is_active', true)->first();
 
@@ -123,9 +123,9 @@ class PaddleWebhookController extends Controller
             return response()->json(['error' => 'Package not found'], 400);
         }
 
-        // Ödeme tutarını al (Paddle kuruş cinsinden gönderir → 100'e böl)
-        $totals       = $data['details']['totals'] ?? [];
-        $totalAmount  = isset($totals['total']) ? (int) $totals['total'] / 100 : 0;
+        // Ödeme tutarı (Paddle kuruş gönderir → 100'e böl)
+        $totals      = $data['details']['totals'] ?? [];
+        $totalAmount = isset($totals['total']) ? (int) $totals['total'] / 100 : 0;
 
         try {
             DB::beginTransaction();
@@ -150,29 +150,45 @@ class PaddleWebhookController extends Controller
                 'subtotal'   => $totalAmount,
             ]);
 
-            // Token bakiyesini güncelle
-            $newBalance = (float) $user->token_balance + $package->token_amount;
+            $oldBalance = (float) $user->token_balance;
+
+            // Abonelik yenilemesi: bakiyeyi sıfırla, paketteki miktarı yükle (Spotify mantığı)
+            // İlk abonelikte de aynı davranıyoruz — sıfırdan başla
+            $newBalance = $package->token_amount;
             $user->update(['token_balance' => $newBalance]);
 
-            // Token işlem kaydı oluştur
+            // Eğer önceki bakiye varsa sıfırlama kaydı ekle
+            if ($oldBalance > 0) {
+                TokenTransaction::create([
+                    'user_id'       => $user->id,
+                    'amount'        => $oldBalance,
+                    'type'          => 'subscription_reset',
+                    'description'   => 'Abonelik yenilendi — önceki bakiye sıfırlandı',
+                    'order_id'      => $order->id,
+                    'balance_after' => 0,
+                ]);
+            }
+
+            // Yeni token yükleme kaydı
             TokenTransaction::create([
                 'user_id'       => $user->id,
                 'amount'        => $package->token_amount,
                 'type'          => 'credit',
-                'description'   => $package->name . ' paketi satın alındı',
+                'description'   => $package->name . ' aboneliği — ' . now()->format('F Y'),
                 'order_id'      => $order->id,
                 'balance_after' => $newBalance,
             ]);
 
             DB::commit();
 
-            Log::info('Paddle webhook: token yüklendi ✓', [
-                'user_id'        => $user->id,
-                'package'        => $package->name,
-                'tokens'         => $package->token_amount,
-                'new_balance'    => $newBalance,
-                'order_id'       => $order->id,
-                'transaction_id' => $transactionId,
+            Log::info('Paddle webhook: abonelik token yüklendi ✓', [
+                'user_id'         => $user->id,
+                'package'         => $package->name,
+                'old_balance'     => $oldBalance,
+                'new_balance'     => $newBalance,
+                'order_id'        => $order->id,
+                'transaction_id'  => $transactionId,
+                'subscription_id' => $subscriptionId,
             ]);
 
             return response()->json(['status' => 'success']);
@@ -186,6 +202,99 @@ class PaddleWebhookController extends Controller
             ]);
 
             // Paddle 500 alırsa 3 kez daha dener — bu kasıtlı
+            return response()->json(['error' => 'Processing failed'], 500);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // subscription.canceled → Spotify gibi: token'a dokunma, sadece logla.
+    // Kullanıcı dönem sonuna kadar token'larını kullanabilir.
+    // Dönem bitince Paddle subscription.expired atar → o zaman sıfırlarız.
+    // -------------------------------------------------------------------------
+
+    private function handleSubscriptionCanceled(array $payload): JsonResponse
+    {
+        $data           = $payload['data']         ?? [];
+        $subscriptionId = $data['id']              ?? null;
+        $customData     = $data['custom_data']     ?? [];
+        $userId         = $customData['user_id']   ?? null;
+
+        Log::info('Paddle webhook: abonelik iptal edildi (dönem sonuna kadar aktif)', [
+            'subscription_id' => $subscriptionId,
+            'user_id'         => $userId,
+        ]);
+
+        // Token'a dokunmuyoruz.
+        // subscription.expired gelince token sıfırlanacak.
+
+        return response()->json(['status' => 'canceled_noted']);
+    }
+
+    // -------------------------------------------------------------------------
+    // subscription.expired → Dönem bitti, token bakiyesini sıfırla
+    // -------------------------------------------------------------------------
+
+    private function handleSubscriptionExpired(array $payload): JsonResponse
+    {
+        $data           = $payload['data']         ?? [];
+        $subscriptionId = $data['id']              ?? null;
+        $customData     = $data['custom_data']     ?? [];
+        $userId         = isset($customData['user_id']) ? (int) $customData['user_id'] : null;
+
+        if (!$userId) {
+            Log::error('Paddle webhook: subscription.expired — user_id yok', [
+                'subscription_id' => $subscriptionId,
+            ]);
+            return response()->json(['error' => 'Missing user_id'], 400);
+        }
+
+        $user = User::find($userId);
+
+        if (!$user) {
+            Log::error('Paddle webhook: subscription.expired — kullanıcı bulunamadı', [
+                'user_id' => $userId,
+            ]);
+            return response()->json(['error' => 'User not found'], 400);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $oldBalance = (float) $user->token_balance;
+
+            // Token bakiyesini sıfırla
+            $user->update(['token_balance' => 0]);
+
+            // Sıfırlama kaydı
+            if ($oldBalance > 0) {
+                TokenTransaction::create([
+                    'user_id'       => $user->id,
+                    'amount'        => $oldBalance,
+                    'type'          => 'subscription_reset',
+                    'description'   => 'Abonelik sona erdi — bakiye sıfırlandı',
+                    'order_id'      => null,
+                    'balance_after' => 0,
+                ]);
+            }
+
+            DB::commit();
+
+            Log::info('Paddle webhook: abonelik sona erdi, bakiye sıfırlandı', [
+                'user_id'         => $user->id,
+                'old_balance'     => $oldBalance,
+                'subscription_id' => $subscriptionId,
+            ]);
+
+            return response()->json(['status' => 'expired_processed']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Paddle webhook: subscription.expired işlem hatası', [
+                'error'   => $e->getMessage(),
+                'user_id' => $userId,
+            ]);
+
             return response()->json(['error' => 'Processing failed'], 500);
         }
     }

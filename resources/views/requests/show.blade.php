@@ -306,11 +306,10 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('cart.index') }}" class="token-badge">
-                            <i class="bi bi-coin"></i>
-                            <span>{{ number_format(auth()->user()->token_balance ?? 0, 0) }}</span>
-                            <i class="bi bi-cart3"></i>
-                        </a>
+                        <span class="token-badge">
+                               <i class="bi bi-coin"></i>
+                                 <span>{{ number_format(auth()->user()->token_balance ?? 0, 0) }}</span>
+                                        </span>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -320,11 +319,6 @@
                             <li>
                                 <a class="dropdown-item" href="{{ route('user.profile') }}">
                                     <i class="bi bi-person"></i> {{ __('requests.my_profile') }}
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                    <i class="bi bi-bag"></i> {{ __('requests.my_orders') }}
                                 </a>
                             </li>
                             <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.1);"></li>
