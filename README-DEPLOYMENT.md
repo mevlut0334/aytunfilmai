@@ -492,3 +492,8 @@ https://github.com/mevlut0334/aytunfilmai/issues
 - OS: Ubuntu 20.04 / 22.04 / 24.04
 - Docker: 20.10+
 - Docker Compose: 2.0+
+
+
+güncelleme 
+
+proje dizinindeyken    ./redeploy.sh  kodunu çalıştır
