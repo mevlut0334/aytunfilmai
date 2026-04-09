@@ -13,6 +13,28 @@ return [
     'register'       => 'Register',
     'slider_more'    => 'Learn More',
 
+    // Pitch Section
+    'pitch_hero_title' => 'One Script. A Complete Film.',
+    'pitch_hero_desc'  => 'AytunFilmAI does more than generate video. When you upload your script, it automatically creates scenes, characters, dialogues, music, and sound effects — turning your story into a full film from start to finish.',
+    'pitch_why_title'  => 'Why AytunFilmAI?',
+    'pitch_f1_title'   => 'No Length Limit',
+    'pitch_f1_text'    => 'No need to split your story into short clips. Produce videos of any length you need.',
+    'pitch_f2_title'   => 'High Character Consistency',
+    'pitch_f2_text'    => 'Your characters\' faces, style, and identity remain the same across all scenes.',
+    'pitch_f3_title'   => 'Scene & Environment Continuity',
+    'pitch_f3_text'    => 'Locations, lighting, and atmosphere are naturally preserved throughout every scene.',
+    'pitch_f4_title'   => 'Just Upload Your Script',
+    'pitch_f4_text'    => 'The system automatically generates dialogues, music, and sound effects.',
+    'pitch_f5_title'   => 'End-to-End Film Production',
+    'pitch_f5_text'    => 'From script to final video — everything under one roof.',
+    'pitch_pipe1'      => 'Script',
+    'pitch_pipe2'      => 'Scene',
+    'pitch_pipe3'      => 'Dialogue',
+    'pitch_pipe4'      => 'Audio',
+    'pitch_pipe5'      => 'Final Video',
+    'pitch_cta1'       => 'No more large teams or expensive productions needed.',
+    'pitch_cta2'       => 'Upload your script. Create your film.',
+
     // App Download
     'app_title'      => 'Download the App',
     'app_subtitle'   => 'Track your films anytime, anywhere.',

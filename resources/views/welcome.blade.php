@@ -89,7 +89,6 @@
             display: block;
         }
 
-        /* Caption ALTTA, görsel dışında */
         .carousel-caption-box {
             background: rgba(0, 0, 0, 0.85);
             border-top: 1px solid rgba(0, 217, 255, 0.3);
@@ -118,37 +117,190 @@
 
         .carousel-indicators { display: none !important; }
 
-        /* App Download Section */
+        /* ===================== */
+        /* PITCH SECTION         */
+        /* ===================== */
+        .pitch-section {
+            padding: 5rem 0 4rem;
+            background: linear-gradient(180deg, #000000 0%, #06001a 50%, #000000 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Film şeridi dekoratif arka plan */
+        .pitch-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(131, 56, 236, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(0, 217, 255, 0.1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .pitch-section::after {
+            content: '🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            font-size: 1.5rem;
+            letter-spacing: 1.5rem;
+            opacity: 0.04;
+            white-space: nowrap;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .pitch-hero-title {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.25rem;
+        }
+
+        .pitch-hero-title .highlight {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 60%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pitch-hero-desc {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.8;
+            max-width: 680px;
+            margin: 0 auto 3rem;
+        }
+
+        .pitch-why-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 1.75rem;
+            color: white;
+        }
+
+        .pitch-why-title span {
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pitch-feature-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(131, 56, 236, 0.25);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+            height: 100%;
+            transition: all 0.3s;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .pitch-feature-card:hover {
+            border-color: var(--accent);
+            background: rgba(131, 56, 236, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(131, 56, 236, 0.25);
+        }
+
+        .pitch-feature-icon {
+            font-size: 1.6rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .pitch-feature-card h5 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .pitch-feature-card p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.65);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .pitch-pipeline {
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 16px;
+            padding: 1rem 2rem;
+            display: inline-flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 2rem auto 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .pitch-pipeline .arrow {
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .pitch-pipeline .step-pill {
+            background: rgba(131, 56, 236, 0.2);
+            border: 1px solid rgba(131, 56, 236, 0.4);
+            border-radius: 50px;
+            padding: 0.3rem 0.9rem;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .pitch-cta-text {
+            margin-top: 2.5rem;
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+        }
+
+        .pitch-cta-text strong {
+            color: var(--primary);
+            font-style: normal;
+            font-weight: 700;
+        }
+
+        /* ===================== */
+        /* APP SECTION (küçük)   */
+        /* ===================== */
         .app-section {
-            padding: 4rem 0;
+            padding: 2rem 0;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%);
             border-top: 1px solid rgba(131, 56, 236, 0.3);
             border-bottom: 1px solid rgba(131, 56, 236, 0.3);
         }
 
         .app-section h2 {
-            font-size: 2.5rem;
+            font-size: 1.6rem;
             font-weight: bold;
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 0.75rem;
+            margin-bottom: 0.4rem;
         }
 
         .app-section p {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
         }
 
         .app-btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 0.9rem 1.75rem;
-            border-radius: 15px;
+            gap: 0.6rem;
+            padding: 0.65rem 1.25rem;
+            border-radius: 12px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 0.88rem;
             text-decoration: none;
             transition: all 0.3s;
             border: 2px solid;
@@ -179,19 +331,19 @@
         }
 
         .app-btn i {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
         }
 
         .app-btn-text small {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: normal;
             opacity: 0.7;
         }
 
         .app-mockup {
-            max-width: 260px;
-            filter: drop-shadow(0 0 30px rgba(0, 217, 255, 0.3));
+            max-width: 160px;
+            filter: drop-shadow(0 0 20px rgba(0, 217, 255, 0.3));
         }
 
         /* How It Works */
@@ -440,19 +592,27 @@
             .carousel-control-prev, .carousel-control-next { height: 250px; }
             .carousel-caption-box h2 { font-size: 1rem; }
             .how-it-works h2, .scrolling-section h2, .faq-section h2 { font-size: 2rem; }
-            .app-section h2 { font-size: 1.8rem; }
-            .app-btn { padding: 0.75rem 1.25rem; font-size: 0.9rem; }
+            .app-section h2 { font-size: 1.3rem; }
+            .app-btn { padding: 0.6rem 1rem; font-size: 0.82rem; }
             .step-card { padding: 1rem; }
             .step-number { font-size: 2rem; }
             .scroll-item { flex: 0 0 200px; }
             .scroll-item img { height: 250px; }
             .sticky-footer-bar .btn { font-size: 0.75rem; padding: 0.5rem 0.75rem; margin: 0.25rem; }
             .footer { padding: 2rem 0 5rem; }
+            /* Pitch responsive */
+            .pitch-hero-title { font-size: 1.9rem; }
+            .pitch-section { padding: 3rem 0 2.5rem; }
+            .pitch-hero-desc { font-size: 0.95rem; }
+            .pitch-pipeline { padding: 0.75rem 1rem; font-size: 0.78rem; }
+            .app-mockup { max-width: 100px; }
         }
 
         @media (max-width: 576px) {
             .sticky-footer-bar { padding: 0.75rem 0; }
             .sticky-footer-bar .btn { font-size: 0.7rem; padding: 0.4rem 0.6rem; margin: 0.2rem; }
+            .pitch-hero-title { font-size: 1.55rem; }
+            .pitch-why-title { font-size: 1.25rem; }
         }
     </style>
 </head>
@@ -537,7 +697,6 @@
                 <span class="carousel-control-next-icon"></span>
             </button>
         </div>
-        {{-- Caption aktif slide'a göre JS ile güncellenir --}}
         <div class="carousel-caption-box" id="sliderCaption">
             <h2 id="sliderTitle">{{ $sliders->first()->title }}</h2>
             @if($sliders->first()->link)
@@ -549,15 +708,103 @@
         @endif
     </section>
 
+    <!-- ======================== -->
+    <!-- PITCH SECTION            -->
+    <!-- ======================== -->
+    <section class="pitch-section">
+        <div class="container text-center">
+
+            {{-- Hero başlık --}}
+            <h2 class="pitch-hero-title">
+                🎬 <span class="highlight">{{ __('welcome.pitch_hero_title') }}</span>
+            </h2>
+            <p class="pitch-hero-desc">
+                {{ __('welcome.pitch_hero_desc') }}
+            </p>
+
+            {{-- Neden AytunFilmAI --}}
+            <h3 class="pitch-why-title">
+                🚀 <span>{{ __('welcome.pitch_why_title') }}</span>
+            </h3>
+
+            <div class="row g-3 text-start mb-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="pitch-feature-card">
+                        <div class="pitch-feature-icon">⏱️</div>
+                        <div>
+                            <h5>{{ __('welcome.pitch_f1_title') }}</h5>
+                            <p>{{ __('welcome.pitch_f1_text') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="pitch-feature-card">
+                        <div class="pitch-feature-icon">🎭</div>
+                        <div>
+                            <h5>{{ __('welcome.pitch_f2_title') }}</h5>
+                            <p>{{ __('welcome.pitch_f2_text') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="pitch-feature-card">
+                        <div class="pitch-feature-icon">🎨</div>
+                        <div>
+                            <h5>{{ __('welcome.pitch_f3_title') }}</h5>
+                            <p>{{ __('welcome.pitch_f3_text') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-6">
+                    <div class="pitch-feature-card">
+                        <div class="pitch-feature-icon">🎙️</div>
+                        <div>
+                            <h5>{{ __('welcome.pitch_f4_title') }}</h5>
+                            <p>{{ __('welcome.pitch_f4_text') }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-6">
+                    <div class="pitch-feature-card">
+                        <div class="pitch-feature-icon">🎬</div>
+                        <div>
+                            <h5>{{ __('welcome.pitch_f5_title') }}</h5>
+                            <p>{{ __('welcome.pitch_f5_text') }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Pipeline --}}
+            <div class="pitch-pipeline">
+                <span class="step-pill">{{ __('welcome.pitch_pipe1') }}</span>
+                <span class="arrow">→</span>
+                <span class="step-pill">{{ __('welcome.pitch_pipe2') }}</span>
+                <span class="arrow">→</span>
+                <span class="step-pill">{{ __('welcome.pitch_pipe3') }}</span>
+                <span class="arrow">→</span>
+                <span class="step-pill">{{ __('welcome.pitch_pipe4') }}</span>
+                <span class="arrow">→</span>
+                <span class="step-pill">{{ __('welcome.pitch_pipe5') }}</span>
+            </div>
+
+            {{-- CTA metin --}}
+            <p class="pitch-cta-text">
+                ✨ {{ __('welcome.pitch_cta1') }}<br>
+                <strong>{{ __('welcome.pitch_cta2') }}</strong>
+            </p>
+
+        </div>
+    </section>
+
     <!-- App Download Section -->
     <section class="app-section">
         <div class="container">
-            <div class="row align-items-center g-5">
-                <div class="col-lg-7">
+            <div class="row align-items-center g-3">
+                <div class="col-lg-8">
                     <h2>{{ __('welcome.app_title') }}</h2>
                     <p>{{ __('welcome.app_subtitle') }}</p>
                     <div class="d-flex flex-wrap gap-3">
-                        {{-- Android --}}
                         @php $androidLink = \App\Models\SiteSetting::get('android_app_link', '#'); @endphp
                         <a href="{{ $androidLink }}" class="app-btn app-btn-android" target="_blank">
                             <i class="bi bi-google-play"></i>
@@ -566,7 +813,6 @@
                                 <strong>Google Play</strong>
                             </div>
                         </a>
-                        {{-- iOS --}}
                         @php $iosLink = \App\Models\SiteSetting::get('ios_app_link', '#'); @endphp
                         <a href="{{ $iosLink }}" class="app-btn app-btn-ios" target="_blank">
                             <i class="bi bi-apple"></i>
@@ -577,7 +823,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="col-lg-5 text-center">
+                <div class="col-lg-4 text-center">
                     <img src="{{ asset('images/app-mockup.png') }}"
                          alt="App Mockup"
                          class="app-mockup img-fluid"
@@ -729,7 +975,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Slider caption güncelleme
         @php
             $sliderData = $sliders->map(fn($s) => ['title' => $s->title, 'link' => $s->link])->toArray();
         @endphp
