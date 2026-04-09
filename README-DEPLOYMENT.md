@@ -497,3 +497,5 @@ https://github.com/mevlut0334/aytunfilmai/issues
 güncelleme 
 
 proje dizinindeyken    ./redeploy.sh  kodunu çalıştır
+
+dizinde değilsen sunucuya bağlandıktan sonra   cd /var/www/aytunfilmai && ./redeploy.sh  kodunu çalıştır
