@@ -81,7 +81,7 @@ return [
     'personal_4_text'  => 'You allow sending emails and SMS for campaigns, new features and promotions. You can withdraw this permission at any time.',
     'personal_5_title' => '5. Data Sharing',
     'personal_5_text'  => 'Your data may be shared with third parties in the following cases:',
-    'personal_5_1'     => 'Payment providers (Iyzico, etc.)',
+    'personal_5_1'     => 'Payment providers (paddle, etc.)',
     'personal_5_2'     => 'Cloud service providers (AWS, Google Cloud)',
     'personal_5_3'     => 'Upon request of legal authorities',
     'personal_5_4'     => 'Business partners (analytics, advertising)',

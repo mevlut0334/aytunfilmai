@@ -81,7 +81,7 @@ return [
     'personal_4_text'  => 'Kampanya, yeni özellik ve promosyon bilgileri için e-posta ve SMS gönderilmesine izin veriyorsunuz. Bu izni istediğiniz zaman geri çekebilirsiniz.',
     'personal_5_title' => '5. Veri Paylaşımı',
     'personal_5_text'  => 'Verileriniz aşağıdaki durumlarda üçüncü kişilerle paylaşılabilir:',
-    'personal_5_1'     => 'Ödeme sağlayıcıları (İyzico, vb.)',
+    'personal_5_1'     => 'Ödeme sağlayıcıları (paddle, vb.)',
     'personal_5_2'     => 'Bulut hizmet sağlayıcıları (AWS, Google Cloud)',
     'personal_5_3'     => 'Yasal mercilerin talebi üzerine',
     'personal_5_4'     => 'İş ortakları (analiz, reklam)',
