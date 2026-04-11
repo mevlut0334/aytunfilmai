@@ -64,6 +64,7 @@ return [
     'legal_kvkk'        => 'KVKK',
     'legal_personal'    => 'Personal Data Protection',
     'footer_rights'     => 'All rights reserved.',
+    'legal_contact'  => 'Contact',
 
     // Sticky Bar
     'create_request' => 'Create Film Request',

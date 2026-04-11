@@ -118,4 +118,22 @@ return [
     'terms_8_title' => '8. İletişim',
     'terms_8_text'  => 'Sorularınız için:',
 
+
+
+
+// Contact
+    'contact_title'          => 'İletişim - Aytun Film AI',
+    'contact_heading'        => 'İletişim',
+    'contact_intro'          => 'Bizimle iletişime geçmek için aşağıdaki kanalları kullanabilirsiniz.',
+    'contact_phone'          => 'Telefon',
+    'contact_email'          => 'E-posta',
+    'contact_address'        => 'Adres',
+    'contact_phone_value'    => '+90 531 452 12 53',
+    'contact_email_value'    => 'mevluttuncer0334@gmail.com',
+    'contact_address_detail' => 'Aşağı Eğlence Mahallesi Karlıova Sokak No: 39/8 Keçiören / Ankara',
+    'contact_hours'          => 'Çalışma Saatleri',
+    'contact_hours_detail'   => 'Pazartesi – Cuma: 09:00 – 18:00',
+    'contact_social'         => 'Sosyal Medya & Destek',
+    'contact_whatsapp'       => 'WhatsApp Destek',
+
 ];

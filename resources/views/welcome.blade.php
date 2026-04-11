@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ App::getLocale() }}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +21,11 @@
             --bg-medium: #0A0A0A;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -115,7 +120,9 @@
             height: 550px;
         }
 
-        .carousel-indicators { display: none !important; }
+        .carousel-indicators {
+            display: none !important;
+        }
 
         /* ===================== */
         /* PITCH SECTION         */
@@ -131,7 +138,10 @@
         .pitch-section::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background:
                 radial-gradient(ellipse at 20% 50%, rgba(131, 56, 236, 0.15) 0%, transparent 60%),
                 radial-gradient(ellipse at 80% 50%, rgba(0, 217, 255, 0.1) 0%, transparent 60%);
@@ -141,7 +151,9 @@
         .pitch-section::after {
             content: '🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬🎬';
             position: absolute;
-            top: 0; left: 0; right: 0;
+            top: 0;
+            left: 0;
+            right: 0;
             font-size: 1.5rem;
             letter-spacing: 1.5rem;
             opacity: 0.04;
@@ -385,8 +397,15 @@
             text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
         }
 
-        .step-card h4 { color: white; font-weight: bold; }
-        .step-card p { color: rgba(255,255,255,0.8); font-size: 1rem; }
+        .step-card h4 {
+            color: white;
+            font-weight: bold;
+        }
+
+        .step-card p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+        }
 
         /* Scrolling Images */
         .scrolling-section {
@@ -410,13 +429,26 @@
             cursor: grab;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: thin;
-            scrollbar-color: var(--secondary) rgba(255,255,255,0.1);
+            scrollbar-color: var(--secondary) rgba(255, 255, 255, 0.1);
         }
 
-        .scroll-wrapper::-webkit-scrollbar { height: 8px; }
-        .scroll-wrapper::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        .scroll-wrapper::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 10px; }
-        .scroll-wrapper:active { cursor: grabbing; }
+        .scroll-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .scroll-wrapper::-webkit-scrollbar-thumb {
+            background: var(--secondary);
+            border-radius: 10px;
+        }
+
+        .scroll-wrapper:active {
+            cursor: grabbing;
+        }
 
         .scroll-container {
             display: flex;
@@ -425,7 +457,9 @@
             width: fit-content;
         }
 
-        .scroll-wrapper:hover .scroll-container { animation-play-state: paused; }
+        .scroll-wrapper:hover .scroll-container {
+            animation-play-state: paused;
+        }
 
         .scroll-item {
             flex: 0 0 300px;
@@ -442,19 +476,30 @@
             box-shadow: 0 10px 30px rgba(255, 0, 110, 0.5);
         }
 
-        .scroll-item img { width: 100%; height: 400px; object-fit: cover; }
+        .scroll-item img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+        }
 
         .scroll-overlay {
             position: absolute;
-            bottom: 0; left: 0; right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
             padding: 1.5rem;
             color: white;
         }
 
         @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
         }
 
         /* FAQ */
@@ -474,8 +519,8 @@
         }
 
         .faq-item {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(131,56,236,0.2);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(131, 56, 236, 0.2);
             margin-bottom: 1rem;
             border-radius: 10px;
             overflow: hidden;
@@ -485,12 +530,12 @@
 
         .faq-item:hover {
             border-color: var(--accent);
-            box-shadow: 0 5px 15px rgba(131,56,236,0.2);
+            box-shadow: 0 5px 15px rgba(131, 56, 236, 0.2);
         }
 
         .faq-question {
             padding: 1.25rem 1.5rem;
-            background: rgba(131,56,236,0.1);
+            background: rgba(131, 56, 236, 0.1);
             color: #fff;
             font-weight: bold;
             font-size: 1.1rem;
@@ -499,30 +544,42 @@
             align-items: center;
         }
 
-        .faq-question i { transition: transform 0.3s; color: #fff; }
-        .faq-item.active .faq-question { background: rgba(131,56,236,0.3); }
-        .faq-item.active .faq-question i { transform: rotate(180deg); }
+        .faq-question i {
+            transition: transform 0.3s;
+            color: #fff;
+        }
+
+        .faq-item.active .faq-question {
+            background: rgba(131, 56, 236, 0.3);
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
 
         .faq-answer {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease, padding 0.3s ease;
             padding: 0 1.5rem;
-            background: rgba(0,0,0,0.3);
-            color: rgba(255,255,255,0.9);
+            background: rgba(0, 0, 0, 0.3);
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        .faq-item.active .faq-answer { max-height: 500px; padding: 1.25rem 1.5rem; }
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+            padding: 1.25rem 1.5rem;
+        }
 
         /* Footer */
         .footer {
             background: var(--bg-dark);
-            border-top: 1px solid rgba(0,217,255,0.2);
+            border-top: 1px solid rgba(0, 217, 255, 0.2);
             padding: 3rem 0 5rem;
         }
 
         .footer-links a {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             display: block;
             margin-bottom: 0.75rem;
@@ -530,18 +587,23 @@
             font-size: 0.95rem;
         }
 
-        .footer-links a:hover { color: var(--primary); padding-left: 10px; }
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-left: 10px;
+        }
 
         /* Sticky Footer Bar */
         .sticky-footer-bar {
             position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.95);
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
             backdrop-filter: blur(10px);
             border-top: 2px solid var(--primary);
             padding: 1rem 0;
             z-index: 1000;
-            box-shadow: 0 -5px 20px rgba(0,217,255,0.3);
+            box-shadow: 0 -5px 20px rgba(0, 217, 255, 0.3);
         }
 
         .sticky-footer-bar .btn {
@@ -554,68 +616,146 @@
 
         .btn-create {
             background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
-            border: none; color: white;
+            border: none;
+            color: white;
         }
 
         .btn-create:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255,0,110,0.5);
+            box-shadow: 0 5px 20px rgba(255, 0, 110, 0.5);
             color: white;
         }
 
         .btn-token {
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border: none; color: white;
+            border: none;
+            color: white;
         }
 
         .btn-token:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0,217,255,0.5);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.5);
             color: white;
         }
 
         .btn-whatsapp {
             background: #25D366;
-            border: none; color: white;
+            border: none;
+            color: white;
         }
 
         .btn-whatsapp:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(37,211,102,0.5);
-            background: #20BA5A; color: white;
+            box-shadow: 0 5px 20px rgba(37, 211, 102, 0.5);
+            background: #20BA5A;
+            color: white;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .slider-section { margin-top: 56px; }
-            .carousel-item img { height: 250px; }
-            .carousel-control-prev, .carousel-control-next { height: 250px; }
-            .carousel-caption-box h2 { font-size: 1rem; }
-            .how-it-works h2, .scrolling-section h2, .faq-section h2 { font-size: 2rem; }
-            .app-section h2 { font-size: 1.3rem; }
-            .app-btn { padding: 0.6rem 1rem; font-size: 0.82rem; }
-            .step-card { padding: 1rem; }
-            .step-number { font-size: 2rem; }
-            .scroll-item { flex: 0 0 200px; }
-            .scroll-item img { height: 250px; }
-            .sticky-footer-bar .btn { font-size: 0.75rem; padding: 0.5rem 0.75rem; margin: 0.25rem; }
-            .footer { padding: 2rem 0 5rem; }
+            .slider-section {
+                margin-top: 56px;
+            }
+
+            .carousel-item img {
+                height: 250px;
+            }
+
+            .carousel-control-prev,
+            .carousel-control-next {
+                height: 250px;
+            }
+
+            .carousel-caption-box h2 {
+                font-size: 1rem;
+            }
+
+            .how-it-works h2,
+            .scrolling-section h2,
+            .faq-section h2 {
+                font-size: 2rem;
+            }
+
+            .app-section h2 {
+                font-size: 1.3rem;
+            }
+
+            .app-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.82rem;
+            }
+
+            .step-card {
+                padding: 1rem;
+            }
+
+            .step-number {
+                font-size: 2rem;
+            }
+
+            .scroll-item {
+                flex: 0 0 200px;
+            }
+
+            .scroll-item img {
+                height: 250px;
+            }
+
+            .sticky-footer-bar .btn {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.75rem;
+                margin: 0.25rem;
+            }
+
+            .footer {
+                padding: 2rem 0 5rem;
+            }
+
             /* Pitch responsive */
-            .pitch-hero-title { font-size: 1.9rem; }
-            .pitch-section { padding: 3rem 0 2.5rem; }
-            .pitch-hero-desc { font-size: 0.95rem; }
-            .pitch-pipeline { padding: 0.75rem 1rem; font-size: 0.78rem; }
-            .app-mockup { max-width: 100px; }
+            .pitch-hero-title {
+                font-size: 1.9rem;
+            }
+
+            .pitch-section {
+                padding: 3rem 0 2.5rem;
+            }
+
+            .pitch-hero-desc {
+                font-size: 0.95rem;
+            }
+
+            .pitch-pipeline {
+                padding: 0.75rem 1rem;
+                font-size: 0.78rem;
+            }
+
+            .app-mockup {
+                max-width: 100px;
+            }
         }
 
         @media (max-width: 576px) {
-            .sticky-footer-bar { padding: 0.75rem 0; }
-            .sticky-footer-bar .btn { font-size: 0.7rem; padding: 0.4rem 0.6rem; margin: 0.2rem; }
-            .pitch-hero-title { font-size: 1.55rem; }
-            .pitch-why-title { font-size: 1.25rem; }
+            .sticky-footer-bar {
+                padding: 0.75rem 0;
+            }
+
+            .sticky-footer-bar .btn {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.6rem;
+                margin: 0.2rem;
+            }
+
+            .pitch-hero-title {
+                font-size: 1.55rem;
+            }
+
+            .pitch-why-title {
+                font-size: 1.25rem;
+            }
         }
     </style>
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
@@ -679,32 +819,33 @@
         @php
             $sliders = \App\Models\Slider::active()->ordered()->get();
         @endphp
-        @if($sliders->count() > 0)
-        <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                @foreach($sliders as $index => $slider)
-                    <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                        <img src="{{ asset('storage/' . $slider->image) }}"
-                             class="d-block w-100"
-                             alt="{{ $slider->title }}">
-                    </div>
-                @endforeach
+        @if ($sliders->count() > 0)
+            <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    @foreach ($sliders as $index => $slider)
+                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                            <img src="{{ asset('storage/' . $slider->image) }}" class="d-block w-100"
+                                alt="{{ $slider->title }}">
+                        </div>
+                    @endforeach
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel"
+                    data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel"
+                    data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#mainCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon"></span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#mainCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon"></span>
-            </button>
-        </div>
-        <div class="carousel-caption-box" id="sliderCaption">
-            <h2 id="sliderTitle">{{ $sliders->first()->title }}</h2>
-            @if($sliders->first()->link)
-                <a href="{{ $sliders->first()->link }}" class="btn btn-neon mt-2" id="sliderLink">
-                    {{ __('welcome.slider_more') }} <i class="bi bi-arrow-right"></i>
-                </a>
-            @endif
-        </div>
+            <div class="carousel-caption-box" id="sliderCaption">
+                <h2 id="sliderTitle">{{ $sliders->first()->title }}</h2>
+                @if ($sliders->first()->link)
+                    <a href="{{ $sliders->first()->link }}" class="btn btn-neon mt-2" id="sliderLink">
+                        {{ __('welcome.slider_more') }} <i class="bi bi-arrow-right"></i>
+                    </a>
+                @endif
+            </div>
         @endif
     </section>
 
@@ -824,10 +965,8 @@
                     </div>
                 </div>
                 <div class="col-lg-4 text-center">
-                    <img src="{{ asset('images/app-mockup.png') }}"
-                         alt="App Mockup"
-                         class="app-mockup img-fluid"
-                         onerror="this.style.display='none'">
+                    <img src="{{ asset('images/app-mockup.png') }}" alt="App Mockup" class="app-mockup img-fluid"
+                        onerror="this.style.display='none'">
                 </div>
             </div>
         </div>
@@ -880,16 +1019,20 @@
                         $scrollingImages = \App\Models\ScrollingImage::active()->ordered()->get();
                         $allImages = $scrollingImages->concat($scrollingImages);
                     @endphp
-                    @foreach($allImages as $image)
+                    @foreach ($allImages as $image)
                         <div class="scroll-item">
-                            @if($image->link)
+                            @if ($image->link)
                                 <a href="{{ $image->link }}">
                                     <img src="{{ asset('storage/' . $image->image) }}" alt="{{ $image->title }}">
-                                    <div class="scroll-overlay"><h5>{{ $image->title }}</h5></div>
+                                    <div class="scroll-overlay">
+                                        <h5>{{ $image->title }}</h5>
+                                    </div>
                                 </a>
                             @else
                                 <img src="{{ asset('storage/' . $image->image) }}" alt="{{ $image->title }}">
-                                <div class="scroll-overlay"><h5>{{ $image->title }}</h5></div>
+                                <div class="scroll-overlay">
+                                    <h5>{{ $image->title }}</h5>
+                                </div>
                             @endif
                         </div>
                     @endforeach
@@ -903,7 +1046,7 @@
         <div class="container">
             <h2>{{ __('welcome.faq_title') }}</h2>
             @php $faqs = \App\Models\Faq::active()->ordered()->get(); @endphp
-            @foreach($faqs as $faq)
+            @foreach ($faqs as $faq)
                 <div class="faq-item" onclick="this.classList.toggle('active')">
                     <div class="faq-question">
                         <span>{{ $faq->localized_question }}</span>
@@ -934,7 +1077,24 @@
                             <a href="{{ route('legal.personal-data') }}">
                                 <i class="bi bi-person-lock"></i> {{ __('welcome.legal_personal') }}
                             </a>
+                            <a href="{{ route('legal.contact') }}">
+                                <i class="bi bi-envelope"></i> {{ __('welcome.legal_contact') }}
+                            </a>
                         </div>
+
+                        {{-- Adres & İletişim Bilgileri --}}
+                        <div class="mt-4 d-flex flex-wrap justify-content-center gap-4"
+                            style="font-size:.9rem; color:rgba(255,255,255,.55);">
+                            <span><i class="bi bi-telephone" style="color:#00D9FF"></i> <a href="tel:+905314521253"
+                                    style="color:rgba(255,255,255,.7);text-decoration:none;">+90 531 452 12
+                                    53</a></span>
+                            <span><i class="bi bi-envelope" style="color:#00D9FF"></i> <a
+                                    href="mailto:mevluttuncer0334@gmail.com"
+                                    style="color:rgba(255,255,255,.7);text-decoration:none;">mevluttuncer0334@gmail.com</a></span>
+                            <span><i class="bi bi-geo-alt" style="color:#00D9FF"></i> Aşağı Eğlence Mah. Karlıova Sk.
+                                No:39/8 Keçiören / Ankara</span>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -982,7 +1142,7 @@
 
         const carousel = document.getElementById('mainCarousel');
         if (carousel) {
-            carousel.addEventListener('slid.bs.carousel', function (e) {
+            carousel.addEventListener('slid.bs.carousel', function(e) {
                 const data = sliderData[e.to];
                 document.getElementById('sliderTitle').textContent = data.title || '';
                 const linkEl = document.getElementById('sliderLink');
@@ -994,4 +1154,5 @@
         }
     </script>
 </body>
+
 </html>

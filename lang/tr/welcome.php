@@ -64,6 +64,7 @@ return [
     'legal_kvkk'        => 'KVKK',
     'legal_personal'    => 'Kişisel Verilerin Korunması',
     'footer_rights'     => 'Tüm hakları saklıdır.',
+    'legal_contact'  => 'İletişim',
 
     // Sticky Bar
     'create_request' => 'Film Talebi Oluştur',
