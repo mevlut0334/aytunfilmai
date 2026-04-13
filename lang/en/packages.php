@@ -28,7 +28,7 @@ return [
     'info_1'              => 'Purchased tokens are automatically added to your account.',
     'info_2'              => 'Each film request consumes a certain number of tokens.',
     'info_3'              => 'You can check your token balance on your profile page.',
-    'info_4'              => 'Tokens never expire.',
+    'info_4'              => 'Tokens are renewed during the subscription period.',
     'info_5'              => 'Prices are shown in USD; you pay in your local currency.',
 
     // Payment results

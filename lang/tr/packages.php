@@ -28,7 +28,7 @@ return [
     'info_1'              => 'Satın aldığınız tokenlar hesabınıza otomatik olarak yüklenir.',
     'info_2'              => 'Her film talebi için belirli miktarda token harcanır.',
     'info_3'              => 'Token bakiyenizi profil sayfanızdan kontrol edebilirsiniz.',
-    'info_4'              => 'Tokenlar süresiz olarak hesabınızda kalır.',
+    'info_4'              => 'Tokenlar abonelik  süresinde yenilenir',
     'info_5'              => 'Fiyatlar USD cinsinden gösterilir, ödeme kendi para biriminizde yapılır.',
 
     // Ödeme sonuçları
