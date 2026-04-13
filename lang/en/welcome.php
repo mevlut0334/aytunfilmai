@@ -36,7 +36,7 @@ return [
     'pitch_cta2'       => 'Upload your script. Create your film.',
 
     // App Download
-    'app_title'      => 'Download the App',
+    'app_title'      => 'Coming Soon',   //'Download the App',
     'app_subtitle'   => 'Track your films anytime, anywhere.',
     'android_btn'    => 'Download on Google Play',
     'ios_btn'        => 'Download on App Store',
