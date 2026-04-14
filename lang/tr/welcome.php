@@ -35,11 +35,7 @@ return [
     'pitch_cta1'       => 'Artık film üretmek için büyük ekipler ve pahalı prodüksiyonlar gerekmiyor.',
     'pitch_cta2'       => 'Senaryonu yükle. Filmini oluştur.',
 
-    // App Download
-    'app_title'      => 'Uygulamayı İndir',
-    'app_subtitle'   => 'Filminizi her zaman, her yerden takip edin.',
-    'android_btn'    => 'Google Play\'den İndir',
-    'ios_btn'        => 'App Store\'dan İndir',
+
 
     // How It Works
     'how_title'      => 'Nasıl Çalışır?',

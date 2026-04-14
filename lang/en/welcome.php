@@ -35,11 +35,7 @@ return [
     'pitch_cta1'       => 'No more large teams or expensive productions needed.',
     'pitch_cta2'       => 'Upload your script. Create your film.',
 
-    // App Download
-    'app_title'      => 'Download the App',
-    'app_subtitle'   => 'Track your films anytime, anywhere.',
-    'android_btn'    => 'Download on Google Play',
-    'ios_btn'        => 'Download on App Store',
+
 
     // How It Works
     'how_title'      => 'How Does It Work?',

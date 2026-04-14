@@ -134,7 +134,6 @@
             overflow: hidden;
         }
 
-        /* Film şeridi dekoratif arka plan */
         .pitch-section::before {
             content: '';
             position: absolute;
@@ -278,84 +277,6 @@
             color: var(--primary);
             font-style: normal;
             font-weight: 700;
-        }
-
-        /* ===================== */
-        /* APP SECTION (küçük)   */
-        /* ===================== */
-        .app-section {
-            padding: 2rem 0;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%);
-            border-top: 1px solid rgba(131, 56, 236, 0.3);
-            border-bottom: 1px solid rgba(131, 56, 236, 0.3);
-        }
-
-        .app-section h2 {
-            font-size: 1.6rem;
-            font-weight: bold;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.4rem;
-        }
-
-        .app-section p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.95rem;
-            margin-bottom: 1.25rem;
-        }
-
-        .app-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.6rem;
-            padding: 0.65rem 1.25rem;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 0.88rem;
-            text-decoration: none;
-            transition: all 0.3s;
-            border: 2px solid;
-        }
-
-        .app-btn-android {
-            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
-            border-color: #25D366;
-            color: white;
-        }
-
-        .app-btn-android:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
-            color: white;
-        }
-
-        .app-btn-ios {
-            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
-            border-color: var(--primary);
-            color: white;
-        }
-
-        .app-btn-ios:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 217, 255, 0.4);
-            color: white;
-        }
-
-        .app-btn i {
-            font-size: 1.4rem;
-        }
-
-        .app-btn-text small {
-            display: block;
-            font-size: 0.65rem;
-            font-weight: normal;
-            opacity: 0.7;
-        }
-
-        .app-mockup {
-            max-width: 160px;
-            filter: drop-shadow(0 0 20px rgba(0, 217, 255, 0.3));
         }
 
         /* How It Works */
@@ -676,15 +597,6 @@
                 font-size: 2rem;
             }
 
-            .app-section h2 {
-                font-size: 1.3rem;
-            }
-
-            .app-btn {
-                padding: 0.6rem 1rem;
-                font-size: 0.82rem;
-            }
-
             .step-card {
                 padding: 1rem;
             }
@@ -727,10 +639,6 @@
             .pitch-pipeline {
                 padding: 0.75rem 1rem;
                 font-size: 0.78rem;
-            }
-
-            .app-mockup {
-                max-width: 100px;
             }
         }
 
@@ -935,40 +843,6 @@
                 <strong>{{ __('welcome.pitch_cta2') }}</strong>
             </p>
 
-        </div>
-    </section>
-
-    <!-- App Download Section -->
-    <section class="app-section">
-        <div class="container">
-            <div class="row align-items-center g-3">
-                <div class="col-lg-8">
-                    <h2>{{ __('welcome.app_title') }}</h2>
-                    <p>{{ __('welcome.app_subtitle') }}</p>
-                    <div class="d-flex flex-wrap gap-3">
-                        @php $androidLink = \App\Models\SiteSetting::get('android_app_link', '#'); @endphp
-                        <a href="{{ $androidLink }}" class="app-btn app-btn-android" target="_blank">
-                            <i class="bi bi-google-play"></i>
-                            <div class="app-btn-text">
-                                <small>{{ __('welcome.android_btn') }}</small>
-                                <strong>Google Play</strong>
-                            </div>
-                        </a>
-                        @php $iosLink = \App\Models\SiteSetting::get('ios_app_link', '#'); @endphp
-                        <a href="{{ $iosLink }}" class="app-btn app-btn-ios" target="_blank">
-                            <i class="bi bi-apple"></i>
-                            <div class="app-btn-text">
-                                <small>{{ __('welcome.ios_btn') }}</small>
-                                <strong>App Store</strong>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-center">
-                    <img src="{{ asset('images/app-mockup.png') }}" alt="App Mockup" class="app-mockup img-fluid"
-                        onerror="this.style.display='none'">
-                </div>
-            </div>
         </div>
     </section>
 
