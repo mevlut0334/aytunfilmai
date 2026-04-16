@@ -311,9 +311,7 @@
                 </div>
 
                 <div class="d-flex flex-wrap justify-content-center gap-2">
-                    <a href="{{ route('user.edit') }}" class="btn btn-primary-custom">
-                        <i class="bi bi-pencil"></i> {{ __('user.edit_profile') }}
-                    </a>
+
                     <a href="{{ route('requests.create') }}" class="btn btn-success-custom">
                         <i class="bi bi-plus-circle"></i> {{ __('user.new_request') }}
                     </a>

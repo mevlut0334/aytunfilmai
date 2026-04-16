@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,7 +42,7 @@
             padding: 1.5rem 1rem;
             font-size: 1.3rem;
             font-weight: bold;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             text-decoration: none;
             color: white;
             display: block;
@@ -57,7 +58,7 @@
 
         .sidebar-menu-item {
             padding: 0.75rem 1.5rem;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -66,13 +67,13 @@
         }
 
         .sidebar-menu-item:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             border-left-color: #60a5fa;
         }
 
         .sidebar-menu-item.active {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             border-left-color: #60a5fa;
         }
@@ -142,13 +143,14 @@
         }
 
         .sidebar::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.3);
             border-radius: 3px;
         }
     </style>
 
     @stack('styles')
 </head>
+
 <body>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
@@ -158,55 +160,63 @@
 
         <nav class="sidebar-menu">
             <!-- Dashboard -->
-            <a href="{{ route('admin.dashboard') }}" class="sidebar-menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('admin.dashboard') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <i class="bi bi-speedometer2"></i>
                 <span>Dashboard</span>
             </a>
 
             <!-- Talepler -->
-            <a href="{{ route('admin.requests.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.requests.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.requests.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.requests.*') ? 'active' : '' }}">
                 <i class="bi bi-film"></i>
                 <span>Talepler</span>
                 @php
                     $pendingCount = \App\Models\Request::pending()->count();
                 @endphp
-                @if($pendingCount > 0)
+                @if ($pendingCount > 0)
                     <span class="badge bg-danger rounded-pill">{{ $pendingCount }}</span>
                 @endif
             </a>
 
             <!-- Kullanıcılar -->
-            <a href="{{ route('admin.users.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.users.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <i class="bi bi-people"></i>
                 <span>Kullanıcılar</span>
             </a>
 
             <!-- Admin Kullanıcılar -->
-            <a href="{{ route('admin.admins.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.admins.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.admins.*') ? 'active' : '' }}">
                 <i class="bi bi-person-badge"></i>
                 <span>Admin Kullanıcılar</span>
             </a>
 
             <!-- Paketler -->
-            <a href="{{ route('admin.packages.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.packages.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.packages.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.packages.*') ? 'active' : '' }}">
                 <i class="bi bi-box-seam"></i>
                 <span>Paketler</span>
             </a>
 
             <!-- İndirim Kuponları -->
-            <a href="{{ route('admin.coupons.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.coupons.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
                 <i class="bi bi-ticket-perforated"></i>
                 <span>İndirim Kuponları</span>
             </a>
 
             <!-- Siparişler -->
-            <a href="{{ route('admin.orders.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.orders.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                 <i class="bi bi-cart-check"></i>
                 <span>Siparişler</span>
             </a>
 
             <!-- İstatistikler -->
-            <a href="{{ route('admin.statistics.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.statistics.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.statistics.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.statistics.*') ? 'active' : '' }}">
                 <i class="bi bi-graph-up"></i>
                 <span>İstatistikler</span>
             </a>
@@ -214,13 +224,15 @@
             <hr style="border-color: rgba(255,255,255,0.1); margin: 1rem 0;">
 
             <!-- Makale Kategorileri -->
-            <a href="{{ route('admin.article-categories.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.article-categories.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.article-categories.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.article-categories.*') ? 'active' : '' }}">
                 <i class="bi bi-folder"></i>
                 <span>Makale Kategorileri</span>
             </a>
 
             <!-- Makaleler -->
-            <a href="{{ route('admin.articles.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.articles.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.articles.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.articles.*') ? 'active' : '' }}">
                 <i class="bi bi-newspaper"></i>
                 <span>Makaleler</span>
             </a>
@@ -228,9 +240,17 @@
             <hr style="border-color: rgba(255,255,255,0.1); margin: 1rem 0;">
 
             <!-- Ana Sayfa Yönetimi -->
-            <a href="{{ route('admin.home.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.home.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.home.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.home.*') ? 'active' : '' }}">
                 <i class="bi bi-house-door"></i>
                 <span>Ana Sayfa Yönetimi</span>
+            </a>
+
+            <!-- Mobil Slider -->
+            <a href="{{ route('admin.mobile-sliders.index') }}"
+                class="sidebar-menu-item {{ request()->routeIs('admin.mobile-sliders.*') ? 'active' : '' }}">
+                <i class="bi bi-phone"></i>
+                <span>Mobil Slider</span>
             </a>
 
             <!-- Siteye Dön -->
@@ -266,7 +286,7 @@
         </nav>
 
         <!-- Flash Mesajlar -->
-        @if(session('success'))
+        @if (session('success'))
             <div class="px-4 pt-3">
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <i class="bi bi-check-circle"></i> {{ session('success') }}
@@ -275,7 +295,7 @@
             </div>
         @endif
 
-        @if(session('error'))
+        @if (session('error'))
             <div class="px-4 pt-3">
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="bi bi-exclamation-triangle"></i> {{ session('error') }}
@@ -314,4 +334,5 @@
 
     @stack('scripts')
 </body>
+
 </html>

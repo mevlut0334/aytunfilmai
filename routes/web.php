@@ -181,6 +181,15 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     Route::get('/orders/{orderId}', [\App\Http\Controllers\Admin\AdminOrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{orderId}/approve', [\App\Http\Controllers\Admin\AdminOrderController::class, 'approve'])->name('orders.approve');
 
+
+    // Mobil Slider Yönetimi
+    Route::get('/mobile-sliders', [\App\Http\Controllers\Admin\AdminMobileSliderController::class, 'index'])->name('mobile-sliders.index');
+    Route::get('/mobile-sliders/create', [\App\Http\Controllers\Admin\AdminMobileSliderController::class, 'create'])->name('mobile-sliders.create');
+    Route::post('/mobile-sliders', [\App\Http\Controllers\Admin\AdminMobileSliderController::class, 'store'])->name('mobile-sliders.store');
+    Route::get('/mobile-sliders/{id}/edit', [\App\Http\Controllers\Admin\AdminMobileSliderController::class, 'edit'])->name('mobile-sliders.edit');
+    Route::put('/mobile-sliders/{id}', [\App\Http\Controllers\Admin\AdminMobileSliderController::class, 'update'])->name('mobile-sliders.update');
+    Route::delete('/mobile-sliders/{id}', [\App\Http\Controllers\Admin\AdminMobileSliderController::class, 'destroy'])->name('mobile-sliders.destroy');
+
     // İstatistikler
     Route::get('/statistics', [\App\Http\Controllers\Admin\AdminStatisticsController::class, 'index'])->name('statistics.index');
 });
